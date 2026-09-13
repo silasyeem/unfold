@@ -17,7 +17,6 @@
     <div class="header-actions">
       <button class="button demo-button" type="button" data-knarrevik-demo disabled>KNARREVIK demo</button>
       <a class="button" href="/screws.html">Screw lab</a>
-      <a class="button" href="/scan.html">Scan KNARREVIK parts</a>
       <a class="example-link" href="/">Try an example <span aria-hidden="true">↗</span></a>
       <button class="button change-manual" id="change-manual">Change manual</button>
       <details class="guide-menu">
@@ -68,6 +67,11 @@
       <p class="conversion-note">Your manual is sent to OpenAI to interpret the diagrams. You can review the parts and steps afterward.</p>
     </section>
 
+    <section class="guide-scan" id="guide-scan" aria-labelledby="guide-scan-heading" hidden>
+      <div><span class="eyebrow">GUIDE READY · NEXT, CHECK YOUR PARTS</span><h2 id="guide-scan-heading">Meet your KNARREVIK parts.</h2><p>Scan a photo against the manual’s checklist, then follow your assembly guide.</p></div>
+      <button class="button primary" id="open-parts-scan" disabled>Scan my parts →</button>
+    </section>
+
     <main class="workspace">
       <nav class="steps-panel" aria-label="Assembly steps">
         <div class="panel-heading"><h2>Assembly guide</h2><span class="small" id="step-count">—</span></div>
@@ -98,6 +102,10 @@
   </div>
 
   <div id="photo-intake"></div>
+  <dialog id="parts-scan-dialog" aria-labelledby="parts-scan-heading">
+    <div class="parts-scan-toolbar"><strong id="parts-scan-heading">Guide ready → Check parts → Assemble</strong><button class="button" id="close-parts-scan" autofocus>Back to assembly guide →</button></div>
+    <div id="parts-scan-content"></div>
+  </dialog>
   <dialog id="review-dialog"><form id="review-form"><div class="dialog-top"><strong>Review step</strong><button class="icon-button" type="button" id="review-close" aria-label="Close review">×</button></div><label>Title<input id="review-title" maxlength="1500" required></label><label>Instruction<textarea id="review-instruction" rows="5" maxlength="1500" required></textarea></label><label>Source manual page<input id="review-page" type="number" min="1" required></label><label>Working orientation<select id="review-orientation"><option value="upright">Upright</option><option value="upside_down">Upside down</option><option value="on_back">On its back</option><option value="on_left">On its left side</option><option value="on_right">On its right side</option></select></label><p>Review the diagram before marking this step checked. Geometry remains approximate.</p><button class="button primary full-width" type="submit">Save and mark checked</button></form></dialog>
   <dialog id="page-dialog"><form method="dialog" class="dialog-top"><strong>Original diagram</strong><button class="icon-button" aria-label="Close diagram">×</button></form><img id="large-page" alt="Enlarged source diagram"></dialog>
   <script type="module" src="/engine-app.js"></script>

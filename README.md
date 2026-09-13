@@ -1,6 +1,6 @@
 # Unfold
 
-The KNARREVIK parts scanner is available at `/scan.html`: select a JPEG, PNG, or HEIC photo, review suggested matches and counts, and inspect parts in 3D. Phone photos are compressed automatically before upload. See [scanner behavior and validation](docs/KNARREVIK-SCAN.md).
+Create or open the KNARREVIK guide in `/engine.html`, then choose **Scan my parts** before assembly. The scanner opens over the guide: select a JPEG, PNG, or HEIC photo, review suggested matches and counts, and inspect parts in 3D. **Back to assembly guide** returns to the same step and linked manual. Phone photos are compressed automatically before upload. See [scanner behavior and validation](docs/KNARREVIK-SCAN.md).
 
 Find a manual online or upload a PDF or photos to create a reviewable 3D draft: named parts, animated assembly steps, working orientations, guided cameras, and the original diagram beside each step. The prepared 16-step STRANDMON demo remains at `/`; the conversion workspace is `/engine.html`.
 
@@ -22,7 +22,7 @@ The render checker requires Chromium, installed by `npm run render-browser`, and
 
 Start with **Search for your manual online** or **Upload your manual**. An upload accepts one unlocked PDF or multiple JPEG/PNG pages. Check the source preview, then select **Create animated guide**. Conversion supports up to **8 MB, 40 pages, and 32 assembly steps**. It can take several minutes. Progress and cancellation remain available while the manual is processed.
 
-Choose **KNARREVIK demo** in the header or side panel to open the saved Astra-generated guide and its matching original PDF immediately, without an API call. It contains four legs, two solid trays, sixteen screws and an Allen key across six steps. This is a demonstration draft: its final visual review was stopped, and final tightening animates six representative joints while the manual requires all sixteen screws to be tightened.
+Choose **KNARREVIK demo** in the header or side panel to open the saved Astra-generated guide and its matching original PDF immediately, without an API call. Once it opens, **Scan my parts** is the next step. It contains four legs, two solid trays, sixteen screws and an Allen key across six steps. This is a demonstration draft: its final visual review was stopped, and final tightening animates six representative joints while the manual requires all sixteen screws to be tightened.
 
 For a smaller authored example, open `examples/mini-table.unfold.json` using **Open a saved guide** in the **•••** menu, then choose **Change manual → Upload your manual** and upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
 

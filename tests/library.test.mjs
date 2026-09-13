@@ -144,3 +144,19 @@ test('saved search matches product word prefixes without confusing LACK with bla
  await store.update(data=>{data.records.push({...candidate,id:'a'.repeat(24),title:'LACK side table',product:'LACK side table white',modelNumber:'',discoveredAt:'2026-09-13'}, {...candidate,id:'b'.repeat(24),title:'KNARREVIK bedside table',product:'KNARREVIK bedside table black',modelNumber:'',discoveredAt:'2026-09-13'});});
  for(const query of ['LACK table','lac tab']){const result=await (await handleLibrary(get(query),{libraryStore:store})).json();assert.equal(result.records.length,1);assert.equal(result.records[0].id,'a'.repeat(24));}
 });
+
+test('hosted manual search offers a working saved-demo path instead of a scanner dead end',async()=>{
+ const {default:worker}=await import('../server/scan-worker.mjs');
+ const old={document:globalThis.document,fetch:globalThis.fetch};
+ const {document,Event}=parseHTML('<html><body><div id="mount"></div></body></html>');globalThis.document=document;
+ globalThis.fetch=url=>worker.fetch(new Request('https://unfold.example'+url),{});
+ let controller,opened=0,busy=false;
+ try{
+  controller=mountManualLibrary(document.querySelector('#mount'),{onBusy:value=>{busy=value;},onDemo:()=>{assert.equal(busy,false);opened++;}});
+  const dialog=document.querySelector('dialog');dialog.showModal=()=>dialog.setAttribute('open','');dialog.close=()=>{dialog.removeAttribute('open');dialog.dispatchEvent(new Event('close'));};
+  controller.open();await new Promise(resolve=>setTimeout(resolve,0));
+  assert.match(document.querySelector('.library-status').textContent,/saved guide, then scan your parts/);
+  const demo=document.querySelector('.library-demo');assert.equal(demo.hidden,false);assert.equal(demo.disabled,false);
+  demo.click();assert.equal(opened,1);assert.equal(dialog.hasAttribute('open'),false);
+ }finally{controller?.destroy();globalThis.document=old.document;globalThis.fetch=old.fetch;}
+});

@@ -3,6 +3,12 @@ import {CATEGORIES,validateScan,summarizeDetections,checklistStatus} from './sca
 import {prepareScanPhoto} from './scan-image.js';
 
 const $=s=>document.querySelector(s);
+const embedded=new URLSearchParams(location.search).get('embedded')==='1'&&window.self!==window.top;
+if(embedded){
+  document.body.classList.add('scan-embedded');
+  $('.scan-intro .eyebrow').textContent='GUIDE READY · CHECK YOUR PARTS';
+  $('.scan-intro h1 + p').textContent='Your guide is ready. Lay out your parts and check them before assembly.';
+}
 const node=(tag,text,className)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;};
 let photo=null,photoUrl=null,result=null,detections=[],reviews={},request=null,selection=null,sequence=0,preparing=false,viewer=null,disposed=false,available=false;
 function status(text,error=false){$('#scan-status').textContent=text;$('#scan-status').classList.toggle('error',error);$('#scan-status').classList.toggle('busy',!!request);}
@@ -41,7 +47,7 @@ function inventory(){
     }else item.append(node('p','Waiting for a clear parts photo.','inventory-detail'));
     if(row.id==='screw'){
       const link=node('a','Missing a screw? Explore a prototype STL ↗','missing-screw-link');
-      link.href='/screws.html?source=knarrevik';item.append(link);
+      link.href='/screws.html?source=knarrevik';if(embedded){link.target='_blank';link.rel='noopener';}item.append(link);
     }
     container.append(item);
   }

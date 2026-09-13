@@ -2,15 +2,18 @@ import {createGeneratedViewer} from './generated-viewer.js';
 import {assertGuide} from './guide-schema.js';
 import {mountPhotoIntake} from './photo-intake.js';
 import {mountManualLibrary} from './manual-library.js';
+import {mountGuideScanner} from './guide-scanner.js';
 const $=s=>document.querySelector(s);
 const labels={upside_down:'Upside down',upright:'Upright',on_back:'On its back',on_left:'On its left side',on_right:'On its right side'};
 let photoIntake,manualLibrary,conversionBusy=false,choosingManual=false;const intakeBusy={photos:false,library:false,manual:false,demo:false};let demoController=null;
 let viewer,output=null,pdf=null,file=null,pdfHash=null,index=-1,progress=0,playing=false,speed=1,exploded=false,page=1,linked=true,renderId=0,renderTask=null,uploadId=0,conversion=null,last=performance.now(),reviewed=new Set();
+const guideScanner=mountGuideScanner({onOpen:()=>{playing=false;syncPlay();}});
 try{viewer=createGeneratedViewer($('#generated-scene'),label=>$('#view-label').textContent=label);}catch{$('#empty-scene h2').textContent='3D is unavailable';$('#empty-scene p').textContent='Use a WebGL-capable browser to view generated parts. PDF conversion is still available.';}
 function status(message,{busy=false,error=false}={}){$('#conversion-status').textContent=message;$('.conversion-bar').classList.toggle('busy',busy);$('.conversion-bar').classList.toggle('error',error);}
 function syncPlay(){$('#play').textContent=playing?'Ⅱ':'▶';$('#play').setAttribute('aria-label',playing?'Pause step':'Play step');}
-function syncFlow(){document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';}
-function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.disabled=busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);}
+function syncScanner(){guideScanner.sync(output,{busy:conversionBusy||Object.values(intakeBusy).some(Boolean),choosingManual});}
+function syncFlow(){syncScanner();document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';}
+function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.disabled=busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);syncScanner();}
 function setBusy(value){conversionBusy=value;syncBusy();syncFlow();}
 async function showPage(value){
  if(!pdf)return;page=Math.max(1,Math.min(pdf.numPages,value));const serial=++renderId;renderTask?.cancel();$('#pdf-canvas').hidden=true;$('#enlarge').disabled=true;$('#manual-empty').hidden=false;$('#manual-empty').textContent='Loading source page…';
@@ -53,7 +56,7 @@ async function pickPdf(selected,{productName,preparedGuide}={}){
   const digest=await crypto.subtle.digest('SHA-256',bytes);const hash=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
   if(preparedGuide){assertGuide(preparedGuide.guide,candidate.numPages);if(preparedGuide.provenance?.sha256!==hash)throw new Error('The demo guide and manual do not match. Your current guide is unchanged.');}
   if(serial!==uploadId){candidate.destroy();return;}renderId++;renderTask?.cancel();await pdf?.destroy();if(serial!==uploadId){candidate.destroy();return;}pdf=candidate;file=selected;pdfHash=hash;
-  if(preparedGuide){loadGuide(preparedGuide);status('KNARREVIK demo ready. Explore the parts or start the assembly.');}
+  if(preparedGuide){loadGuide(preparedGuide);status('KNARREVIK guide ready. Scan your parts, then follow the assembly steps.');}
   else if(output&&output.provenance?.sha256===hash){linked=true;showPage(index>=0?output.guide.steps[index].sourcePage:1);status('Original PDF linked to this generated guide.');}
   else{output=null;playing=false;index=-1;progress=0;$('#instruction-step').textContent='READY WHEN YOU ARE';$('#instruction-title').textContent='Your assembly, one step at a time.';$('#instruction-text').textContent='Generate a guide from this PDF to see its assembly instructions.';$('#source-page').textContent='';$('#orientation-label').textContent='Drag to rotate · scroll to zoom';$('#duration-label').textContent='';$('#time-label').textContent='Overview';$('#step-count').textContent='—';$('#review-state').textContent='';$('#empty-scene').hidden=false;$('#empty-scene h2').textContent='Ready to unfold.';$('#empty-scene p').textContent='Generate a draft from this manual, then review its parts and steps.';$('#step-list').replaceChildren();$('#active-parts').replaceChildren();$('#parts-list').replaceChildren();$('#review-notes').replaceChildren();$('#parts-summary').textContent='Parts inventory';$('#product-name').textContent='Your manual is ready';$('#document-label').textContent='YOUR MANUAL';$('#guide-meta').textContent='Source-linked · Interactive 3D';for(const selector of ['#export','#play','#speed','#step-view','#whole-view','#exploded','#prev','#next','#progress','#edit-step'])$(selector).disabled=true;linked=false;showPage(1);status('Check the pages are complete and in order, then create your animated guide.');}
   if(productName&&!output)$('#product-name').textContent=productName;
@@ -116,12 +119,12 @@ $('#review-form').onsubmit=e=>{e.preventDefault();const next=structuredClone(out
 document.addEventListener('click',event=>{if(!event.target.closest('.guide-menu'))$('.guide-menu').open=false;});
 document.addEventListener('keydown',e=>{if(!output||document.body.dataset.state!=='guide'||document.querySelector('dialog[open]')||e.target.closest('input,textarea,select,button,a,summary'))return;if(e.code==='Space'){e.preventDefault();$('#play').click();}if(e.code==='ArrowRight'){e.preventDefault();$('#next').click();}if(e.code==='ArrowLeft'){e.preventDefault();$('#prev').click();}});
 let animation;function tick(now){const delta=Math.min((now-last)/1000,.1);last=now;if(playing&&output&&index>=0){progress=Math.min(1,progress+delta*speed/output.guide.steps[index].duration);viewer?.setState(index,progress);if(progress>=1){playing=false;syncPlay();}}$('#progress').value=Math.round(progress*1000);animation=requestAnimationFrame(tick);}animation=requestAnimationFrame(tick);
-addEventListener('pagehide',()=>{conversion?.abort();demoController?.abort();cancelAnimationFrame(animation);viewer?.dispose();photoIntake?.destroy();manualLibrary?.destroy();pdf?.destroy();},{once:true});
+addEventListener('pagehide',()=>{conversion?.abort();demoController?.abort();cancelAnimationFrame(animation);viewer?.dispose();guideScanner.destroy();photoIntake?.destroy();manualLibrary?.destroy();pdf?.destroy();},{once:true});
 fetch('/api/health').then(r=>r.json()).then(r=>{if(!r.conversionAvailable)status('Conversion is not configured on this server. You can still open a saved guide.',{error:true});}).catch(()=>status('Open this page through the Unfold server to generate guides. Saved guides can still be opened.',{error:true}));
 
 // Enable intake only after its handlers are registered.
 const intakeError=error=>status(error?.message||String(error),{error:true});
 const acceptPreparedPdf=async(file,metadata)=>{if(!await pickPdf(file,metadata))throw new Error($('#conversion-status').textContent);};
 photoIntake=mountPhotoIntake($('#photo-intake'),{onPdfReady:acceptPreparedPdf,onError:intakeError,showLauncher:false,onBusy:value=>{intakeBusy.photos=value;syncBusy();}});
-manualLibrary=mountManualLibrary($('#manual-library'),{onPdfReady:acceptPreparedPdf,onError:intakeError,onBusy:value=>{intakeBusy.library=value;syncBusy();}});
+manualLibrary=mountManualLibrary($('#manual-library'),{onDemo:loadKnarrevikDemo,onPdfReady:acceptPreparedPdf,onError:intakeError,onBusy:value=>{intakeBusy.library=value;syncBusy();}});
 syncBusy();syncFlow();

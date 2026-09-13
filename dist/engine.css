@@ -207,3 +207,21 @@ body.engine{height:100dvh;min-width:320px;display:flex;flex-direction:column;ove
 .engine .demo-button{font-size:14px;padding:9px 12px}
 .engine .sidebar-demo{font-size:14px;margin-bottom:12px;text-align:left}
 @media(max-width:640px){.engine .topbar{flex-wrap:wrap}.engine .header-actions{flex:1}.engine .demo-button{padding:8px 10px}}
+
+.engine .guide-scan{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 30px;background:#f0f4ff;border-bottom:1px solid #dce4fa;flex-shrink:0}
+.engine .guide-scan .eyebrow{font-size:10px;letter-spacing:1.4px;color:#526bba}
+.engine .guide-scan h2{font-size:20px;font-weight:550;letter-spacing:-.4px;margin:7px 0}
+.engine .guide-scan p{font-size:13px;line-height:1.6;color:#65748e}
+.engine .guide-scan .button{flex-shrink:0}
+.engine #parts-scan-dialog{width:min(1440px,calc(100vw - 32px));height:calc(100dvh - 32px);max-height:calc(100dvh - 32px);padding:0;overflow:hidden}
+.engine #parts-scan-dialog[open]{display:flex;flex-direction:column}
+.engine .parts-scan-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 24px;border-bottom:1px solid var(--line);flex-shrink:0}
+.engine .parts-scan-toolbar strong{font-size:13px;font-weight:550;color:#65748e}
+.engine #parts-scan-content{flex:1;min-height:0}
+.engine #parts-scan-content iframe{display:block;width:100%;height:100%;border:0}
+@media(max-width:640px){
+ .engine .guide-scan{padding:20px 18px;align-items:flex-start;flex-direction:column;gap:16px}
+ .engine #parts-scan-dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border:0;border-radius:0}
+ .engine .parts-scan-toolbar{padding:13px 18px;flex-wrap:wrap;gap:10px}
+ .engine .parts-scan-toolbar .button{font-size:12px}
+}

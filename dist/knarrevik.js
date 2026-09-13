@@ -3,6 +3,7 @@ export const KNARREVIK = Object.freeze({
   productUrl: 'https://www.ikea.com/sg/en/p/knarrevik-bedside-table-black-80576319/',
   manualUrl: 'https://www.ikea.com/sg/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf',
   revision: 'AA-2547698-1',
+  manualSha256: '53a0acadcb500a9ac274651f88599b9eb3b046bb6252025c211a3b618c0cdc8c',
   parts: [
     {id:'tray', name:'Metal trays', expected:2, code:'', page:7, exampleId:'tray-bottom', description:'Two solid rectangular trays with folded edges. The edges are integral, not separate rails.', use:'One tray forms the lower shelf (steps 1–3); the other forms the top (steps 4–5). A single photo may not distinguish them.'},
     {id:'leg', name:'Angle legs', expected:4, code:'', page:9, exampleId:'leg-1', description:'Four separate long metal angle sections with screw holes. Not two preassembled side frames.', use:'Each leg attaches to both trays. Steps 1–3 attach the lower tray; steps 4–5 secure the top.'},
