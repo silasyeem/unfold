@@ -87,6 +87,20 @@ test('large-part placement retains source step focus and orientation-only stages
 
 const knarrevik=async()=>JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8')).guide;
 
+test('every KNARREVIK screw and Allen key tightens clockwise as seen from its outward-facing head',async()=>withViewer(async h=>{
+ const guide=await knarrevik();h.viewer.load(guide);let checked=0;
+ for(const [index,step] of guide.steps.entries())for(const action of step.actions.filter(a=>a.kind==='tighten')){
+  const sample=f=>{h.viewer.setState(index,action.start+(action.end-action.start)*f);h.draw();const mesh=h.scene.getObjectByName(action.partId),rotation=mesh.getWorldQuaternion(new T.Quaternion());return{arm:new T.Vector3(1,0,0).applyQuaternion(rotation),outward:new T.Vector3(0,1,0).applyQuaternion(rotation),tip:mesh.getWorldPosition(new T.Vector3())};};
+  // These screw heads open toward local +Y; the key extends from its seated tip
+  // toward local +Y. Cross products measure direction from that head-side view,
+  // including parent rotations and every manual working pose.
+  const before=sample(.2),after=sample(.25);
+  assert(before.arm.clone().cross(after.arm).dot(before.outward)<-.01,`Step ${index+1} ${action.partId} must turn clockwise from the screw-head side.`);
+  near(before.tip,after.tip,'Tightening must keep the working tip seated.');checked++;
+ }
+ assert.equal(checked,28);
+}));
+
 test('Step view zooms in while paused, pulls back after the final action, and zooms in again on replay',async()=>withViewer(h=>{
  h.viewer.load(jointGuide());h.draw();const whole=h.camera.position.clone();
  h.viewer.setState(0,0);h.viewer.guide();h.draw();near(h.camera.position,whole,'The automatic close-up begins smoothly.');

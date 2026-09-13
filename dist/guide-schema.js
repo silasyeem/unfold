@@ -16,7 +16,7 @@ export const guideSchema=object({
   title:string,instruction:string,sourcePage:{type:'integer',minimum:1,maximum:40},duration:{type:'number',minimum:3,maximum:30},
   orientation:{type:'string',enum:['upright','on_back','on_front','on_left','on_right','upside_down']},focus:vector,cameraDirection:vector,cameraUp:vector,cameraDistance:{type:'number',minimum:0.15,maximum:10},
   reviewNotes:list(string,8),
-  actions:list(object({partId:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,60}$'},kind:{type:'string',enum:['place','insert','rotate','tighten','remove']},fromPosition:vector,toPosition:vector,fromRotation:vector,toRotation:vector,axis:vector,turns:{type:'integer',minimum:-8,maximum:8},start:{type:'number',minimum:0,maximum:1},end:{type:'number',minimum:0,maximum:1}}),24)
+  actions:list(object({partId:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,60}$'},kind:{type:'string',enum:['place','insert','rotate','tighten','remove']},fromPosition:vector,toPosition:vector,fromRotation:vector,toRotation:vector,axis:{...vector,description:'Signed rotation axis in part-local coordinates; the spin follows the right-hand rule after the part rotation.'},turns:{type:'integer',minimum:-8,maximum:8,description:'Signed full revolutions. Positive is counterclockwise viewed from the positive axis side toward the origin. Right-hand tightening is clockwise from the screw-head side: negative for an outward axis, positive for an inward axis.'},start:{type:'number',minimum:0,maximum:1},end:{type:'number',minimum:0,maximum:1}}),24)
  }),32),minItems:1}
 });
 
