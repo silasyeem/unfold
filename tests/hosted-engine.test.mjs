@@ -2,6 +2,34 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorkerLibraryStore,canonicalSource} from '../server/library-worker-store.mjs';
 import {handleEngineSocket} from '../server/engine-socket.mjs';
+import {handleLibrary} from '../server/library.mjs';
+
+test('hosted library search sorts the undated demo alongside saved manuals without crashing',async()=>{
+ let value=null;
+ const bucket={async get(){return value?{etag:'1',size:value.length,json:async()=>JSON.parse(value)}:null;},async put(_key,body){value=body;return{etag:'1'};}};
+ const store=createWorkerLibraryStore({BUCKET:bucket});
+ await store.update(data=>{data.records.push({...data.records[0],id:'a'.repeat(24),product:'KNARREVIK newer manual',discoveredAt:'2026-09-13T12:00:00Z'});});
+ const before=value;
+ for(const query of ['', 'KNARREVIK']){
+  const response=await handleLibrary(new Request('https://unfold.example/api/library?q='+query),{libraryStore:createWorkerLibraryStore({BUCKET:bucket})});
+  assert.equal(response.status,200);const result=await response.json();assert.equal(result.records.length,2);
+  assert.equal(result.records[0].id,'a'.repeat(24));assert.equal(result.records[1].discoveredAt,undefined);
+ }
+ assert.equal(value,before,'Reading older entries does not rewrite or erase the stored library.');
+});
+
+test('saved-manual ordering tolerates invalid dates and absent cache flags, preserving cached-first and chronological order',async()=>{
+ const seed=(await createWorkerLibraryStore({}).read()).records[0];
+ const record=(id,extra)=>({...seed,id:id.repeat(24),...extra});
+ const records=[record('f',{pdfCached:undefined,discoveredAt:'2026-09-13T14:00:00Z'}),record('b',{pdfCached:false,discoveredAt:null}),
+  record('e',{pdfCached:true,discoveredAt:'2026-09-13T11:30:00Z'}),record('a',{pdfCached:false,discoveredAt:42}),
+  record('c',{pdfCached:false,discoveredAt:'invalid'}),record('d',{pdfCached:true,discoveredAt:'2026-09-13T13:00:00+02:00'})];
+ const store={read:async()=>({records,queries:{}})};
+ const response=await handleLibrary(new Request('https://unfold.example/api/library'),{libraryStore:store});
+ assert.equal(response.status,200);const result=await response.json();
+ assert.deepEqual(result.records.map(r=>r.id[0]),['e','d','f','a','b','c']);
+ assert.deepEqual(records.map(r=>r.id[0]),['f','b','e','a','c','d']);
+});
 
 test('hosted engine refuses cross-origin sockets and missing credentials before opening a session',()=>{
  const req=(headers={})=>new Request('https://unfold.example/api/convert-socket',{headers});

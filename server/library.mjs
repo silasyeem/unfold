@@ -10,11 +10,15 @@ const tokens=value=>normalizeQuery(value).split(' ').filter(word=>word&&!['assem
 function sourceQuery(value){try{return canonicalSource(clean(value,2048));}catch{return '';}}
 function queryKey(value){const source=sourceQuery(value);return source?'url:'+source:[...new Set(tokens(value))].sort().join(' ')||normalizeQuery(value);}
 const savedQuery=(data,key)=>Object.hasOwn(data.queries,key)?data.queries[key]:null;
+// The built-in manual and older saved entries may not have a discovery date.
+// Unknown dates sort after dated entries within the same download-cache group.
+function discoveryTime(record){const time=typeof record.discoveredAt==='string'?Date.parse(record.discoveredAt):NaN;return Number.isFinite(time)?time:-Infinity;}
+function compareSaved(a,b){return Number(!!b.pdfCached)-Number(!!a.pdfCached)||discoveryTime(b)-discoveryTime(a)||clean(a.id).localeCompare(clean(b.id));}
 function searchSaved(data,query){
  const source=sourceQuery(query);if(source){const matches=data.records.filter(record=>[record.sourceUrl,record.productPageUrl,record.pdfUrl].some(value=>value&&sourceQuery(value)===source));if(matches.length)return matches.slice(0,30);}
  const words=tokens(query),previous=savedQuery(data,queryKey(query)),found=new Set(previous?.recordIds||[]);
  return data.records.filter(record=>found.has(record.id)||words.length===0||words.every(word=>normalizeQuery([record.title,record.manufacturer,record.product,record.modelNumber].join(' ')).split(' ').some(token=>token.startsWith(word))))
-  .sort((a,b)=>Number(b.pdfCached)-Number(a.pdfCached)||b.discoveredAt.localeCompare(a.discoveredAt)).slice(0,30);
+  .sort(compareSaved).slice(0,30);
 }
 function publicRecord(record){return {id:record.id,title:record.product||record.title,imageUrl:record.imageUrl||'',productPageUrl:record.productPageUrl||'',enrichmentStatus:record.enrichmentStatus||'',manufacturer:record.manufacturer,product:record.product,modelNumber:record.modelNumber,sourceUrl:record.sourceUrl,pdfUrl:record.pdfUrl,discoveredAt:record.discoveredAt,pdfCached:!!record.pdfCached,pageCount:record.pageCount||null};}
 function payload(data,query,{cached=true,fromWeb=false}={}){return {query,records:searchSaved(data,query).map(publicRecord),cached,fromWeb,webSearched:!!savedQuery(data,queryKey(query)),searchedAt:savedQuery(data,queryKey(query))?.searchedAt||null};}

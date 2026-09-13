@@ -158,7 +158,7 @@ npm run build
 npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
 ```
 
-Code verification on **2026-09-13** passed **194 tests**. Coverage includes the 80/81-part routing boundary, shared-plan validation, bounded worker concurrency, cancellation and correction, conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, and hosted routing. Tests use controlled provider responses and need no API key. The larger-guide orchestration has not yet been validated against a live model conversion of a large manual. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
+Code verification on **2026-09-13** passed **196 tests**. Coverage includes the 80/81-part routing boundary, shared-plan validation, bounded worker concurrency, cancellation and correction, conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, undated saved-manual sorting, and hosted routing. Tests use controlled provider responses and need no API key. The larger-guide orchestration has not yet been validated against a live model conversion of a large manual. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
 
 ### API entry points
 
