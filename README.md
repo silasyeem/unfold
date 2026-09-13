@@ -18,7 +18,33 @@ PDF files stay in browser memory. The upload flow recognises the 20-page STRANDM
 
 ## Running locally
 
-Serve `dist` with a local HTTP server, for example `python3 -m http.server 4173 --directory dist`. No build step is required. Three.js and PDF.js are vendored. DM Sans loads from Google Fonts with a system font fallback.
+From the repository root, run:
+
+```sh
+python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
+```
+
+Open http://127.0.0.1:4173. No build step or package installation is required; Python 3 is needed for this example server. Three.js and PDF.js are vendored. DM Sans loads from Google Fonts with a system font fallback.
+
+## Working on the app
+
+The current app is hand-written HTML, CSS, and JavaScript. Files under `dist` are the editable source, not generated build output.
+
+| File | Responsibility |
+| --- | --- |
+| `dist/index.html` | Page layout and controls. |
+| `dist/style.css` | Styling and responsive layout. |
+| `dist/app.js` | Playback, navigation, PDF intake, and manual display. |
+| `dist/viewer.js` | Procedural chair, assembly motions, build poses, and guided cameras. |
+| `dist/steps.js` | Step instructions, part references, and source-page mapping. |
+| `dist/assets/` | Original manual PDF and rendered manual pages. |
+| `dist/vendor/` | Pinned Three.js and PDF.js dependencies and their licenses. |
+
+See [BUILD_SPEC.md](BUILD_SPEC.md) for the target product behavior and architecture. The specification includes requirements for further development; this README describes the existing MVP.
+
+Create a feature branch for each change and merge through pull requests. Changes to playback or geometry should be checked at step 3 and both side-panel sequences, including scrubbing and direct step jumps. Keep secrets out of the repository; `.env` files are ignored.
+
+The `.openai/hosting.json` file identifies the existing Sites deployment. Local development works independently of that deployment; publishing to it requires access to the existing Site.
 
 ## Sources and dependencies
 
