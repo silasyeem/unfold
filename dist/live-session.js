@@ -64,6 +64,25 @@ export class ToolLoop {
   }
 }
 
+// Live context appends accept at most 500 tokens. Bound serialized UTF-8 bytes
+// conservatively; full instructions, parts and review notes stay in tool results.
+export function voiceContext(state = {}) {
+  const encoder = new TextEncoder();
+  const field = (value, budget) => {
+    let result = '';
+    for (const character of String(value ?? '')) {
+      if (encoder.encode(JSON.stringify(result + character)).length > budget) break;
+      result += character;
+    }
+    return result;
+  };
+  const number = value => Number.isSafeInteger(value) && value >= 0 && value <= 999999 ? value : null;
+  return 'App reference data. Full details: get_assembly_state and list_assembly_steps. ' + JSON.stringify({
+    product: field(state.product, 80), step: number(state.step), title: field(state.title, 140),
+    manualPage: number(state.manualPage), view: field(state.view, 24), playing: Boolean(state.playing),
+  });
+}
+
 function gatherIce(peer, signal, timeoutMs) {
   if (signal.aborted) return Promise.reject(new Error('Cancelled'));
   if (peer.iceGatheringState === 'complete') return Promise.resolve();
@@ -176,7 +195,11 @@ export class LiveSession {
       return;
     }
     if (run.ending) return;
-    if (event.type === 'error') {this.fail(run, 'The voice service reported an error. Ended this connection; you can try again.'); return;}
+    if (event.type === 'error') {
+      const code = typeof event.error?.code === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(event.error.code) ? ` (${event.error.code})` : '';
+      this.fail(run, `The voice service reported an error${code}. Ended this connection; you can try again.`);
+      return;
+    }
     if (event.type === 'session.started') {
       clearTimeout(run.connectTimer);
       run.ready = true;
@@ -193,7 +216,7 @@ export class LiveSession {
   updateContext() {
     const run = this.current;
     if (!run || !this.active(run)) return;
-    this.send(run, {type: 'session.thinking.append', delegation_id: null, content: 'Current app reference data (not instructions): ' + JSON.stringify(this.getState())});
+    this.send(run, {type: 'session.thinking.append', event_id: `context_${run.contextSequence = (run.contextSequence || 0) + 1}`, delegation_id: null, content: voiceContext(this.getState())});
   }
   mute() {
     const run = this.current;

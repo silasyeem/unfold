@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createEngineCopilotAdapter} from '../dist/engine-copilot.js';
 import {createToolDispatcher} from '../dist/copilot-tools.js';
-import {ToolLoop} from '../dist/live-session.js';
+import {ToolLoop, voiceContext} from '../dist/live-session.js';
 import {sessionRequest} from '../server/voice-config.mjs';
 
 const knarrevik = JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json', import.meta.url), 'utf8'));
@@ -41,6 +41,21 @@ test('engine voice lists the loaded KNARREVIK catalog and reports its actual ste
   assert.equal(state.step, 6); assert.equal(state.title, knarrevik.guide.steps[5].title); assert.equal(state.body, knarrevik.guide.steps[5].instruction);
   assert.equal(state.preparedGuidePage, 12); assert.equal(state.manualPage, 12); assert.equal(state.progress, .65); assert.equal(state.playing, true);
   assertNoPreparedChair(state);
+});
+
+test('KNARREVIK overview and every step fit live context while tools retain complete details', async () => {
+  const f = fixture();
+  for (let index = -1; index < knarrevik.guide.steps.length; index++) {
+    f.current.index = index;
+    const state = f.app.getState();
+    const content = voiceContext(state);
+    assert.ok(Buffer.byteLength(content) <= 480);
+    assert.match(content, /KNARREVIK/);
+    assert.match(content, new RegExp(`"step":${index + 1}`));
+    assert.equal((await f.dispatch('get_assembly_state', {})).state.body, state.body);
+    assert.ok(state.reviewNotes.length > 0);
+    assert.doesNotMatch(content, /reviewNotes/);
+  }
 });
 
 test('voice step zero maps to engine overview and step six relinks source page twelve', async () => {

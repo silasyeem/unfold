@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LiveSession} from '../dist/live-session.js';
+import {LiveSession, voiceContext} from '../dist/live-session.js';
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const deferred = () => {let resolve; const promise = new Promise(r => {resolve = r;}); return {promise, resolve};};
@@ -59,6 +59,37 @@ test('correct WebRTC offer flow, no legacy commands, no actions before session.s
   assert.equal(f.transcripts[0].text, '<img onerror=oops>');
   run.channel.message(null); run.channel.message(3); run.channel.emit('message', {data: 'not json'});
   f.session.dispose();
+});
+
+test('context stays below the append limit for long, Unicode and escaped manual data', async () => {
+  for (const text of ['x', '桌子🔧', '\u0000"\\']) {
+    const state = {product: text.repeat(2000), title: text.repeat(2000), step: 999999, manualPage: 999999, view: text.repeat(2000), playing: true, parts: ['omitted parts'], reviewNotes: ['omitted notes']};
+    assert.ok(Buffer.byteLength(voiceContext(state)) <= 480);
+    const f = fixture({getState: () => state});
+    await f.session.start();
+    const run = f.session.current;
+    run.channel.message({type: 'session.started'});
+    state.step = 2; f.session.updateContext();
+    assert.equal(f.session.state, 'connected');
+    assert.equal(run.channel.sent.length, 2);
+    for (const event of run.channel.sent) {
+      assert.equal(event.type, 'session.thinking.append');
+      assert.equal(event.delegation_id, null);
+      assert.ok(Buffer.byteLength(event.content) <= 480);
+      assert.doesNotMatch(event.content, /omitted/);
+    }
+    assert.notEqual(run.channel.sent[0].event_id, run.channel.sent[1].event_id);
+    assert.match(run.channel.sent[1].content, /"step":2/);
+    f.session.dispose();
+  }
+});
+
+test('service errors expose a bounded error code without upstream message contents', async () => {
+  const f = fixture(); await f.session.start();
+  f.session.current.channel.message({type: 'error', error: {code: 'invalid_value', message: 'private provider details'}});
+  assert.match(f.status.at(-1).message, /invalid_value/);
+  assert.doesNotMatch(f.status.at(-1).message, /private provider details/);
+  assert.equal(f.track.stopped, true);
 });
 
 test('double start has one mic/session request; mute and graceful End disable input and block late actions', async () => {
