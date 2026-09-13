@@ -1,195 +1,209 @@
 # Unfold
 
-Create or open the KNARREVIK guide in `/engine.html`, then choose **Scan my parts** before assembly. The scanner opens over the guide: select a JPEG, PNG, or HEIC photo, review suggested matches and counts, and inspect parts in 3D. **Back to assembly guide** returns to the same step and linked manual. Phone photos are compressed automatically before upload. See [scanner behavior and validation](docs/KNARREVIK-SCAN.md).
+Turn an assembly manual into an interactive 3D guide. Find a manual or upload its pages, see how the parts fit, and follow each step with a voice copilot.
 
-Find a manual online or upload a PDF or photos to create a reviewable 3D draft: named parts, animated assembly steps, working orientations, guided cameras, and the original diagram beside each step. The prepared 16-step STRANDMON demo remains at `/`; the conversion workspace is `/engine.html`.
+**[Open the live app](https://unfold-assembly.silas-yke.chatgpt.site/)**
+
+The homepage is the manual Engine. It supports PDF and photo conversion, a saved manual library, animated assembly guides, and voice control. The KNARREVIK demo opens immediately without generating a new guide; the prepared STRANDMON demo is available separately.
+
+## Try it
+
+1. Open **KNARREVIK demo**, or choose **Search for your manual online** or **Upload your manual**. For a new manual, check the page preview and select **Create animated guide**.
+2. For the supported KNARREVIK manual, choose **Scan my parts** to identify loose parts from a photo and review their counts.
+3. Select an assembly step. **Step view** automatically zooms into the active operation and returns to the whole build when its final action finishes.
+4. Play, pause, scrub, change speed, or drag to inspect the model. Use **Talk to guide → Start voice** for spoken explanations and controls.
+
+| Entry point | What it opens |
+| --- | --- |
+| `/` | Manual Engine: search, upload, saved guides, and the KNARREVIK demo. |
+| `/engine.html` | Alternate entry to the same Engine. |
+| `/demo.html` | Prepared STRANDMON guide with 16 assembly steps. |
+| `/screws.html` | Experimental screw modeler and STL export. |
+| `/scan.html` | Standalone KNARREVIK parts scanner. |
 
 ## Run locally
 
-Requires Node.js 22.9 or later.
+Requires **Node.js 22.9+** and npm.
 
 ```sh
 npm ci
-npm run render-browser
-cp .env.example .env.local
-# Set your own OPENAI_API_KEY in .env.local, then:
 npm run dev
 ```
 
-Open [the conversion workspace](http://127.0.0.1:4173/engine.html). Each developer supplies their own server credential. `.env.local` is ignored; never put credentials in browser code, a guide file, or a commit. `OPENAI_MODEL` defaults to `gpt-6-astra`: parsing, evidence checks, and visual review use high reasoning; 3D geometry generation uses medium. `OPENAI_SEARCH_MODEL` independently controls web search and defaults to `gpt-5.4`. `OPENAI_SCAN_MODEL` selects parts recognition; `OPENAI_BACKEND_MODEL` selects the voice copilot’s delegated model. `UNFOLD_PORT` defaults to `4173`.
+Open [localhost:4173](http://127.0.0.1:4173/). Saved guides, the prepared demos, and Screw lab work without an API key.
 
-The render checker requires Chromium, installed by `npm run render-browser`, and a runtime that can launch it. It uses an isolated browser with access only to local renderer assets, never your personal browser profile. A missing browser produces an explicit error; the engine does not silently skip visual checks.
+To enable conversion, web search, and parts recognition, stop the server and create a local configuration:
 
-Start with **Search for your manual online** or **Upload your manual**. An upload accepts one unlocked PDF or multiple JPEG/PNG pages. Check the source preview, then select **Create animated guide**. Conversion supports up to **8 MB, 40 pages, and 32 assembly steps**. It can take several minutes. Progress and cancellation remain available while the manual is processed.
+```sh
+cp .env.example .env.local
+# Set OPENAI_API_KEY in .env.local.
+npm run render-browser
+npm run dev
+```
 
-Choose **KNARREVIK demo** in the header or side panel to open the saved Astra-generated guide and its matching original PDF immediately, without an API call. Once it opens, **Scan my parts** is the next step. It contains four legs, two solid trays, sixteen screws and an Allen key across six steps. This is a demonstration draft: its final visual review was stopped, and final tightening animates six representative joints while the manual requires all sixteen screws to be tightened.
+`npm run render-browser` installs Chromium for the local conversion checker. It uses an isolated browser with local renderer assets, not your personal browser profile. New local conversions require this checker; missing Chromium produces an error rather than skipping visual review. Hosted conversion uses the visitor's WebGL browser instead.
 
-For a smaller authored example, open `examples/mini-table.unfold.json` using **Open a saved guide** in the **•••** menu, then choose **Change manual → Upload your manual** and upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
+The local server binds to `127.0.0.1`. Use the Worker build for hosted deployment.
 
-## Photos and saved manuals
+### Configuration
 
-**Upload your manual** accepts JPEG or PNG pages and opens a photo editor with an additional phone camera input. Reorder, rotate, or remove pages before preparing them. The browser reduces images to 2,000 pixels on the longest edge; the server independently checks image headers and dimensions, then creates a PDF for the same extraction engine and source viewer. Use **••• → Download manual PDF** to keep the prepared pages with an exported guide. Up to 20 photos are supported, with a 12 MB per-file input limit and an 8 MB resulting manual limit. HEIC needs to be saved as JPEG first. Perspective correction and deblurring are not implemented.
+These are the repository's configured defaults:
 
-**Search for your manual online** accepts a product name or link and searches the saved library without a model request. When there is no match, **Search the web** explicitly searches for manufacturer instructions and saves grounded source metadata. Normalized repeated searches, including previous misses, reuse cached results. Results show the product name, photo when available, **Download manual**, and **Use this manual**. The first download or use caches the PDF; later loads reuse the saved bytes. Downloading a manual does not start conversion. Manufacturer pages are inspected for their real product name, photo, and labeled assembly PDF; those details are cached too. For IKEA PDFs with a known article number, the official article lookup supplies the matching product page and photo without changing the selected manual revision. Pages without a verified PDF remain source links. Product variants still need checking before conversion.
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Server credential for conversion, search, scanning, and voice. | Unset |
+| `OPENAI_MODEL` | Manual extraction, geometry generation, and review. | `gpt-6-astra` |
+| `OPENAI_SEARCH_MODEL` | Explicit web searches for manuals. | `gpt-5.4` |
+| `OPENAI_SCAN_MODEL` | Parts recognition. | `gpt-5.4` in `.env.example` |
+| `OPENAI_BACKEND_MODEL` | Voice copilot's delegated Responses model. | `gpt-5.6-terra` |
+| `UNFOLD_PORT` | Local server port. | `4173` |
 
-The local library lives in ignored `data/library/`: an atomically written JSON index plus cached PDFs. It survives server restarts. Downloads accept saved public HTTPS sources only, pin validated DNS, check redirects, and enforce PDF size/page limits. The local adapter serializes updates within one Node process; use a shared durable database/object store for multiple server processes. Provider search behavior is tested with controlled responses. Real IKEA LACK product pages and PDF downloads were also verified using the user’s saved search results, without another model search.
+Extraction, evidence reconciliation, and visual review use high reasoning; geometry generation uses medium. Voice uses `gpt-live-1`. If `OPENAI_SCAN_MODEL` is omitted, scanning falls back to `OPENAI_MODEL`, then `gpt-5.4`. Legacy `PORT` is used when `UNFOLD_PORT` is unset.
 
-## What the engine does
+The Node server reads `.env.local` and legacy `.env`, with `.env.local` taking precedence. Both are ignored by Git. Keep credentials out of frontend files, guide exports, and commits. Configure hosted credentials as runtime secrets.
 
-1. Parses the actual PDF and checks its page count before making model requests.
-2. Reads every page in small PDF batches, recording provisional inventory, assembly steps, source pages, and uncertainties.
-3. Independently reads the complete manual, including cover and finished-product drawings, using high reasoning. This pass receives only page and step-number anchors from the extraction so earlier misread descriptions cannot bias its inventory. A separate skeptical check traces physical instances, cross-sections, attachments, screw counts, and working poses. The document label can corroborate product proportions and material, but the diagrams take precedence.
-4. Generates compound primitive shapes and motion data with medium reasoning, mapping every physical instance to its source component. The saved guide remains schema version 1; component evidence and coverage accompany it in the export envelope.
-5. Checks structure, parenting, action timing, handling rotations, component quantities, broad surface geometry, and final visibility. An open perimeter cannot stand in for a solid tabletop or shelf. Permanent parts must remain present and temporary tools must be removed.
-6. Renders the actual Three.js player: completed-product overview, every completed assembly stage, and a representative active connection/tool view for each step with actions. A visual reviewer compares each screenshot with its matching original PDF page, checking visible shape, proportion, counts, attachments, working pose and tool placement. All required captures must be rendered and acknowledged.
-7. A clear structural or visual mismatch triggers one bounded correction using the report and failed screenshots, followed by fresh rendering and comparison. Missing or extra components and incorrect working poses also trigger a fresh source-evidence check before regenerating geometry. A second failed draft returns an error instead of the mismatched guide. Source ambiguity remains in the review notes. Successful exports include a visual-review report without embedding the screenshots.
-8. Plays the checked draft in Three.js. Attached hardware follows its parent part. Seeking computes state from the guide, so direct jumps and replay agree.
+## Guide behavior
 
-Every Engine guide uses the shared player, including fresh PDF/photo conversions and reopened saved guides. Step changes smoothly turn the build around its centre to the required working orientation. **Step view** automatically zooms into the current operation, follows each active joint, and pulls back to the whole build when the final action finishes. Playback and scrubbing keep the object’s working orientation steady. New guides preserve the original drawing’s signed viewing direction and page-up axis, so the object turns into the manual’s illustrated view without reflection. **Whole build** remains available as an explicit overview. Manual orbit works within a step; selecting another step restores its guided view. These transitions also apply to voice navigation and respect reduced-motion preferences.
+Every Engine guide uses the same player, whether created locally, generated on Sites, or reopened from a saved file.
 
-The UI supports play/pause, scrubbing, speed, step navigation, free orbit/zoom, guided joint views, whole-build framing, exploded parts, PDF enlargement, and source-page relinking. **Review this step** edits its title, instruction, source page, and working orientation. **Download guide** preserves the guide, provenance, extraction evidence, and your checked-step markers. Reopening a guide requires a matching PDF fingerprint before source diagrams are linked.
+- **Manual orientation:** the object turns smoothly between working poses. The reference viewing direction and page-up axis control how the furniture is presented, preserving handedness without reflecting the geometry. Playback and scrubbing keep that working pose steady.
+- **Automatic close-ups:** each step starts in Step view, focuses on the active joint, and pulls back after its last action. Replaying restores the close-up. Active tightening screws are kept in frame, with surrounding parts faded to reveal the connection.
+- **Inspection controls:** Whole build, Exploded view, free orbit, zoom, playback speed, and scrubbing remain available. An explicitly chosen whole or free view is preserved during playback; selecting another step restores guidance. Transitions respect reduced-motion preferences.
+- **Fastening direction:** KNARREVIK's tightening animations turn clockwise when viewed from the screw-head side. Engine instructions define signed local rotation axes so tightening does not reverse when the furniture turns.
+- **Linked sources and exports:** the source diagram appears beside each step and can be enlarged or browsed independently. **Review this step** edits its title, instruction, source page, and working orientation. The **•••** menu opens saved guides and downloads guides or manual PDFs. A reopened guide links diagrams only when the PDF fingerprint matches.
 
-## Experimental screw STL generator
+### Voice copilot
 
-Open **Screw lab** from the home page or workspace header, or visit `/screws.html`. The generator runs entirely in the browser and needs no API key. Start with metric M3–M12 coarse-pitch presets, then enter measured diameter, pitch and length; select an external hex, hex socket or thumb-grip head. Head dimensions, hex key size, thread direction and diameter reduction are editable. Diameter reduction applies to the thread only, preserving pitch and length. Presets are examples, not inferred replacements for the selected kit; the KNARREVIK entry carries the manual part codes but deliberately supplies no claimed matching dimensions.
+Voice is integrated into every Engine guide and the prepared STRANDMON demo. Open **Talk to guide**, choose **Start voice**, and allow microphone access. It uses the configured server key by default. **Voice settings** also accepts an optional key for that session; the field clears after submission and the app does not persist that override. A malformed override is rejected rather than silently falling back to the server key.
 
-The preview and binary STL share one indexed boundary mesh with actual helical threads, a joined head, thread runout and a blunt lead-in. The socket head includes a recessed hex drive. Geometry uses millimetres with the head on the XY print bed; import at 100% scale. The truncated 60° profile is metric-inspired, not an ISO tolerance-class CAD model: crest flat P/8, root flat P/4, radial depth 5√3P/16. There are 96 angular segments and 24 axial samples per pitch. Supported custom bounds are 3–16 mm diameter, 0.5–3 mm pitch and 4–60 mm length. Export is disabled for invalid or pending dimensions, and remains available when WebGL cannot initialize.
-
-This is a prototype/fit-test tool, not a reconstruction of proprietary, wood or self-tapping hardware. There is no tested strength, torque or fit rating. Printed threads are more plausible around M6 and larger; a furniture joint or other load-bearing connection should use the correct metal spare. See [Formlabs’ printed-thread guidance](https://formlabs.com/blog/adding-screw-threads-3d-printed-parts/) and [Bossard’s metric thread reference](https://www.bossard.com/-/media/bossard-group/website/documents/technical-resources/en/f-079-en.pdf). No physical print has been validated.
-
-## Accuracy and scope
-
-Generated geometry and connections are approximate. Structural and model-based visual checks can miss errors; a clean report does not establish physical accuracy. The visual check samples completed states and one active connection per step, not every frame of every motion. Keep the original manual authoritative and review every generated step before using it for assembly. Checking a step records a user's review; it does not certify dimensions, fastening strength, or CAD accuracy. Editing primitive geometry and action paths currently requires editing the guide JSON.
-
-Live conversion recovered all 16 STRANDMON source-page entries, but also produced mistaken hardware interpretations and pose assumptions. The prepared STRANDMON example is a separate, manually authored guide. General conversion is an editable draft workflow, not reliable reconstruction of arbitrary products.
-
-The server processes PDFs in memory and sends them to OpenAI for conversion with Responses API `store: false`. It also sends rendered stage screenshots with their matching source pages for visual comparison. Direct uploads, screenshots, and generated guides are not saved on the server. The manual library separately persists search metadata and PDFs explicitly loaded from search results. This setting is not a promise of zero provider retention. Export files are saved only when the user downloads them.
-
-## Code map
-
-The app is plain HTML/CSS/JavaScript. `dist/` contains editable frontend source and vendored browser dependencies; it is not generated build output.
-
-| Module | Responsibility |
+| Say | Intended behavior |
 | --- | --- |
-| `engine/extract.mjs` | PDF parsing, page batches, inventory and step evidence. |
-| `engine/completeness.mjs` | Full-document component reconciliation, physical-instance coverage, solid-surface and final-presence checks. |
-| `engine/render.mjs`, `dist/render-capture.js` | Isolated Chromium screenshots using the actual player, with a bounded stage plan. |
-| `engine/visual-review.mjs` | Screenshots paired with original source pages, complete review coverage, actionable mismatch reports. |
-| `engine/evidence-repair.mjs` | Rechecks source interpretation when rendered parts or poses conflict with the manual. |
-| `engine/convert.mjs` | Model requests, guide generation, correction, provenance. |
-| `engine/semantics.mjs` | Detect common double application of build orientation. |
-| `dist/guide-schema.js` | Strict versioned JSON contract and semantic reference checks. |
-| `dist/guide-state.js` | Deterministic step snapshots, parent visibility, motions, build poses. |
-| `dist/generated-viewer.js` | Generic geometry, hierarchy, highlighting, camera and grounding. |
-| `dist/engine-app.js` | Upload, streamed progress, playback, PDF linking, review and export. |
-| `dist/photo-intake.js`, `server/photos.mjs` | Ordered photo pages, image bounds and PDF preparation. |
-| `dist/manual-library.js`, `server/library.mjs` | Library-first lookup, explicit web search and cached PDF loading. |
-| `server/library-store.mjs` | Atomic local persistence and restricted public-source downloading. |
-| `server/library-enrich.mjs` | Manufacturer product names, photos, and verified assembly links. |
-| `server/api.mjs` | Conversion endpoint, upload limits, cancellation and concurrency. |
-| `server/local.mjs` | Local API and allowlisted static file server. |
-| `server/worker.mjs` | Worker fetch entry for future server-backed hosting. |
-| `dist/app.js`, `viewer.js`, `steps.js` | Prepared STRANDMON guide. |
-| `tests/` | Contract, pipeline, concurrency, state, geometry and UI regressions. |
+| “Next step” / “Go back a step” | Navigate immediately, stopping at the guide boundary. |
+| “Go to step 3” | Jump directly to that assembly step. |
+| “You mean like in step 3?” / “Explain step 5” | Answer without changing the selected step. |
+| “Replay that step” / “Pause” | Control playback. |
+| “Show the whole build” | Change the view. |
 
-Guide part transforms are relative to `parentId` (empty for a root). Primitive transforms are local to their part. Root action transforms stay in the unrotated assembly frame; the player applies the working orientation to the whole build. An orientation-only step can have no part actions. `turns` is an integer number of decorative revolutions; lasting quarter/half turns belong in `toRotation`. Camera focus uses assembly coordinates. The schema rejects executable fields and unknown properties.
+The copilot reads the current guide's instructions, parts, review notes, and app state. Saved guides support voice without a PDF; manual-page browsing becomes available after the matching PDF is linked. Human changes invalidate pending navigation so a delayed response cannot undo them. Changing the manual or entering another intake flow ends the voice session. Collapsing the panel keeps it connected; **Mute** disables the microphone and **End** closes the session.
 
-## API and command line
+Voice and delegated model work incur OpenAI API usage after the user starts a session. Automated tests mock the microphone, WebRTC, and model boundaries; they do not establish live speech-recognition accuracy or model access.
 
-- `GET /api/health`: conversion availability, model and limits; never returns the credential.
-- `POST /api/photos`: multipart `photos` files plus a matching `rotations` JSON array, with `X-Unfold-Convert: 1`; returns the prepared PDF.
-- `GET /api/library?q=...`: saved records only.
-- `POST /api/library/web-search`: JSON `{query}` with `X-Unfold-Library: 1`; searches only when the normalized query is uncached and the library has no match.
-- `POST /api/library/:id/pdf`: `X-Unfold-Library: 1`; downloads/caches a saved record’s PDF.
-- `POST /api/convert`: raw `application/pdf` body with `X-Unfold-Convert: 1`, `X-Pdf-Pages`, and a URL-encoded `X-Pdf-Name`. Returns server-sent `stage`, `result`, or `error` events.
-- Requests with a supplied cross-origin `Origin` are rejected. Two conversions can run concurrently in each process; each has a thirty-minute timeout. This is a local/private deployment boundary, not public authentication or account rate limiting.
+## Manuals, photos, and parts
 
-```sh
-npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
-npm test
-```
+### Manual intake and library
 
-The supplied page count is verified against the PDF. The CLI logs progress, output counts, and token usage without logging credentials.
+Conversion accepts one unlocked PDF up to **8 MB and 40 pages**, with up to **32 assembly steps**. Photo intake accepts up to **20 JPEG/PNG pages**, each up to **12 MB**. Reorder, rotate, and remove pages before preparing the PDF. Images are reduced to 2,000 pixels on the longest edge; the resulting manual must fit the 8 MB limit. Manual-page HEIC input, perspective correction, and deblurring are not supported.
 
-## Validation
+Search checks the saved library first. **Search the web** makes an explicit model search when needed; repeated queries, including misses, reuse cached results. **Download manual** saves the PDF without starting conversion; **Use this manual** opens its preview. Product variants and manual revisions remain distinct. Hosted manufacturer downloads currently support IKEA domains; other manufacturers' PDFs can be uploaded directly.
 
-- Automated tests cover malformed guides, attached parts, deterministic seeking, tool removal/reinsertion, handling orientation, camera floor limits, real PDF page limits, evidence preservation, credential exclusion, concurrent uploads, cancellation, playback, PDF replacement, photo ordering/rotation, image bounds, query/PDF caching, persistence, and restricted source downloads.
-- Live API conversions exercised a three-page table manual and the twenty-page STRANDMON manual. The table produces five parts and two steps from both its original PDF and an image-only PDF prepared from three JPEG pages. The revised STRANDMON pipeline retained sixteen ordered steps on pages 5–20; its semantics still require review.
-- Browser walkthrough uses Aside CLI with the actual WebGL viewer and PDF renderer. It caught duplicated whole-build rotation and a camera below the floor; those cases now have regression coverage. See `VALIDATION.md` for the completed walkthrough.
+The local library persists in ignored `data/library/`. The hosted library uses R2 for its index and cached PDFs, with conditional index writes. The verified KNARREVIK manual is available immediately.
 
-## Optional GPT-Live voice copilot
+### KNARREVIK parts scan
 
-The voice copilot is integrated into every Engine guide at `/` and `/engine.html`, whether generated locally, generated on Sites, or reopened from a saved guide. It is also available in the prepared STRANDMON demo at `/demo.html`. Open **Talk to guide**, choose **Start voice**, and allow microphone access. Try “explain this step,” “show the whole build,” or “replay that step.” The copilot reads the loaded guide’s steps, parts and review notes, and can navigate steps, browse linked manual pages, change views, and control playback. A saved guide can use voice without its original PDF; page browsing becomes available after relinking that PDF. Paid OpenAI API access starts only when you choose **Start voice**. Voice stays connected across these changes and when the panel is collapsed. Changing the manual or opening another intake flow ends the session to prevent stale instructions. Mute disables the microphone locally; End stops input and waits briefly for the server's final close event.
+The scanner is offered only for the matching KNARREVIK manual. It recognizes loose parts against a fixed inventory of **four legs, two solid trays, sixteen screws, and one Allen key**. It is not a general parts scanner for arbitrary Engine guides.
 
-After the shared local setup above, run:
+Select a JPEG, PNG, or HEIC photo, then choose **Identify parts**. Phone photos are decoded and compressed before upload. Review suggested matches, boxes, and counts; edit mistakes before returning to the same assembly step. Selecting a photo alone does not make a model request. See [scanner details and validation](docs/KNARREVIK-SCAN.md) for image limits, recognition behavior, and export format; its earlier deployment notes are historical.
 
-```sh
-npm start
-```
+### Demo limits
 
-Open the printed localhost URL (default `http://127.0.0.1:4173`), open **Talk to guide**, use the configured server key, or open **Voice settings** and enter your OpenAI project key in the masked **OpenAI API key** field, then press **Start voice**. This is the easiest setup; no config file is required. The field clears immediately. The key is sent only in that attempt's creation request to the local server, which uses it to authenticate with OpenAI. It is never saved by the app to disk, cookies or browser storage, or included in model context, transcripts or logs. Re-enter it for every new start, including after failure or cancellation. A valid entered key takes precedence over a configured server key; an invalid entered key is rejected instead of silently using the server key. A static-only host cannot run voice; publish the hosted Worker build described below, or use the local runtime.
+The saved KNARREVIK guide has six steps and corrected manual poses, corner assignments, camera behavior, and tightening directions. Its original final model-based visual review was not completed. Step 6 animates six representative screws, while its instructions require tightening all sixteen. The displayed turns illustrate motion rather than a specified torque or turn count.
 
-Optionally copy `.env.example` to `.env.local` and set `OPENAI_API_KEY` there for a persistent local server configuration, then leave the app field blank. This optional configuration is the only path that saves a key to a file, at your explicit choice. Voice is always `gpt-live-1`; `OPENAI_BACKEND_MODEL` optionally selects the Responses backend (default `gpt-5.6-terra`). `UNFOLD_PORT` changes the shared local port; legacy `PORT` is used when it is unset. Never put a key in `dist/`, source code or a URL. `.env.local` and legacy `.env` are ignored and only the server reads them; `.env.local` takes precedence. The example file contains no key.
+STRANDMON is a separate, manually authored reference guide. For a small conversion fixture, use [MINI TABLE](examples/mini-table.pdf) and its [saved guide](examples/mini-table.unfold.json). It is an authored test manual, not an IKEA product or CAD model.
 
-This server binds only to `127.0.0.1`. It is for a trusted local user: do not expose it through a tunnel, public proxy or shared hosting. Host/origin checks, a 64 KiB body cap, one in-flight creation, four attempts per minute, a 20-second upstream timeout and no retries limit accidental session creation; these are not account authentication or a total spending cap. This restriction applies to the local Node server. The separate hosted Worker below supports deployment.
+## How the Engine works
 
-OpenAI bills voice duration and delegated backend work. WebRTC creation includes an initialization charge equivalent to 15 seconds, credited against running voice duration; creating then cancelling can still incur usage. See [GPT-Live WebRTC](https://developers.openai.com/api/docs/guides/voice-webrtc?api=live) and [voice cost documentation](https://developers.openai.com/api/docs/guides/voice-latency-cost?api=live). End voice when finished. Closing the page releases local media immediately, so final server usage confirmation may not arrive.
+1. **Extract evidence.** Parse the PDF, check page counts, and read every page in small batches to identify inventory, numbered steps, source pages, and uncertainty.
+2. **Reconcile the manual.** Independently review the whole document, including cover and completed views. Check distinct physical parts, quantities, broad surfaces, connection topology, and working poses.
+3. **Generate the guide.** Build compound primitives and timed actions, mapping each physical instance to its source component. Validate references, parent relationships, action timing, geometry, final visibility, and handling rotations.
+4. **Compare rendered stages.** Render the actual player: completed-product overview, every assembled stage, and a representative active connection per step. Compare each capture with its source PDF page. Local runs use isolated Chromium; hosted runs use the visitor's browser with a temporary R2 relay. Keep the hosted tab open until conversion completes.
+5. **Correct or return.** A clear mismatch triggers one correction and fresh rendering/review. Missing or extra components and incorrect poses can trigger a new source-evidence check. Persistent mismatches or incomplete checks return an error. Successful exports include provenance, component coverage, review notes, and the visual-review report.
 
-Microphone audio, spoken conversation, the current guide’s instructions, parts and review notes, and app state (step, page number, compatibility, view and playback) go to OpenAI. The copilot does not send PDF bytes, raw extracted text, images, filenames or meshes. Transcripts are bounded, rendered as text, kept only in browser memory and cleared at the next start. The local server does not log speech or upstream response bodies. There is no camera input. A PDF without a generated guide cannot supply assembly instructions; valid manual-page browsing still works. Human changes made during delegated work invalidate pending navigation so the guide cannot silently undo them.
+Generated geometry remains approximate. Structural and model-based visual checks can miss errors, and sampled screenshots cannot prove every motion or connection. Step review records a user's edits and checks; it does not establish CAD accuracy, physical fit, or fastening strength. Primitive geometry and action paths are currently edited in guide JSON.
 
-Clear voice requests such as “go to step 3,” “next step,” and “go back a step” navigate directly without a confirmation or preliminary explanation. Relative commands resolve against the live assembly step and stop at guide boundaries. References such as “you mean like in step 3?”, “what happens next?”, and “explain step 5” request an answer while keeping the current selection. The voice and backend instructions both distinguish these intents; the app validates each requested action against the current guide.
+### Guide contract
 
-Run offline checks with `npm test`; they use mocked OpenAI and microphone/WebRTC boundaries and do not require a key. Tests cover tool validation, direct/relative/stale/deduplicated navigation, delegation completion, lifecycle cleanup and the local HTTP boundary. Manual verification should include paired navigation and reference phrases above, direct jumps to both side panels, manual relinking, collapsed voice controls and a narrow mobile viewport. A real microphone/model session requires a configured key and a user-started session and is not covered by these mocks. Restart an existing voice session to use updated instructions.
+The shared [schema](dist/guide-schema.js) uses `schemaVersion: "1"` and rejects unknown or executable fields. Parts and actions use transforms relative to `parentId`; root actions remain in the unrotated assembly frame. Primitive transforms are local to their part. The player applies the whole-build pose separately, so an orientation-only step can have no actions.
 
-## Hosting the voice copilot
+`action.axis` is part-local. `turns` is a signed integer under the right-hand rule: for an axis pointing outward toward the screw head, negative turns tighten an ordinary right-hand thread. Persistent quarter/half turns belong in `toRotation`. Camera focus, `cameraDirection`, and `cameraUp` use assembly coordinates; the viewing axes represent the original drawing. Older saved guides without `cameraUp` retain their canonical pose fallback.
 
-The repository includes a combined Sites / Cloudflare Workers entry in `server/site.mjs`, using `server/hosted.mjs` for voice and preserving the existing scanner endpoints. It serves the same `/api/voice/readiness` and `/api/voice/session` endpoints as the local server. The browser uses the site's own origin, so no endpoint URL or CORS configuration is needed. After the complete build is deployed over HTTPS, open **Talk to guide** and choose **Start voice**. The configured server key needs access to GPT-Live. Audio connects directly between the browser and OpenAI after the backend creates the session.
+## Development
 
-Hosted voice uses the Site’s `OPENAI_API_KEY` by default. The key stays on the server; the browser receives only the session ID and SDP answer. Voice usage from this Site is billed to that configured key. **Voice settings** offers an optional session-only key override; a malformed override is rejected. The existing per-key attempt limit also applies to starts using the server key. `OPENAI_BACKEND_MODEL` may optionally select the delegated Responses model; the default remains `gpt-5.6-terra`. Keys pass through the site's backend only to authenticate the one OpenAI request and are never saved by Unfold. Keep request-body/header logging disabled in any additional proxy or hosting instrumentation.
+The frontend is plain HTML, CSS, and JavaScript using vendored Three.js and PDF.js. **`dist/` contains editable source. Do not delete it as a build cleanup step.**
 
-Install the locked development tools and build:
+| Area | Main files |
+| --- | --- |
+| Engine UI and playback | `dist/engine-app.js`, `dist/generated-viewer.js`, `dist/guide-state.js` |
+| Manual processing and checks | `engine/extract.mjs`, `completeness.mjs`, `convert.mjs`, `semantics.mjs` |
+| Rendering and visual review | `engine/render.mjs`, `visual-review.mjs`, `evidence-repair.mjs`, `dist/render-capture.js` |
+| Hosted conversion relay | `dist/hosted-convert.js`, `server/render-relay.mjs` |
+| Voice UI, tools, and sessions | `dist/copilot-ui.js`, `dist/engine-copilot.js`, `dist/copilot-tools.js`, `dist/live-session.js`, `server/voice-config.mjs` |
+| Local and hosted voice endpoints | `server/voice.mjs`, `server/hosted.mjs` |
+| Photo intake, manual library, scanning | `dist/photo-intake.js`, `manual-library.js`, `scan.js`; corresponding modules in `server/` |
+| Local server / combined Worker | `server/local.mjs` / `server/site.mjs` |
+| Prepared STRANDMON demo | `dist/app.js`, `dist/viewer.js`, `dist/steps.js` |
+| Tests | `test/` and `tests/` |
 
 ```sh
-npm ci
 npm test
 npm run build
+# Optional local PDF conversion with an explicit, verified page count:
+npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
 ```
 
-The build bundles the combined voice/scanner Worker as `dist/server/index.js`, copies public assets including the saved KNARREVIK demo and manual to `dist/client`, and writes `dist/.openai/hosting.json`. It preserves the authored files in `dist`; previous generated output moves to ignored `.sites-runtime/build-backups`. `.openai/hosting.json` retains the existing Site ID and no longer declares a static-only deployment. Runtime code uses Web APIs, with no Node HTTP server or filesystem requirements.
+Code verification on **2026-09-13** passed **182 tests**. Coverage includes conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, cancellation, and hosted routing. Tests use controlled provider responses and need no API key. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
 
-The Site owner must publish the **Worker build and its assets together** through Sites using the existing project ID. Push the exact source to the Site's configured source repository, package the built output using the Sites hosting workflow, then save and deploy that version while preserving the current access policy. A GitHub merge does not itself publish Sites. Do not upload only `dist/index.html` or configure this version as a static site: that would omit the voice endpoints. Sites access is still required to publish; this adaptation does not change ownership or access.
+### API entry points
 
-For Cloudflare Workers outside Sites, the checked-in `wrangler.jsonc` specifies the bundled Worker, `ASSETS` binding to `dist/client`, and Worker-first routing. Production deployment still requires the chosen account's authorization. To verify the hosted runtime locally without publishing:
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/health` | Conversion availability and limits. |
+| `POST /api/convert` | PDF conversion with streamed progress/result/error events. |
+| `POST /api/photos` | Prepare ordered JPEG/PNG pages as a PDF. |
+| `GET /api/library`, `POST /api/library/web-search` | Saved lookup and explicit web search. |
+| `POST /api/library/:id/pdf` | Fetch/cache a saved manual's PDF. |
+| `GET /api/scan-health`, `POST /api/parts-scan` | Scanner availability and recognition. |
+| `GET /api/voice/readiness`, `POST /api/voice/session` | Voice readiness and WebRTC session creation. |
+| `GET /api/conversion-render/:id`, `POST /api/render/:id` | Hosted progress/render relay used by the browser. |
+
+Use the frontend clients as examples of request headers and payloads. Conversion admits two concurrent requests per process/isolate; voice creation has a per-key limiter. These are operational limits, not distributed account quotas or spending caps.
+
+## Hosting
+
+The live Site uses the combined Worker in `server/site.mjs`, serving conversion, library, scanning, voice, and static assets. `npm run build` produces:
+
+- `dist/server/index.js`: bundled Worker.
+- `dist/client/`: public assets copied from the authored frontend.
+- `dist/.openai/hosting.json`: deployment metadata.
+
+Generated output is ignored by Git. Prior build output moves to ignored `.sites-runtime/build-backups`; authored files remain intact. Hosted conversion and the manual library require the `BUCKET` R2 binding. API features use the hosted `OPENAI_API_KEY`; voice can also use a session-only override.
+
+Publish the Worker and assets together through Sites using the existing project in [.openai/hosting.json](.openai/hosting.json). Push the exact source to the Site's configured repository, package the build output, then save and deploy that version while preserving its access policy. **Pushing or merging to GitHub does not deploy Sites.** The scanner-only entry and a static-only upload do not provide the complete app.
+
+For local Worker verification:
 
 ```sh
 npm run preview:hosted
 ```
 
-Open `http://127.0.0.1:4191`. `npm start` runs the shared local Node server after `npm ci`, including optional local key configuration. The hosted preview follows the visitor-key-only policy.
+Open [localhost:4191](http://127.0.0.1:4191/). [wrangler.jsonc](wrangler.jsonc) configures the Worker, assets, and local R2 binding. With that preview running **without a configured server key**, `node scripts/verify-hosted.mjs` checks asset integrity, readiness, missing-key rejection, and request boundaries without calling OpenAI. Its keyless test setup is separate from the production behavior, which accepts the configured server key.
 
-With that preview running, `node scripts/verify-hosted.mjs` checks the built Worker, public-file integrity, served manual/vendor assets, readiness, missing-key rejection, and origin/private-path protections without contacting OpenAI.
+## Data handling
 
-The hosted boundary requires matching request origins, HTTPS outside loopback development, JSON and a 64 KiB streamed body limit. It cancels timed-out/client-aborted creation requests, follows no provider redirects, performs no automatic retries, and returns fixed safe errors. Its limiter allows one creation in flight and four starts per minute per key per Worker isolate, keeping at most 512 expiring SHA-256 key digests in memory. This is best-effort throttling, not a distributed limit or spending cap; different isolates may each admit requests. OpenAI project billing limits remain relevant. Uploaded PDFs and filenames remain in the browser.
+Manual conversion sends PDF contents and rendered stage screenshots to OpenAI using Responses requests with `store: false`. Direct uploads are processed for the conversion session rather than added to the saved library. Hosted progress, guide-render jobs, and captures pass through temporary R2 objects; normal completion and cancellation paths clean them up. Search metadata and PDFs explicitly loaded from library results are persisted separately.
 
-Tests cover the hosted boundary, including refusal to use a configured server key, key separation, upstream request shape, origin checks, streamed body limits, cancellation, throttling, sanitized provider failures, and asset routing. Build/runtime checks do not establish actual model access or microphone quality. A paid GPT-Live session and the final production deployment must still be verified with an authorized account and key.
-## Collaboration and hosting
+Parts recognition sends the prepared photo and reference diagrams to OpenAI; the server does not persist scene photos or recognition results. Voice sends microphone audio, the conversation, selected guide context, and app state. It does not send PDF bytes, images, filenames, or meshes. Voice transcripts stay in browser memory and clear on the next start. Provider retention policies still apply; `store: false` is not a zero-retention guarantee.
 
-See [BUILD_SPEC.md](BUILD_SPEC.md) for product behavior and the prepared STRANDMON reference sequence. Work on feature branches and review changes through pull requests. Playback changes should be checked with direct step jumps, backward navigation, orientation changes and connector close-ups.
+## Screw lab
 
-The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `server/site.mjs` preserves scanner APIs alongside the voice copilot; `server/scan-worker.mjs` remains the scanner-only entry. Use `npm run build` for the combined deployment. Manual conversion and library search run on Sites through the combined Worker and R2 adapter.
+Screw lab generates a preview and binary STL entirely in the browser. It offers metric M3–M12 coarse-pitch presets, custom dimensions, external hex/hex socket/thumb-grip heads, and thread handedness. Geometry uses millimetres, with the head on the XY print bed. The KNARREVIK entry includes its manual part codes but no claimed matching dimensions.
 
-## Sources and dependencies
+This is an experimental geometry and fit-test tool. No physical print, load capacity, torque rating, or replacement-hardware fit has been validated.
 
-- [OpenAI PDF inputs](https://developers.openai.com/api/docs/guides/file-inputs), [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra).
-- [pdf-lib PDFDocument](https://pdf-lib.js.org/docs/api/classes/pdfdocument), MIT.
-- [Three.js OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), vendored Three.js 0.180.0, MIT.
-- [PDF.js examples](https://mozilla.github.io/pdf.js/examples/), vendored PDF.js 5.4.149, Apache-2.0.
-- LinkeDOM parses manufacturer pages and supports DOM tests, ISC.
-- [IKEA STRANDMON manual AA-2019535-7](https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf). Manual and diagrams © Inter IKEA Systems B.V.; Unfold is not affiliated with IKEA.
-- [IKEA KNARREVIK manual AA-2547698-1](https://www.ikea.com/kr/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf). The demo loads this original manual alongside its approximate generated guide.
+## References
 
-## Live engine on Sites
+- [BUILD_SPEC.md](BUILD_SPEC.md): original product brief and prepared STRANDMON sequence.
+- Three.js 0.180.0 (MIT), PDF.js 5.4.149 (Apache-2.0), pdf-lib (MIT), and LinkeDOM (ISC). Browser libraries and their license files are vendored under `dist/vendor/`.
+- [STRANDMON manual AA-2019535-7](https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf).
+- [KNARREVIK manual AA-2547698-1](https://www.ikea.com/kr/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf).
 
-The homepage opens the manual engine; the prepared STRANDMON guide remains at `/demo.html`, and `/engine.html` is a compatible entry point. The hosted workspace supports PDF/photo conversion. Sites runs extraction, generation, source reconciliation and visual review; the visitor’s WebGL browser renders the same overview, assembly and connection views used by the local Chromium checker. Keep the tab open during conversion. Missing renders, mismatches, cancellation and disconnects fail visibly instead of producing an unchecked success. Uploaded manuals remain in the conversion session. Browser render requests and captures use temporary R2 objects that are deleted when the check completes.
-
-The hosted manual library uses R2 with conditional writes for its JSON index and cached PDFs. KNARREVIK’s verified manual is available immediately. Hosted manufacturer downloads are restricted to IKEA domains; upload PDFs from other manufacturers directly. The existing local library and Chromium pipeline remain supported. Voice and scanner routes are preserved. Run `npm run build` for the complete Sites Worker; the legacy scanner-only staging script does not publish the live engine.
+IKEA manuals and diagrams © Inter IKEA Systems B.V. Unfold is not affiliated with IKEA.
