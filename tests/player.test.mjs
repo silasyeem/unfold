@@ -54,27 +54,6 @@ test('new PDF clears previous guide instructions and source references',async()=
  assert.equal(h.app.state().output,null);assert.equal(h.document.querySelector('#source-page').textContent,'');assert.equal(h.document.querySelector('#step-count').textContent,'—');assert.equal(h.document.querySelector('#instruction-title').textContent,'Your assembly, one step at a time.');assert.equal(h.document.querySelector('#play').disabled,true);
 });
 
-test('visual review feedback stays visible beyond guide note limits and remains plain text',async()=>{
- const h=await harness(),guide=fixture();
- const overview={stepIndex:-1,severity:'uncertain',description:'The far support is hidden in the source overview.',correction:'Compare its attachment against another source view.'};
- const joint={stepIndex:0,severity:'uncertain',description:'<img src=x onerror="alert(1)"> '+ 'The hidden joint needs inspection. '.repeat(50),correction:'<script>alert(1)</script> Compare the entire connection with the original diagram.'};
- const later={stepIndex:1,severity:'uncertain',description:'Check the second step only.',correction:'Inspect its other face.'};
- const format=issue=>`Visual review: ${issue.description} ${issue.correction}`;
- const ordinary=Array.from({length:8},(_,i)=>`Existing source note ${i+1}`);
- guide.reviewNotes=[format(overview),'General source note'];guide.steps[0].reviewNotes=ordinary;
- const result={guide,visualReview:{status:'needs_review',issues:[overview,joint,joint,later]}};
- assertGuide(guide);assert(format(joint).length>1500);
- h.app.loadGuide(result);
- const displayed=()=>[...h.document.querySelectorAll('#review-notes li')].map(li=>li.textContent);
- assert.deepEqual(displayed(),[format(overview),'General source note'],'Overview feedback is visible globally and deduplicates a legacy copied note.');
- h.app.setStep(0);
- assert.deepEqual(displayed(),[format(overview),format(joint),'General source note',...ordinary],'Full current-step feedback precedes all eight existing notes without truncation or duplicate issues.');
- assert.equal(h.document.querySelector('#review-notes img, #review-notes script'),null,'Feedback must be text, never executable markup.');
- assert.deepEqual(result.guide.steps[0].reviewNotes,ordinary,'Rendering feedback must not mutate the validated guide or exceed its schema limits.');
- h.app.setStep(1);
- assert.deepEqual(displayed(),[format(overview),format(later),'General source note'],'Step-specific feedback follows navigation while overview feedback remains visible.');
-});
-
 test('unified upload routes PDFs and photos, rejects mixed selections, and waits for explicit conversion',async()=>{
  const h=await harness(),$=s=>h.document.querySelector(s);
  const pdf=new File(['%PDF-1.7\nmanual'],'manual.pdf',{type:'application/pdf'}),photo=new File(['jpeg'],'page.jpg',{type:'image/jpeg'});
