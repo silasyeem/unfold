@@ -3,21 +3,28 @@ import {assertGuide} from './guide-schema.js';
 import {mountPhotoIntake} from './photo-intake.js';
 import {mountManualLibrary} from './manual-library.js';
 import {mountGuideScanner} from './guide-scanner.js';
+import {createEngineCopilotAdapter} from './engine-copilot.js';
+import {createToolDispatcher} from './copilot-tools.js';
+import {mountCopilot} from './copilot-ui.js';
 const $=s=>document.querySelector(s);
 const labels={upside_down:'Upside down',upright:'Upright',on_back:'On its back',on_left:'On its left side',on_right:'On its right side'};
 let hostedRendering=false;
 let photoIntake,manualLibrary,conversionBusy=false,choosingManual=false;const intakeBusy={photos:false,library:false,manual:false,demo:false};let demoController=null;
 let viewer,output=null,pdf=null,file=null,pdfHash=null,index=-1,progress=0,playing=false,speed=1,exploded=false,page=1,linked=true,renderId=0,renderTask=null,uploadId=0,conversion=null,last=performance.now(),reviewed=new Set();
+let copilot,manualRevision=0,currentView='whole';
+function humanAction(){manualRevision++;queueMicrotask(()=>copilot?.updateContext());}
+function voiceAvailable(){return Boolean(output)&&!choosingManual&&!conversionBusy&&!Object.values(intakeBusy).some(Boolean)&&!document.querySelector('dialog[open]');}
+function syncVoice(){const available=voiceAvailable();$('#copilot-toggle').hidden=!output||choosingManual;copilot?.refreshAvailability();if(!available&&copilot?.current)copilot.end();}
 const guideScanner=mountGuideScanner({onOpen:()=>{playing=false;syncPlay();}});
-try{viewer=createGeneratedViewer($('#generated-scene'),label=>$('#view-label').textContent=label);}catch{$('#empty-scene h2').textContent='3D is unavailable';$('#empty-scene p').textContent='Use a WebGL-capable browser to view generated parts. PDF conversion is still available.';}
+try{viewer=createGeneratedViewer($('#generated-scene'),label=>{$('#view-label').textContent=label;if(label.startsWith('Free'))currentView='free';});}catch{$('#empty-scene h2').textContent='3D is unavailable';$('#empty-scene p').textContent='Use a WebGL-capable browser to view generated parts. PDF conversion is still available.';}
 function status(message,{busy=false,error=false}={}){$('#conversion-status').textContent=message;$('.conversion-bar').classList.toggle('busy',busy);$('.conversion-bar').classList.toggle('error',error);}
-function syncPlay(){$('#play').textContent=playing?'Ⅱ':'▶';$('#play').setAttribute('aria-label',playing?'Pause step':'Play step');}
+function syncPlay(){queueMicrotask(()=>copilot?.updateContext());$('#play').textContent=playing?'Ⅱ':'▶';$('#play').setAttribute('aria-label',playing?'Pause step':'Play step');}
 function syncScanner(){guideScanner.sync(output,{busy:conversionBusy||Object.values(intakeBusy).some(Boolean),choosingManual});}
-function syncFlow(){syncScanner();document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';}
-function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.disabled=busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);syncScanner();}
+function syncFlow(){syncScanner();document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';syncVoice();}
+function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.disabled=busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);syncScanner();syncVoice();}
 function setBusy(value){conversionBusy=value;syncBusy();syncFlow();}
 async function showPage(value){
- if(!pdf)return;page=Math.max(1,Math.min(pdf.numPages,value));const serial=++renderId;renderTask?.cancel();$('#pdf-canvas').hidden=true;$('#enlarge').disabled=true;$('#manual-empty').hidden=false;$('#manual-empty').textContent='Loading source page…';
+ if(!pdf)return;queueMicrotask(()=>copilot?.updateContext());page=Math.max(1,Math.min(pdf.numPages,value));const serial=++renderId;renderTask?.cancel();$('#pdf-canvas').hidden=true;$('#enlarge').disabled=true;$('#manual-empty').hidden=false;$('#manual-empty').textContent='Loading source page…';
  $('#page-label').textContent=`Page ${page} of ${pdf.numPages}`;$('#page-prev').disabled=page===1;$('#page-next').disabled=page===pdf.numPages;$('#manual-link-state').textContent=linked&&output?'Linked':'Browsing';$('#relink').hidden=linked||index<0;
  try{const source=await pdf.getPage(page);if(serial!==renderId)return;const viewport=source.getViewport({scale:1.5});const canvas=document.createElement('canvas');canvas.width=viewport.width;canvas.height=viewport.height;renderTask=source.render({canvasContext:canvas.getContext('2d'),viewport});await renderTask.promise;if(serial!==renderId)return;const target=$('#pdf-canvas');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);target.hidden=false;$('#manual-empty').hidden=true;$('#enlarge').disabled=false;}catch(error){if(error.name!=='RenderingCancelledException'&&serial===renderId){$('#manual-empty').textContent='This source page could not be rendered. Try another page.';status('This source page could not be rendered.',{error:true});}}
 }
@@ -31,7 +38,7 @@ function notes(){
 }
 function setStep(next){
  if(!output)return;const guide=output.guide;if(next< -1||next>=guide.steps.length)return;
- index=next;progress=0;playing=false;exploded=false;$('#exploded').setAttribute('aria-pressed','false');viewer?.setState(index,progress);viewer?.guide();syncPlay();
+ index=next;progress=0;playing=false;exploded=false;currentView='guided';$('#exploded').setAttribute('aria-pressed','false');viewer?.setState(index,progress);viewer?.guide();syncPlay();
  const step=guide.steps[index];$('#instruction-step').textContent=step?`STEP ${index+1} / ${guide.steps.length}`:'PARTS OVERVIEW';$('#instruction-title').textContent=step?step.title:guide.productName;$('#instruction-text').textContent=step?step.instruction:guide.summary;
  $('#source-page').textContent=step?`Manual · p. ${step.sourcePage}`:'';$('#step-count').textContent=`${Math.max(0,index+1)} / ${guide.steps.length}`;$('#time-label').textContent=step?`Step ${index+1} of ${guide.steps.length}`:'Overview';$('#duration-label').textContent=step?`${step.duration} sec`:'';
  $('#orientation-label').textContent=step?`${labels[step.orientation]} · drag to rotate · scroll to zoom`:'Drag to rotate · scroll to zoom';$('#view-label').textContent=step?(step.actions.length?'Guided joint view':'Whole build · orientation'):'Whole build';$('#prev').disabled=index<0;$('#next').disabled=false;$('#next').textContent=index===guide.steps.length-1?'Overview ↺':index<0?'Start assembly →':'Next step →';$('#progress').disabled=index<0;$('#edit-step').disabled=index<0;
@@ -40,14 +47,14 @@ function setStep(next){
  if(pdf){linked=true;showPage(step?.sourcePage||1);}notes();
 }
 function loadGuide(result){
- assertGuide(result.guide);output=result;reviewed=new Set((result.reviewedSteps||[]).filter(n=>Number.isInteger(n)&&n>=0&&n<result.guide.steps.length));
+ assertGuide(result.guide);copilot?.end();humanAction();output=result;reviewed=new Set((result.reviewedSteps||[]).filter(n=>Number.isInteger(n)&&n>=0&&n<result.guide.steps.length));
  viewer?.load(result.guide);$('#empty-scene').hidden=!!viewer;$('#product-name').textContent=result.guide.productName;$('#guide-meta').textContent=`${result.guide.parts.length} parts · ${result.guide.steps.length} steps`;$('#document-label').textContent=result.provenance?.filename||'ASSEMBLY GUIDE';$('#draft-tag').textContent='Generated draft';
  const list=$('#step-list');list.replaceChildren();for(let i=-1;i<result.guide.steps.length;i++){const button=document.createElement('button');button.className='step-item';button.dataset.step=i;const num=document.createElement('span');num.className='step-number';num.textContent=i<0?'◇':String(i+1).padStart(2,'0');const label=document.createElement('span');label.textContent=i<0?'Parts overview':result.guide.steps[i].title;button.append(num,label);button.onclick=()=>setStep(i);list.append(button);}
  $('#parts-summary').textContent=`Parts inventory · ${result.guide.parts.length}`;$('#parts-list').replaceChildren();for(const part of result.guide.parts){const button=document.createElement('button');button.className='part-row';const swatch=document.createElement('span');swatch.className='part-swatch';swatch.style.background=part.color;const name=document.createElement('span');name.textContent=part.name;const info=document.createElement('small');info.textContent=`p. ${part.sourcePage}`;button.append(swatch,name,info);button.onclick=()=>{viewer?.selectPart(part.id);if(pdf){linked=false;showPage(part.sourcePage);}};$('#parts-list').append(button);}
  for(const selector of ['#export','#play','#speed','#step-view','#whole-view','#exploded'])$(selector).disabled=false;choosingManual=false;setStep(-1);syncFlow();syncBusy();
 }
 async function pickPdf(selected,{productName,preparedGuide}={}){
- if(!selected)return;const serial=++uploadId;conversion?.abort();playing=false;syncPlay();
+ if(!selected)return;copilot?.end();humanAction();const serial=++uploadId;conversion?.abort();playing=false;syncPlay();
  if(selected.size>8*1024*1024){status('Choose a PDF smaller than 8 MB.',{error:true});return;}
  let candidate;intakeBusy.manual=true;syncBusy();
  try{
@@ -90,7 +97,7 @@ async function pickManual(files){
  await photoIntake.open(selected,{replace:true});
 }
 $('#manual-file').onchange=e=>{const files=[...e.target.files];e.target.value='';return pickManual(files);};
-$('#change-manual').onclick=()=>{choosingManual=true;playing=false;syncPlay();syncFlow();};
+$('#change-manual').onclick=()=>{copilot?.end();choosingManual=true;playing=false;syncPlay();syncFlow();};
 $('#resume-manual').onclick=()=>{choosingManual=false;syncFlow();};
 $('#convert').onclick=async()=>{
  if(!file||!pdf)return;playing=false;syncPlay();conversion=new AbortController();const current=conversion;setBusy(true);status('Uploading the manual…',{busy:true});let received=false;
@@ -112,7 +119,7 @@ $('#next').onclick=()=>setStep(index===output.guide.steps.length-1?-1:index+1);$
 $('#progress').oninput=e=>{playing=false;progress=Number(e.target.value)/1000;viewer?.setState(index,progress);syncPlay();};
 $('#speed').onclick=()=>{const speeds=[.5,1,1.5,2];speed=speeds[(speeds.indexOf(speed)+1)%speeds.length];$('#speed').textContent=speed+'×';};
 function clearExploded(){exploded=false;$('#exploded').setAttribute('aria-pressed','false');}
-$('#step-view').onclick=()=>{clearExploded();viewer?.guide();};$('#whole-view').onclick=()=>{clearExploded();viewer?.wholeBuild();};$('#exploded').onclick=()=>{playing=false;syncPlay();exploded=!exploded;$('#exploded').setAttribute('aria-pressed',String(exploded));viewer?.setExploded(exploded);};
+$('#step-view').onclick=()=>{currentView='guided';clearExploded();viewer?.guide();};$('#whole-view').onclick=()=>{currentView='whole';clearExploded();viewer?.wholeBuild();};$('#exploded').onclick=()=>{playing=false;syncPlay();exploded=!exploded;currentView=exploded?'exploded':'whole';$('#exploded').setAttribute('aria-pressed',String(exploded));viewer?.setExploded(exploded);};
 $('#page-prev').onclick=()=>{linked=false;showPage(page-1);};$('#page-next').onclick=()=>{linked=false;showPage(page+1);};$('#relink').onclick=()=>{linked=true;showPage(output.guide.steps[index].sourcePage);};
 $('#enlarge').onclick=()=>{$('#large-page').src=$('#pdf-canvas').toDataURL();$('#page-dialog').showModal();};
 $('#edit-step').onclick=()=>{const step=output.guide.steps[index];$('#review-title').value=step.title;$('#review-instruction').value=step.instruction;$('#review-page').value=step.sourcePage;$('#review-page').max=output.guide.pageCount;$('#review-orientation').value=step.orientation;$('#review-dialog').showModal();};$('#review-close').onclick=()=>$('#review-dialog').close();
@@ -121,6 +128,21 @@ document.addEventListener('click',event=>{if(!event.target.closest('.guide-menu'
 document.addEventListener('keydown',e=>{if(!output||document.body.dataset.state!=='guide'||document.querySelector('dialog[open]')||e.target.closest('input,textarea,select,button,a,summary'))return;if(e.code==='Space'){e.preventDefault();$('#play').click();}if(e.code==='ArrowRight'){e.preventDefault();$('#next').click();}if(e.code==='ArrowLeft'){e.preventDefault();$('#prev').click();}});
 let animation;function tick(now){const delta=Math.min((now-last)/1000,.1);last=now;if(playing&&output&&index>=0){progress=Math.min(1,progress+delta*speed/output.guide.steps[index].duration);viewer?.setState(index,progress);if(progress>=1){playing=false;syncPlay();}}$('#progress').value=Math.round(progress*1000);animation=requestAnimationFrame(tick);}animation=requestAnimationFrame(tick);
 addEventListener('pagehide',()=>{conversion?.abort();demoController?.abort();cancelAnimationFrame(animation);viewer?.dispose();guideScanner.destroy();photoIntake?.destroy();manualLibrary?.destroy();pdf?.destroy();},{once:true});
+
+// Human actions invalidate queued voice commands; voice callbacks use app functions
+// directly and do not dispatch DOM clicks or pretend to be human input.
+document.addEventListener('click',event=>{if(event.target.closest('.workspace button,.source-screen button,.header-actions button:not([id^="copilot"]),[data-knarrevik-demo],#review-form button,#close-parts-scan'))humanAction();},true);
+for(const type of ['input','change'])document.addEventListener(type,event=>{if(event.target.closest('#progress,#manual-file,#guide-file,#review-form'))humanAction();},true);
+for(const type of ['pointerdown','wheel'])document.addEventListener(type,event=>{if(event.target.closest('#generated-scene canvas'))humanAction();},true);
+const reveal=selector=>{if(globalThis.matchMedia?.('(max-width:850px)').matches)$(selector).scrollIntoView({block:'start',behavior:'auto'});};
+const appTools=createEngineCopilotAdapter(()=>({output,index,page,pdfPageCount:pdf?.numPages||0,pdfLinked:linked&&pdfHash===output?.provenance?.sha256,progress,playing,currentView:exploded?'exploded':viewer?.getView?.().mode||currentView,viewerAvailable:Boolean(viewer),available:voiceAvailable(),revision:manualRevision,speed}),{
+ navigateStep:value=>{setStep(value);reveal('.viewer-panel');},
+ showManualPage:async value=>{linked=false;await showPage(value);reveal('.manual-panel');},
+ setView:mode=>{playing=false;currentView=mode;exploded=mode==='exploded';$('#exploded').setAttribute('aria-pressed',String(exploded));if(mode==='exploded')viewer?.setExploded(true);else{clearExploded();if(mode==='whole')viewer?.wholeBuild();else viewer?.guide();}syncPlay();reveal('.viewer-panel');},
+ controlPlayback:action=>{if(action==='pause'){playing=false;syncPlay();return;}if(index<0)setStep(0);if(action==='replay'||progress>=1)progress=0;clearExploded();currentView='guided';viewer?.guide();viewer?.setState(index,progress);playing=true;syncPlay();reveal('.viewer-panel');}
+});
+copilot=mountCopilot({dispatch:createToolDispatcher(appTools),getRevision:appTools.getRevision,getState:appTools.getState,canStart:voiceAvailable});
+
 fetch('/api/health').then(r=>r.json()).then(r=>{hostedRendering=r.browserRendering===true;if(!r.conversionAvailable)status('Conversion is not configured on this server. You can still open a saved guide.',{error:true});}).catch(()=>status('Open this page through the Unfold server to generate guides. Saved guides can still be opened.',{error:true}));
 
 // Enable intake only after its handlers are registered.

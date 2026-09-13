@@ -81,4 +81,8 @@ The standalone screw generator is linked from the home page and workspace header
 
 The current `feature/gpt-live-copilot` changes are integrated with the conversion engine, saved KNARREVIK demo, scanner and Screw lab. Both test directories run together: 141 tests pass. A shared Node voice handler keeps the original voice lifecycle tests intact and exposes voice, scanner, photo, library and conversion routes from one local server. The hosted build packages a combined voice/scanner Worker and includes the saved demo JSON and manual. Build and mocked route tests passed; no paid microphone session or new visual review was run.
 
-Voice controls still operate on the prepared STRANDMON guide. Generated-guide voice integration is not included. Hosted manual conversion and library search remain unavailable because they require the local Chromium/filesystem runtime; the saved KNARREVIK demo opens without those services. The existing scanner secret and the hosted copilot’s visitor-entered-key behavior are preserved.
+Hosted manual conversion and library search remain unavailable because they require the local Chromium/filesystem runtime; the saved KNARREVIK demo opens without those services. The existing scanner secret and the hosted copilot’s visitor-entered-key behavior are preserved.
+
+## KNARREVIK voice integration
+
+The engine’s Talk to guide panel uses the loaded guide’s catalog and current state instead of a fixed STRANDMON catalog. All 151 automated tests pass. Offline coverage exercises the saved KNARREVIK guide’s six steps and twelve manual pages, playback, supported views, guide replacement, human changes during pending tool calls, and exclusion of filenames, PDF bytes and geometry. The actual engine callbacks are tested alongside the adapter, shared voice lifecycle and server boundary. No paid microphone/model session or browser visual review was run; those remain unverified.

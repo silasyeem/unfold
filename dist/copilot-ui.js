@@ -1,6 +1,6 @@
 import {LiveSession} from './live-session.js';
 
-export function mountCopilot({dispatch, getRevision, getState}) {
+export function mountCopilot({dispatch, getRevision, getState, canStart = () => true}) {
   const $ = selector => document.querySelector(selector);
   const panel = $('#copilot-panel');
   const toggle = $('#copilot-toggle');
@@ -30,7 +30,7 @@ export function mountCopilot({dispatch, getRevision, getState}) {
       $('#copilot-status').textContent = message;
       const active = ['connected', 'muted'].includes(state);
       const busy = active || ['starting', 'ending'].includes(state);
-      $('#copilot-start').disabled = busy;
+      $('#copilot-start').disabled = busy || !canStart();
       $('#copilot-api-key').disabled = busy;
       $('#copilot-mute').disabled = !active;
       $('#copilot-mute').textContent = muted ? 'Unmute' : 'Mute';
@@ -51,6 +51,7 @@ export function mountCopilot({dispatch, getRevision, getState}) {
   });
   $('#copilot-collapse').addEventListener('click', () => {panel.hidden = true; toggle.setAttribute('aria-expanded', 'false'); toggle.focus();});
   $('#copilot-start').addEventListener('click', () => {
+    if(!canStart()){$('#copilot-status').textContent='Open an assembly guide before starting voice.';return;}
     entries = []; transcript.replaceChildren(); audio.hidden = true; $('#copilot-audio-note').hidden = true;
     const apiKey = $('#copilot-api-key').value.trim();
     $('#copilot-api-key').value = '';
@@ -60,5 +61,7 @@ export function mountCopilot({dispatch, getRevision, getState}) {
   $('#copilot-end').addEventListener('click', () => session.end());
   $('#copilot-quick-end').addEventListener('click', () => session.end());
   addEventListener('pagehide', () => {$('#copilot-api-key').value = ''; session.dispose();});
+  session.refreshAvailability=()=>{$('#copilot-start').disabled=Boolean(session.current)||!canStart();};
+  session.refreshAvailability();
   return session;
 }
