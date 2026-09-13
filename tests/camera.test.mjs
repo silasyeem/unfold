@@ -5,18 +5,18 @@ import * as T from '../dist/vendor/three.module.js';
 import {fixture} from './fixture.mjs';
 import {compileGuide,evaluateGuide,orientations,smooth} from '../dist/guide-state.js';
 
-async function withViewer(run){
- let frame,scene,camera,controls;const events={};
- const previous=Object.fromEntries(['devicePixelRatio','ResizeObserver','requestAnimationFrame','cancelAnimationFrame'].map(key=>[key,globalThis[key]]));
- Object.assign(globalThis,{devicePixelRatio:1,ResizeObserver:class{constructor(callback){this.callback=callback;}observe(){this.callback();}disconnect(){}},requestAnimationFrame:callback=>(frame=callback,1),cancelAnimationFrame(){}});
+async function withViewer(run,{animateTransitions=false,reducedMotion=false}={}){
+ let frame,scene,camera,controls,now=0;const events={};
+ const previous=Object.fromEntries(['devicePixelRatio','ResizeObserver','requestAnimationFrame','cancelAnimationFrame','matchMedia'].map(key=>[key,globalThis[key]]));
+ Object.assign(globalThis,{devicePixelRatio:1,matchMedia:()=>({matches:reducedMotion}),ResizeObserver:class{constructor(callback){this.callback=callback;}observe(){this.callback();}disconnect(){}},requestAnimationFrame:callback=>(frame=callback,1),cancelAnimationFrame(){}});
  class Renderer{constructor(){this.shadowMap={};this.domElement={remove(){}};}setPixelRatio(){}setSize(){}render(value,view){scene=value;camera=view;scene.updateMatrixWorld(true);}dispose(){}}
  class Controls{constructor(){controls=this;this.target=new T.Vector3();}update(){}addEventListener(name,callback){events[name]=callback;}dispose(){}}
  let viewer;
  try{
   let source=await readFile(new URL('../dist/generated-viewer.js',import.meta.url),'utf8');source=source.replace(/^import .*$/gm,'').replace('export function','function');
-  const create=new Function('T','OrbitControls','compileGuide','evaluateGuide','orientations','smooth',source+';return createGeneratedViewer;')({...T,WebGLRenderer:Renderer},Controls,compileGuide,evaluateGuide,orientations,smooth);
-  viewer=create({prepend(){},clientWidth:1024,clientHeight:768});
-  await run({viewer,draw:()=>frame(),at:progress=>{viewer.setState(0,progress);frame();},free:()=>events.start(),get scene(){return scene;},get camera(){return camera;},get target(){return controls.target;}});
+  const create=new Function('T','OrbitControls','compileGuide','evaluateGuide','orientations','smooth','performance',source+';return createGeneratedViewer;')({...T,WebGLRenderer:Renderer},Controls,compileGuide,evaluateGuide,orientations,smooth,{now:()=>now});
+  viewer=create({prepend(){},clientWidth:1024,clientHeight:768},()=>{},{animateTransitions});
+  await run({viewer,draw:()=>frame(now),advance:ms=>{now+=ms;frame(now);},at:progress=>{viewer.setState(0,progress);frame(now);},free:()=>events.start(),get scene(){return scene;},get camera(){return camera;},get target(){return controls.target;}});
  }finally{viewer?.dispose();Object.assign(globalThis,previous);}
 }
 
@@ -78,3 +78,56 @@ test('large-part placement retains source step focus and orientation-only stages
  near(h.target,new T.Vector3(...step.focus).applyMatrix4(rig.matrixWorld));assert(Math.abs(h.camera.position.distanceTo(h.target)-step.cameraDistance)<1e-8);
  step.actions=[];h.viewer.load(guide);h.at(.5);const target=h.target.clone(),position=h.camera.position.clone();h.viewer.wholeBuild();h.draw();near(h.target,target);near(h.camera.position,position);
 }));
+
+const knarrevik=async()=>JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8')).guide;
+const poseOf=step=>new T.Quaternion().setFromEuler(new T.Euler(...orientations[step.orientation]));
+const nearPose=(actual,expected,message)=>assert(actual.angleTo(expected)<1e-7,message);
+
+test('KNARREVIK step changes turn in place and move the camera directly, even while paused',async()=>withViewer(async h=>{
+ const guide=await knarrevik();h.viewer.load(guide);h.draw();
+ const rig=h.scene.getObjectByName('leg1').parent,centre=rig.worldToLocal(h.target.clone());
+ h.viewer.setState(0,1);h.advance(1000);
+ for(const index of [1,2,4,5]){
+  const from={pose:rig.quaternion.clone(),camera:h.camera.position.clone(),target:h.target.clone()};
+  h.viewer.setState(index,0);h.viewer.guide();h.draw();
+  nearPose(rig.quaternion,from.pose,'Navigation starts at the displayed orientation.');
+  near(h.camera.position,from.camera,'Navigation must not jump the camera.');near(h.target,from.target);
+  const frames=[];
+  for(let n=1;n<=4;n++){
+   h.advance(250);frames.push({pose:rig.quaternion.clone(),camera:h.camera.position.clone(),target:h.target.clone()});
+   const pivot=rig.localToWorld(centre.clone());assert(Math.abs(pivot.x)<1e-8&&Math.abs(pivot.z)<1e-8,'The furniture turns about its centre rather than swinging around its origin.');
+  }
+  const end=frames.at(-1);nearPose(end.pose,poseOf(guide.steps[index]),'A paused step completes its orientation change.');
+  frames.forEach((frame,n)=>{
+   const blend=smooth((n+1)/4);
+   nearPose(frame.pose,from.pose.clone().slerp(end.pose,blend),'The build takes the shortest eased rotation.');
+   near(frame.camera,from.camera.clone().lerp(end.camera,blend),'The camera takes a direct path instead of orbiting with the build.');
+   near(frame.target,from.target.clone().lerp(end.target,blend));
+  });
+ }
+},{animateTransitions:true}));
+
+test('KNARREVIK replay and scrubbing keep the working orientation and viewing direction steady',async()=>withViewer(async h=>{
+ const guide=await knarrevik();h.viewer.load(guide);
+ for(const index of [1,2,4,5]){
+  h.viewer.setState(index,1);h.advance(1000);const rig=h.scene.getObjectByName('leg1').parent,direction=h.camera.position.clone().sub(h.target).normalize();
+  for(const progress of [0,.04,.09,.18,.4,.8,0]){
+   h.viewer.setState(index,progress);h.draw();
+   nearPose(rig.quaternion,poseOf(guide.steps[index]),'Replay must not repeat a previous step’s turn.');
+   near(h.camera.position.clone().sub(h.target).normalize(),direction,'Timeline progress moves focus and zoom without an extra orbit.');
+  }
+ }
+},{animateTransitions:true}));
+
+test('interrupted navigation resumes from the displayed pose, and free orbit retains camera control',async()=>withViewer(async h=>{
+ const guide=await knarrevik();h.viewer.load(guide);h.viewer.setState(0,1);h.advance(1000);
+ h.viewer.setState(1,0);h.advance(350);const rig=h.scene.getObjectByName('leg1').parent,pose=rig.quaternion.clone(),camera=h.camera.position.clone(),target=h.target.clone();
+ h.viewer.setState(2,0);h.draw();nearPose(rig.quaternion,pose);near(h.camera.position,camera);near(h.target,target);
+ h.free();h.camera.position.set(9,8,7);h.target.set(4,5,6);h.advance(1000);
+ nearPose(rig.quaternion,poseOf(guide.steps[2]));near(h.camera.position,new T.Vector3(9,8,7));near(h.target,new T.Vector3(4,5,6));assert.equal(h.viewer.getView().mode,'free');
+},{animateTransitions:true}));
+
+test('reduced motion immediately shows the destination working pose',async()=>withViewer(async h=>{
+ const guide=await knarrevik();h.viewer.load(guide);h.viewer.setState(2,0);h.draw();
+ nearPose(h.scene.getObjectByName('leg1').parent.quaternion,poseOf(guide.steps[2]));
+},{animateTransitions:true,reducedMotion:true}));
