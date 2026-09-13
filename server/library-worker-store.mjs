@@ -29,7 +29,7 @@ async function download(value,{html=false,signal}={}){
  }
 }
 const demoId=KNARREVIK.manualSha256.slice(0,24);
-const empty=()=>({version:1,records:[{id:demoId,title:'KNARREVIK bedside table',product:'KNARREVIK bedside table black',manufacturer:'IKEA',modelNumber:KNARREVIK.article,sourceUrl:KNARREVIK.manualUrl,pdfUrl:KNARREVIK.manualUrl,productPageUrl:KNARREVIK.productUrl,pdfCached:true,pageCount:12,enrichmentVersion:1,enrichmentStatus:'resolved'}],queries:{}});
+const empty=()=>({version:1,records:[{id:demoId,title:'KNARREVIK bedside table',product:'KNARREVIK bedside table black',manufacturer:'IKEA',modelNumber:KNARREVIK.article,sourceUrl:KNARREVIK.manualUrl,pdfUrl:KNARREVIK.manualUrl,productPageUrl:KNARREVIK.productUrl,imageUrl:KNARREVIK.imageUrl,pdfCached:true,pageCount:12,enrichmentVersion:1,enrichmentStatus:'resolved'}],queries:{}});
 function validId(id){if(!/^[a-f0-9]{24}$/.test(id))throw new Error('Invalid manual identifier.');return id;}
 export function createWorkerLibraryStore(env){
  const bucket=env.BUCKET;

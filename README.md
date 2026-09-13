@@ -96,7 +96,7 @@ Conversion accepts one unlocked PDF up to **8 MB and 40 pages**, with up to **32
 
 Search checks the saved library first. **Search the web** makes an explicit model search when needed; repeated queries, including misses, reuse cached results. **Download manual** saves the PDF without starting conversion; **Use this manual** opens its preview. Product variants and manual revisions remain distinct. Hosted manufacturer downloads currently support IKEA domains; other manufacturers' PDFs can be uploaded directly.
 
-The local library persists in ignored `data/library/`. The hosted library uses R2 for its index and cached PDFs, with conditional index writes. The verified KNARREVIK manual is available immediately.
+The local library persists in ignored `data/library/`. The hosted library uses R2 for its index and cached PDFs, with conditional index writes. The verified KNARREVIK manual appears first in the library and matching searches, with its official IKEA product photo.
 
 ### KNARREVIK parts scan
 
@@ -158,7 +158,7 @@ npm run build
 npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
 ```
 
-Code verification on **2026-09-13** passed **196 tests**. Coverage includes the 80/81-part routing boundary, shared-plan validation, bounded worker concurrency, cancellation and correction, conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, undated saved-manual sorting, and hosted routing. Tests use controlled provider responses and need no API key. The larger-guide orchestration has not yet been validated against a live model conversion of a large manual. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
+Code verification on **2026-09-13** passed **197 tests**. Coverage includes the 80/81-part routing boundary, shared-plan validation, bounded worker concurrency, cancellation and correction, conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, undated saved-manual sorting, and hosted routing. Tests use controlled provider responses and need no API key. The larger-guide orchestration has not yet been validated against a live model conversion of a large manual. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
 
 ### API entry points
 

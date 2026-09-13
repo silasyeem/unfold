@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createWorkerLibraryStore,canonicalSource} from '../server/library-worker-store.mjs';
 import {handleEngineSocket} from '../server/engine-socket.mjs';
 import {handleLibrary} from '../server/library.mjs';
+import {KNARREVIK} from '../dist/knarrevik.js';
 
 test('hosted library search sorts the undated demo alongside saved manuals without crashing',async()=>{
  let value=null;
@@ -13,7 +14,7 @@ test('hosted library search sorts the undated demo alongside saved manuals witho
  for(const query of ['', 'KNARREVIK']){
   const response=await handleLibrary(new Request('https://unfold.example/api/library?q='+query),{libraryStore:createWorkerLibraryStore({BUCKET:bucket})});
   assert.equal(response.status,200);const result=await response.json();assert.equal(result.records.length,2);
-  assert.equal(result.records[0].id,'a'.repeat(24));assert.equal(result.records[1].discoveredAt,undefined);
+  assert.equal(result.records[0].id,KNARREVIK.manualSha256.slice(0,24));assert.equal(result.records[0].discoveredAt,undefined);assert.equal(result.records[1].id,'a'.repeat(24));
  }
  assert.equal(value,before,'Reading older entries does not rewrite or erase the stored library.');
 });
@@ -23,12 +24,26 @@ test('saved-manual ordering tolerates invalid dates and absent cache flags, pres
  const record=(id,extra)=>({...seed,id:id.repeat(24),...extra});
  const records=[record('f',{pdfCached:undefined,discoveredAt:'2026-09-13T14:00:00Z'}),record('b',{pdfCached:false,discoveredAt:null}),
   record('e',{pdfCached:true,discoveredAt:'2026-09-13T11:30:00Z'}),record('a',{pdfCached:false,discoveredAt:42}),
-  record('c',{pdfCached:false,discoveredAt:'invalid'}),record('d',{pdfCached:true,discoveredAt:'2026-09-13T13:00:00+02:00'})];
+  record('c',{pdfCached:false,discoveredAt:'invalid'}),record('d',{pdfCached:true,discoveredAt:'2026-09-13T13:00:00+02:00'}),record('g',{pdfCached:false,discoveredAt:undefined})];
  const store={read:async()=>({records,queries:{}})};
  const response=await handleLibrary(new Request('https://unfold.example/api/library'),{libraryStore:store});
  assert.equal(response.status,200);const result=await response.json();
- assert.deepEqual(result.records.map(r=>r.id[0]),['e','d','f','a','b','c']);
- assert.deepEqual(records.map(r=>r.id[0]),['f','b','e','a','c','d']);
+ assert.deepEqual(result.records.map(r=>r.id[0]),['e','d','f','a','b','c','g']);
+ assert.deepEqual(records.map(r=>r.id[0]),['f','b','e','a','c','d','g']);
+});
+
+test('KNARREVIK gets its photo for both new and legacy libraries and ranks first only among matching results',async()=>{
+ const seed=(await createWorkerLibraryStore({}).read()).records[0];assert.equal(seed.imageUrl,KNARREVIK.imageUrl);
+ const legacy={...seed};delete legacy.imageUrl;
+ const records=Array.from({length:35},(_,i)=>({...seed,id:i.toString(16).padStart(24,'0'),imageUrl:'',title:'LACK side table',product:'LACK side table',productPageUrl:'https://www.ikea.com/sg/en/p/lack-side-table-white-90449905/',sourceUrl:'https://www.ikea.com/manuals/lack.pdf',pdfUrl:'https://www.ikea.com/manuals/lack.pdf',discoveredAt:'2026-09-13T12:00:00Z'}));
+ records.push(legacy);const store={read:async()=>({records,queries:{}})};
+ for(const query of ['', 'table', 'KNARREVIK', KNARREVIK.productUrl]){
+  const response=await handleLibrary(new Request('https://unfold.example/api/library?q='+encodeURIComponent(query)),{libraryStore:store});assert.equal(response.status,200);
+  const result=await response.json();assert.equal(result.records[0].id,seed.id);assert.equal(result.records[0].imageUrl,KNARREVIK.imageUrl);assert.equal(result.records[0].pdfUrl,seed.pdfUrl);assert.equal(result.records[0].pageCount,12);
+ }
+ const unrelated=await (await handleLibrary(new Request('https://unfold.example/api/library?q=LACK'),{libraryStore:store})).json();
+ assert.equal(unrelated.records.length,30);assert(unrelated.records.every(r=>r.id!==seed.id&&r.imageUrl===''));
+ assert.equal(legacy.imageUrl,undefined,'Older saved metadata stays intact; the verified photo is supplied on read.');
 });
 
 test('hosted engine refuses cross-origin sockets and missing credentials before opening a session',()=>{

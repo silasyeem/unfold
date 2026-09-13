@@ -1,6 +1,7 @@
 export const KNARREVIK = Object.freeze({
   id: 'knarrevik-80576319', name: 'KNARREVIK', article: '805.763.19', size: '37 × 28 × 45 cm',
   productUrl: 'https://www.ikea.com/sg/en/p/knarrevik-bedside-table-black-80576319/',
+  imageUrl: 'https://www.ikea.com/sg/en/images/products/knarrevik-bedside-table-black__1255280_pe924479_s5.jpg',
   manualUrl: 'https://www.ikea.com/sg/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf',
   revision: 'AA-2547698-1',
   manualSha256: '53a0acadcb500a9ac274651f88599b9eb3b046bb6252025c211a3b618c0cdc8c',
