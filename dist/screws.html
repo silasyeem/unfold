@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Unfold — Screw lab</title>
+  <meta name="description" content="Set measured screw dimensions, preview a helical thread, and download a prototype STL for 3D printing.">
+  <link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/screws.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+</head>
+<body class="screws-page">
+  <header class="topbar"><a class="brand" href="/" aria-label="Unfold home"><span class="brand-symbol" aria-hidden="true">◇</span> unfold</a><nav aria-label="Unfold tools"><a class="button" href="/">Assembly guide ↗</a></nav></header>
+  <main class="screw-main">
+    <noscript><p>Enable JavaScript to edit dimensions and generate your screw STL. The printing guidance below is still available.</p></noscript>
+    <div class="screw-intro"><div><p class="eyebrow">MISSING A SCREW?</p><h1>Screw lab<span class="guide-tag">Experimental</span></h1><p>A measured starting point for a printed prototype.</p></div><p class="local-note">Made in your browser<br><span>No upload or account needed</span></p></div>
+    <div id="screw-source" class="source-context" hidden></div>
+    <div class="screw-layout">
+      <section class="screw-settings" aria-labelledby="dimensions-heading">
+        <div class="settings-heading"><h2 id="dimensions-heading">01 / Set your dimensions</h2><span>mm</span></div>
+        <p class="measurement-note">Measure a matching screw with calipers and a thread gauge, or use a manufacturer’s specification. Presets are examples.</p>
+        <form id="screw-form" novalidate>
+          <label class="field">Metric starting point<select id="screw-preset"><option value="3">M3 · 0.5 mm pitch</option><option value="4">M4 · 0.7 mm pitch</option><option value="5">M5 · 0.8 mm pitch</option><option value="6">M6 · 1 mm pitch</option><option value="8" selected>M8 · 1.25 mm pitch</option><option value="10">M10 · 1.5 mm pitch</option><option value="12">M12 · 1.75 mm pitch</option><option value="custom">Custom measurements</option></select></label>
+          <div class="field-pair"><label class="field">Thread diameter<input name="diameter" type="number" min="3" max="16" step="0.01" value="8" required><small>Across the thread crests</small></label><label class="field">Length under head<input name="length" type="number" min="4" max="60" step="0.1" value="20" required><small>Head excluded</small></label></div>
+          <div class="field-pair"><label class="field">Thread pitch<input name="pitch" type="number" min="0.5" max="3" step="0.01" value="1.25" required><small>Distance between crests</small></label><label class="field">Head style<select name="head"><option value="hex">External hex</option><option value="socket">Hex socket</option><option value="thumb">Thumb grip</option></select></label></div>
+          <details class="screw-advanced"><summary>Head dimensions & fit</summary><div class="field-pair"><label class="field"><span id="head-width-label">Head across flats</span><input name="headWidth" type="number" min="5" max="32" step="0.1" value="13" required></label><label class="field">Head height<input name="headHeight" type="number" min="2" max="16" step="0.1" value="8" required></label></div><label id="socket-field" class="field" hidden>Hex key across flats<input name="socketSize" type="number" min="1.5" max="12" step="0.1" value="6" required></label><label class="field">Thread diameter reduction<input name="clearance" type="number" min="0" max="0.6" step="0.01" value="0.2" required><small>0.2 mm reduces each side by 0.1 mm. Pitch and length stay fixed. Calibrate with a test print.</small></label><label class="field">Thread direction<select name="hand"><option value="right">Right hand · normal</option><option value="left">Left hand</option></select></label></details>
+          <p id="screw-error" class="screw-error" role="alert" hidden></p>
+          <button id="screw-download" class="button primary screw-download" type="submit" disabled>Download screw STL ↓</button>
+          <p id="screw-status" class="export-note" role="status" aria-live="polite">Preparing the example…</p>
+        </form>
+      </section>
+      <section class="screw-output" aria-labelledby="preview-heading">
+        <div class="screw-preview" id="screw-preview"><div class="preview-top"><h2 id="preview-heading">02 / Inspect the prototype</h2><button id="screw-reset-view" class="button" type="button" disabled>Reset view ↺</button></div><p id="preview-fallback" class="preview-fallback" hidden></p><div class="preview-bottom"><span>Drag to rotate · Scroll to zoom</span><span>Head on print bed · Z ↑</span></div></div>
+        <div class="screw-spec"><div><span class="eyebrow">YOUR PROTOTYPE</span><h3 id="screw-spec-name">M8 × 1.25 · 20 mm</h3></div><dl><div><dt>Printed diameter</dt><dd id="screw-actual">—</dd></div><div><dt>Overall length</dt><dd id="screw-overall">—</dd></div><div><dt>Mesh</dt><dd id="screw-facets">—</dd></div></dl></div>
+        <aside class="print-verdict" aria-labelledby="print-verdict-title"><span class="verdict-dot" aria-hidden="true"></span><div><h2 id="print-verdict-title">Prototype and light-duty use only</h2><p id="print-size-advice">Larger threads are a more realistic starting point. Print one and check the fit gently.</p><p>For a chair, table joint, wall fixing, or other load-bearing connection, get the correct metal screw. This model has no tested strength or tightening torque.</p></div></aside>
+      </section>
+    </div>
+    <section class="screw-guide" aria-label="Before you print">
+      <div><span class="eyebrow">MATCH FIRST</span><h2>Same diameter isn’t enough.</h2><p>Check pitch, length, head clearance and drive size. Furniture screws may be self-tapping or proprietary. This tool makes a blunt, fully threaded machine screw with an approximate 60° profile.</p></div>
+      <div><span class="eyebrow">PRINT ONE</span><h2>Start with a fit test.</h2><p>Import the STL in millimetres at 100% scale. Head-down orientation is supplied for convenience; layer direction affects strength. Try fine layers, keep supports off threads, and never force a tight fit.</p></div>
+      <div><span class="eyebrow">KNOW THE LIMIT</span><h2>Plastic isn’t a metal spare.</h2><p>Small threads and repeated tightening are difficult. Resin or SLS can capture finer detail, but material and process still determine durability. <a href="https://formlabs.com/blog/adding-screw-threads-3d-printed-parts/" target="_blank" rel="noopener">Read the printing guidance ↗</a></p></div>
+    </section>
+    <footer class="screw-footer">STL contains geometry, not printer settings or guaranteed tolerances. <a href="https://www.bossard.com/-/media/bossard-group/website/documents/technical-resources/en/f-079-en.pdf" target="_blank" rel="noopener">Metric thread reference ↗</a></footer>
+  </main>
+  <script type="module" src="/screws.js"></script>
+</body>
+</html>
