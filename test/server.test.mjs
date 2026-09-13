@@ -34,7 +34,7 @@ test('GPT-Live upstream wire shape and sanitized response; current catalog via t
   assert.match(body.session.delegation.responses.instructions, /get_assembly_state/);
   assert.match(body.session.delegation.responses.instructions, /list_assembly_steps/);
   assert.doesNotMatch(body.session.delegation.responses.instructions, /STRANDMON|Fit the seat cushion/);
-  assert.equal(body.session.delegation.responses.tools.length, 6);
+  assert.deepEqual(body.session.delegation.responses.tools.map(tool => tool.name), ['get_assembly_state', 'list_assembly_steps', 'navigate_assembly_step', 'navigate_relative_step', 'show_manual_page', 'set_assembly_view', 'control_playback']);
   assert.doesNotMatch(JSON.stringify(body), /test-secret/);
 });
 test('API boundaries reject wrong origins/hosts, malformed inputs, body limits and unsupported methods', async t => {

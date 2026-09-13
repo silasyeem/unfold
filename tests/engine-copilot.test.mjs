@@ -88,6 +88,30 @@ test('engine view capabilities reject underside without mutating while supported
   assert.equal(f.mutations.length, before);
 });
 
+test('relative voice navigation uses the live step, relinks pages, and stops at either boundary', async () => {
+  const f = fixture();
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'previous'})).ok, false);
+  assert.deepEqual(f.mutations, []);
+  let result = await f.dispatch('navigate_relative_step', {direction: 'next'});
+  assert.equal(result.ok, true); assert.equal(result.state.step, 1);
+  // The manual page and previously returned state cannot determine the next step.
+  await f.dispatch('show_manual_page', {page: 12});
+  f.current.index = 3;
+  result = await f.dispatch('navigate_relative_step', {direction: 'next'});
+  assert.equal(result.state.step, 5); assert.equal(result.state.manualPage, knarrevik.guide.steps[4].sourcePage); assert.equal(result.state.linked, true);
+  result = await f.dispatch('navigate_relative_step', {direction: 'previous'});
+  assert.equal(result.state.step, 4);
+  f.current.output = replacement(); f.current.index = 16; f.current.revision++;
+  result = await f.dispatch('navigate_relative_step', {direction: 'next'});
+  assert.equal(result.state.step, 18); assert.equal(result.state.product, 'Replacement table');
+  const before = f.mutations.length;
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'next'})).ok, false);
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'back'})).ok, false);
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'previous'}, {revision: 0})).ok, false);
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'previous'}, {isActive: () => false})).ok, false);
+  assert.equal(f.mutations.length, before);
+});
+
 test('catalog and bounds follow guide replacement including generated guides beyond legacy step sixteen', async () => {
   const f = fixture(); await f.dispatch('list_assembly_steps', {});
   f.current.output = replacement(); f.current.revision++;

@@ -55,8 +55,8 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
   if(mode!=='free')positionCamera(guidance);
   if(transition){
    const blend=smooth((now-transition.start)/1000);
-   // The camera travels directly to the destination shot in world space. It
-   // must not orbit with the intermediate furniture pose during the turn.
+   // Turn the furniture independently of the camera. The whole-build shot is
+   // fixed in world space; only an explicitly requested close-up changes it.
    rig.quaternion.slerpQuaternions(transition.pose,pose,blend);groundRig(state);
    if(mode!=='free'){camera.position.lerpVectors(transition.camera,camera.position,blend);controls.target.lerpVectors(transition.target,controls.target,blend);}
    if(blend>=1)transition=null;
@@ -74,7 +74,9 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
  }
  function positionCamera(guidance){
   if(!compiled)return;
-  const target=baseCenter.clone().applyMatrix4(rig.matrixWorld);let direction=new T.Vector3(1.2,.7,1.5).normalize();let distance=radius*3.5;
+  // Reserve room for the grounded build in every working orientation. A tighter
+  // upright-only fit can crop the lower edge when the furniture lies on its side.
+  const target=new T.Vector3(0,radius,0);let direction=new T.Vector3(1.2,.7,1.5).normalize();let distance=radius*5;
   if(mode==='guided'&&index>=0&&compiled.guide.steps[index].actions.length){
    const step=compiled.guide.steps[index],close=smooth(progress/.23);
    const viewFor=operation=>{
@@ -91,7 +93,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
    target.lerp(focus,close);direction.fromArray(step.cameraDirection).normalize().applyQuaternion(rig.quaternion);
    // Generated camera directions can point through the support surface after a flip.
    direction.y=Math.max(.25,Math.abs(direction.y));direction.normalize();
-   distance=T.MathUtils.lerp(radius*3.5,jointDistance,close);
+   distance=T.MathUtils.lerp(radius*5,jointDistance,close);
   }
   if(exploded)distance*=1.45;
   distance*=Math.max(1,.95/camera.aspect);controls.target.copy(target);camera.position.copy(target).addScaledVector(direction,distance);camera.position.y=Math.max(.1,camera.position.y);camera.near=Math.max(.005,distance/300);camera.far=Math.max(100,distance*10);camera.updateProjectionMatrix();
@@ -99,7 +101,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
  const observer=new ResizeObserver(()=>{const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();dirty=true;});observer.observe(container);
  function draw(now=performance.now()){if(disposed)return;frame=requestAnimationFrame(draw);if(dirty||transition)drawState(now);controls.update();renderer.render(scene,camera);}draw();
  return{
-  load,setState(i,t){if(index!==i){transition=compiled&&animateTransitions&&!reducedMotion?{pose:rig.quaternion.clone(),camera:camera.position.clone(),target:controls.target.clone(),start:performance.now()}:null;mode=i<0?'whole':'guided';exploded=false;}index=i;progress=t;dirty=true;},
+  load,setState(i,t){if(index!==i){transition=compiled&&animateTransitions&&!reducedMotion?{pose:rig.quaternion.clone(),camera:camera.position.clone(),target:controls.target.clone(),start:performance.now()}:null;if(mode!=='free')mode='whole';exploded=false;}index=i;progress=t;dirty=true;},
   guide(){mode=index<0?'whole':'guided';exploded=false;dirty=true;onView(index<0?'Whole build':compiled.guide.steps[index].actions.length?'Step view · joint highlighted':'Whole build · orientation');},
   wholeBuild(){mode='whole';exploded=false;dirty=true;onView('Whole build');},
   setExploded(v){exploded=v;mode='whole';dirty=true;onView(v?'Exploded parts':'Whole build');},

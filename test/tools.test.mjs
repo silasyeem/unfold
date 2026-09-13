@@ -42,6 +42,17 @@ test('invalid, unknown, stale and inactive calls never mutate', async () => {
   assert.deepEqual(f.mutations, []);
 });
 
+test('relative navigation also works in the prepared guide without preliminary read calls', async () => {
+  const f = fixture();
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'previous'})).ok, false);
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'next'})).state.step, 1);
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'previous'})).state.step, 0);
+  f.state.step = 15;
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'next'})).state.step, 16);
+  assert.equal((await f.dispatch('navigate_relative_step', {direction: 'next'})).ok, false);
+  assert.deepEqual(f.mutations, ['step', 'step', 'step']);
+});
+
 test('unsupported upload stays local and unrelated; only document browsing is permitted', async () => {
   const f = fixture(); Object.assign(f.state, {preparedGuideApplies: false, manualPageCount: 4, manualPage: 2, linked: false});
   for (const [name, args] of [['navigate_assembly_step', {step: 3}], ['set_assembly_view', {mode: 'whole'}], ['control_playback', {action: 'play'}]]) assert.equal((await f.dispatch(name, args)).ok, false);
