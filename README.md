@@ -58,7 +58,7 @@ These are the repository's configured defaults:
 | `OPENAI_BACKEND_MODEL` | Voice copilot's delegated Responses model. | `gpt-5.6-terra` |
 | `UNFOLD_PORT` | Local server port. | `4173` |
 
-Extraction, evidence reconciliation, and visual review use high reasoning; geometry generation uses medium. Voice uses `gpt-live-1`. If `OPENAI_SCAN_MODEL` is omitted, scanning falls back to `OPENAI_MODEL`, then `gpt-5.4`. Legacy `PORT` is used when `UNFOLD_PORT` is unset.
+Extraction, evidence reconciliation, and visual review use high reasoning; geometry generation uses medium. Guides with more than 80 physical parts use the Astra orchestration path described below, independently of `OPENAI_MODEL`. Voice uses `gpt-live-1`. If `OPENAI_SCAN_MODEL` is omitted, scanning falls back to `OPENAI_MODEL`, then `gpt-5.4`. Legacy `PORT` is used when `UNFOLD_PORT` is unset.
 
 The Node server reads `.env.local` and legacy `.env`, with `.env.local` taking precedence. Both are ignored by Git. Keep credentials out of frontend files, guide exports, and commits. For your own deployment, supply credentials through runtime secrets.
 
@@ -92,7 +92,7 @@ Voice and delegated model work incur OpenAI API usage after the user starts a se
 
 ### Manual intake and library
 
-Conversion accepts one unlocked PDF up to **8 MB and 40 pages**, with up to **32 assembly steps**. Photo intake accepts up to **20 JPEG/PNG pages**, each up to **12 MB**. Reorder, rotate, and remove pages before preparing the PDF. Images are reduced to 2,000 pixels on the longest edge; the resulting manual must fit the 8 MB limit. Manual-page HEIC input, perspective correction, and deblurring are not supported.
+Conversion accepts one unlocked PDF up to **8 MB and 40 pages**, with up to **32 assembly steps**. Guides support **512 physical parts**, counting each screw and supplied tool, and up to **2,048 actions per step**. Saved guides can be up to **16 MB**. These are application resource budgets; 80 parts is a generation routing threshold. Photo intake accepts up to **20 JPEG/PNG pages**, each up to **12 MB**. Reorder, rotate, and remove pages before preparing the PDF. Images are reduced to 2,000 pixels on the longest edge; the resulting manual must fit the 8 MB limit. Manual-page HEIC input, perspective correction, and deblurring are not supported.
 
 Search checks the saved library first. **Search the web** makes an explicit model search when needed; repeated queries, including misses, reuse cached results. **Download manual** saves the PDF without starting conversion; **Use this manual** opens its preview. Product variants and manual revisions remain distinct. Hosted manufacturer downloads currently support IKEA domains; other manufacturers' PDFs can be uploaded directly.
 
@@ -117,6 +117,14 @@ STRANDMON is a separate, manually authored reference guide. For a small conversi
 3. **Generate the guide.** Build compound primitives and timed actions, mapping each physical instance to its source component. Validate references, parent relationships, action timing, geometry, final visibility, and handling rotations.
 4. **Compare rendered stages.** Render the actual player: completed-product overview, every assembled stage, and a representative active connection per step. Compare each capture with its source PDF page. Local runs use isolated Chromium; hosted runs use the visitor's browser with a temporary R2 relay. Keep the hosted tab open until conversion completes.
 5. **Correct or return.** A clear mismatch triggers one correction and fresh rendering/review. Missing or extra components and incorrect poses can trigger a new source-evidence check. Persistent mismatches or incomplete checks return an error. Successful exports include provenance, component coverage, review notes, and the visual-review report.
+
+### Larger guides
+
+Inventories of **81–512 physical parts** use `gpt-6-astra` with **high reasoning** to coordinate part generation. The coordinator sets a shared scale, geometry recipes, immutable instance IDs, parent relationships, final transforms, connection timing and manual viewing axes. Astra workers with **medium reasoning** then generate geometry and actions in groups of at most **16 parts**, with **two groups running concurrently**. Workers can read the full plan but can only generate and animate their assigned parts.
+
+Both coordinator and workers request [Fast mode](https://developers.openai.com/api/docs/guides/priority-processing) with `service_tier: "priority"`; the final visual review also requests Astra high Fast. Fast availability and pricing depend on the API project and model, and Astra Fast is unavailable with EU data residency. Unsupported requests return an error rather than silently changing the requested processing mode. Export provenance records the requested tier and any provider-reported generation tiers.
+
+The Engine validates the plan before dispatch, retries an invalid plan or part group once, and cancels sibling work if a group cannot finish. It merges groups in a deterministic order, checks complete physical coverage and final transforms, then runs the same whole-guide source and rendered-stage checks used by smaller guides. A visual correction replans and regenerates the complete guide. No partial guide is returned. Usage includes the coordinator, workers, corrections and review. Guides with 80 or fewer parts retain the existing single-generation-call path.
 
 Generated geometry remains approximate. Structural and model-based visual checks can miss errors, and sampled screenshots cannot prove every motion or connection. Step review records a user's edits and checks; it does not establish CAD accuracy, physical fit, or fastening strength. Primitive geometry and action paths are currently edited in guide JSON.
 
@@ -150,7 +158,7 @@ npm run build
 npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
 ```
 
-Code verification on **2026-09-13** passed **183 tests**. Coverage includes conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, cancellation, and hosted routing. Tests use controlled provider responses and need no API key. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
+Code verification on **2026-09-13** passed **194 tests**. Coverage includes the 80/81-part routing boundary, shared-plan validation, bounded worker concurrency, cancellation and correction, conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, and hosted routing. Tests use controlled provider responses and need no API key. The larger-guide orchestration has not yet been validated against a live model conversion of a large manual. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
 
 ### API entry points
 

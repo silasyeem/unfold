@@ -1,12 +1,12 @@
 import {requestStructured,base64} from './extract.mjs';
-import {guideSchema} from '../dist/guide-schema.js';
+import {guideSchema,MAX_GUIDE_PARTS} from '../dist/guide-schema.js';
 import {compileGuide,evaluateGuide} from '../dist/guide-state.js';
 import {Box3,Euler,Matrix4,Vector3} from '../dist/vendor/three.module.js';
 
 const text={type:'string',maxLength:1500};
 const id={type:'string',pattern:'^[a-zA-Z0-9_-]{1,60}$'};
 const object=properties=>({type:'object',properties,required:Object.keys(properties),additionalProperties:false});
-const list=(items,maxItems=80)=>({type:'array',items,maxItems});
+const list=(items,maxItems=MAX_GUIDE_PARTS)=>({type:'array',items,maxItems});
 const page={type:'integer',minimum:1,maximum:40};
 const kinds=['part','hardware','tool'];
 const shapes=['solid_panel','open_frame','linear','compound','fastener','tool'];
@@ -14,7 +14,7 @@ const roles=['surface','support','frame','connector','tool','other'];
 const orientations=['upright','on_back','on_front','on_left','on_right','upside_down'];
 
 export const componentEvidenceSchema=object({
- components:{...list(object({id,name:text,code:text,kind:{type:'string',enum:kinds},quantity:{type:'integer',minimum:1,maximum:80},role:{type:'string',enum:roles},geometryClass:{type:'string',enum:shapes},description:text,sourcePages:{...list(page,40),minItems:1}})),minItems:1},
+ components:{...list(object({id,name:text,code:text,kind:{type:'string',enum:kinds},quantity:{type:'integer',minimum:1,maximum:MAX_GUIDE_PARTS},role:{type:'string',enum:roles},geometryClass:{type:'string',enum:shapes},description:text,sourcePages:{...list(page,40),minItems:1}})),minItems:1},
  referenceViews:list(object({sourcePage:page,kind:{type:'string',enum:['cover','completed']},componentIds:list(id),solidSurfaceComponentIds:list(id),description:text}),40),
  steps:{...list(object({sourceEntryId:{type:'string',pattern:'^(entry_[0-9]+)?$'},number:text,title:text,instruction:text,sourcePage:page,orientation:{type:'string',enum:orientations},componentIds:list(id),notes:list(text,8)}),32),minItems:1},
  reviewNotes:list(text,20)
@@ -28,10 +28,10 @@ export function validateComponentEvidence(data,source){
  for(const c of data.components){
   if(!/^[a-zA-Z0-9_-]{1,60}$/.test(c.id)||components.has(c.id))errors.push(`Invalid or duplicate component ID: ${c.id}.`);
   components.set(c.id,c);total+=c.quantity;
-  if(!Number.isInteger(c.quantity)||c.quantity<1||c.quantity>80||!kinds.includes(c.kind)||!shapes.includes(c.geometryClass)||!roles.includes(c.role))errors.push(`Invalid component definition: ${c.id}.`);
+  if(!Number.isInteger(c.quantity)||c.quantity<1||c.quantity>MAX_GUIDE_PARTS||!kinds.includes(c.kind)||!shapes.includes(c.geometryClass)||!roles.includes(c.role))errors.push(`Invalid component definition: ${c.id}.`);
   if(!Array.isArray(c.sourcePages)||!c.sourcePages.length||c.sourcePages.some(p=>!Number.isInteger(p)||p<1||p>source.pageCount))errors.push(`Invalid evidence pages for ${c.id}.`);
  }
- if(total>80)errors.push('The complete inventory exceeds the supported 80 physical parts.');
+ if(total>MAX_GUIDE_PARTS)errors.push(`The complete inventory exceeds the ${MAX_GUIDE_PARTS}-part guide resource budget. Split this manual into sections.`);
  const seen=new Set();let previous=-1;let previousPage=0;
  for(const s of data.steps){
   if(!Number.isInteger(s.sourcePage)||s.sourcePage<1||s.sourcePage>source.pageCount||s.sourcePage<previousPage)errors.push('Reconciled steps must remain in source-page order.');

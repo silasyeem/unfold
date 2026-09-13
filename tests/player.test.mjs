@@ -8,7 +8,7 @@ import {mountConversionProgress} from '../dist/conversion-progress.js';
 import {KNARREVIK} from '../dist/knarrevik.js';
 import {createEngineCopilotAdapter} from '../dist/engine-copilot.js';
 import {createToolDispatcher} from '../dist/copilot-tools.js';
-import {assertGuide} from '../dist/guide-schema.js';
+import {assertGuide,MAX_GUIDE_BYTES} from '../dist/guide-schema.js';
 import {compileGuide,evaluateGuide,orientations,smooth} from '../dist/guide-state.js';
 import * as Base from '../dist/vendor/three.module.js';
 
@@ -38,7 +38,7 @@ async function harness({pageCount=1,hostedRendering=false,entry='engine.html'}={
  let viewerIndex=-1;
  const fakeViewer={load(guide){loaded++;loadedGuides.push(guide);viewMode='whole';viewerIndex=-1;},setState(index){if(index!==viewerIndex)viewMode='whole';viewerIndex=index;},getView:()=>({mode:viewMode}),guide(){viewMode=viewerIndex<0?'whole':'guided';},wholeBuild(){viewMode='whole';},setExploded(){viewMode='whole';},selectPart(){},dispose(){}};
  const fakePdf={numPages:pageCount,destroy:async()=>{},getPage:async()=>({getViewport:()=>({width:100,height:100}),render:()=>({promise:Promise.resolve(),cancel(){}})})};
- const context={document,KNARREVIK,queueMicrotask,mountConversionProgress,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:(container,options)=>{libraryOptions=options;return{setDisabled(){},destroy(){}};},createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true,browserRendering:hostedRendering});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
+ const context={document,KNARREVIK,queueMicrotask,mountConversionProgress,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:(container,options)=>{libraryOptions=options;return{setDisabled(){},destroy(){}};},createGeneratedViewer:()=>fakeViewer,assertGuide,MAX_GUIDE_BYTES,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true,browserRendering:hostedRendering});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
 
  const scannerSource=(await readFile(new URL('../dist/guide-scanner.js',import.meta.url),'utf8')).replace(/^import .*$/gm,'').replace('export function','function');
  context.mountGuideScanner=new Function('document','KNARREVIK',scannerSource+';return mountGuideScanner;')(document,KNARREVIK);
@@ -130,9 +130,11 @@ for(const hostedRendering of [false,true])test(`${hostedRendering?'Sites':'local
 test('reopened arbitrary guides retain voice navigation through all 32 steps without a linked PDF',async()=>{
  const h=await harness({entry:'index.html'}),$=s=>h.document.querySelector(s),guide=cabinetGuide();
  guide.steps=Array.from({length:32},(_,i)=>({...structuredClone(guide.steps[i%2]),title:`Cabinet step ${i+1}`}));
+ guide.parts.push(...Array.from({length:80},(_,i)=>({...structuredClone(guide.parts[0]),id:`extra_${i}`,parentId:''})));
  assertGuide(guide);
  h.app.loadGuide({guide:fixture()});h.voiceSession.current={id:'previous-guide-session'};
- await $('#guide-file').onchange({target:{files:[new File([JSON.stringify({guide})],'cabinet.unfold.json')],value:'cabinet.unfold.json'}});
+ // Formatting whitespace makes a valid saved guide exceed the old 2 MB limit.
+ await $('#guide-file').onchange({target:{files:[new File([' '.repeat(2*1024*1024),JSON.stringify({guide})],'cabinet.unfold.json')],value:'cabinet.unfold.json'}});
  assert.equal(h.voiceSession.current,null,'Opening a different guide clears the previous voice session.');
  assert.equal(h.loadedGuides.at(-1).productName,'Storage cabinet');assert.equal($('#copilot-toggle').hidden,false);assert.equal(h.voice.canStart(),true);
  const catalog=await h.voice.dispatch('list_assembly_steps',{});assert.equal(catalog.steps.length,33);assert.equal(catalog.steps[32].title,'Cabinet step 32');
@@ -141,6 +143,8 @@ test('reopened arbitrary guides retain voice navigation through all 32 steps wit
  assert.equal((await h.voice.dispatch('control_playback',{action:'play'})).state.playing,true);
  assert.equal((await h.voice.dispatch('set_assembly_view',{mode:'whole'})).state.view,'whole');
  assert.equal((await h.voice.dispatch('navigate_assembly_step',{step:33})).ok,false);
+ await $('#guide-file').onchange({target:{files:[{size:MAX_GUIDE_BYTES+1,text(){throw new Error('Oversized guides must be rejected before reading.');}}],value:''}});
+ assert.match($('#conversion-status').textContent,/16 MB/);assert.equal(h.loadedGuides.at(-1).parts.length,83);
 });
 
 

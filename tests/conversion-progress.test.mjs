@@ -12,6 +12,8 @@ test('progress follows real stages, shows elapsed and stale feedback, and resets
  ui.start();assert.equal(root.hidden,false);assert.match(root.textContent,/Step 1 of 5/);
  clock=4000;ui.contact();ui.update('Reading source pages 1–6 of 12…');assert.match(root.textContent,/Step 2 of 5/);
  clock=69000;tick();assert.match(root.textContent,/1:08 elapsed/);assert.match(root.textContent,/taking a while/);assert.match(root.textContent,/65s ago/);
+ ui.update('Planning shared dimensions and connections for 81 parts…');assert.match(root.textContent,/Step 4 of 5/);
+ ui.update('Building 3D parts: 2 of 6 groups complete…');assert.match(root.textContent,/Step 4 of 5/);
  ui.update('Comparing rendered views 1–4 of 13 with source diagrams…');assert.match(root.textContent,/Step 5 of 5/);
  ui.update('Constructing 3D parts and 6 source-linked steps…');assert.match(root.textContent,/Step 5 of 5/);
  ui.stop();assert.equal(root.hidden,true);assert.equal(cleared,1);

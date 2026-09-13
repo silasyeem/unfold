@@ -1,9 +1,13 @@
 // Shared contract: model output is data, never executable geometry or code.
+// Resource budgets for the player/importer; 80 is now a generation routing threshold.
+export const MAX_GUIDE_PARTS=512;
+export const MAX_STEP_ACTIONS=2048;
+export const MAX_GUIDE_BYTES=16*1024*1024;
 const string={type:'string',maxLength:1500};
 const number={type:'number',minimum:-20,maximum:20};
 const vector={type:'array',items:number,minItems:3,maxItems:3};
 const object=properties=>({type:'object',properties,required:Object.keys(properties),additionalProperties:false});
-const list=(items,maxItems=80)=>({type:'array',items,maxItems});
+const list=(items,maxItems=MAX_GUIDE_PARTS)=>({type:'array',items,maxItems});
 export const guideSchema=object({
  schemaVersion:{type:'string',enum:['1']},productName:string,summary:string,pageCount:{type:'integer',minimum:1,maximum:40},
  reviewNotes:list(string,20),
@@ -16,7 +20,7 @@ export const guideSchema=object({
   title:string,instruction:string,sourcePage:{type:'integer',minimum:1,maximum:40},duration:{type:'number',minimum:3,maximum:30},
   orientation:{type:'string',enum:['upright','on_back','on_front','on_left','on_right','upside_down']},focus:vector,cameraDirection:vector,cameraUp:vector,cameraDistance:{type:'number',minimum:0.15,maximum:10},
   reviewNotes:list(string,8),
-  actions:list(object({partId:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,60}$'},kind:{type:'string',enum:['place','insert','rotate','tighten','remove']},fromPosition:vector,toPosition:vector,fromRotation:vector,toRotation:vector,axis:{...vector,description:'Signed rotation axis in part-local coordinates; the spin follows the right-hand rule after the part rotation.'},turns:{type:'integer',minimum:-8,maximum:8,description:'Signed full revolutions. Positive is counterclockwise viewed from the positive axis side toward the origin. Right-hand tightening is clockwise from the screw-head side: negative for an outward axis, positive for an inward axis.'},start:{type:'number',minimum:0,maximum:1},end:{type:'number',minimum:0,maximum:1}}),24)
+  actions:list(object({partId:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,60}$'},kind:{type:'string',enum:['place','insert','rotate','tighten','remove']},fromPosition:vector,toPosition:vector,fromRotation:vector,toRotation:vector,axis:{...vector,description:'Signed rotation axis in part-local coordinates; the spin follows the right-hand rule after the part rotation.'},turns:{type:'integer',minimum:-8,maximum:8,description:'Signed full revolutions. Positive is counterclockwise viewed from the positive axis side toward the origin. Right-hand tightening is clockwise from the screw-head side: negative for an outward axis, positive for an inward axis.'},start:{type:'number',minimum:0,maximum:1},end:{type:'number',minimum:0,maximum:1}}),MAX_STEP_ACTIONS)
  }),32),minItems:1}
 });
 
@@ -35,6 +39,9 @@ function inspect(value,schema,path,errors){
  }else if(typeof value!==schema.type)errors.push(`${path}: expected ${schema.type}`);
  else if(schema.type==='string'&&((schema.maxLength&&value.length>schema.maxLength)||(schema.pattern&&!new RegExp(schema.pattern).test(value))))errors.push(`${path}: invalid text`);
  if(schema.enum&&!schema.enum.includes(value))errors.push(`${path}: unsupported value`);
+}
+export function validateSchema(value,schema,path='value'){
+ const errors=[];inspect(value,schema,path,errors);return errors.slice(0,30);
 }
 export function validateGuide(guide,expectedPageCount){
  // Older saved schema-1 guides predate explicit manual viewing axes. Validate

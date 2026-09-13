@@ -20,7 +20,8 @@ function apply(state,step,t){
 }
 export function compileGuide(guide){
  assertGuide(guide);
- const state=Object.fromEntries(guide.parts.map(p=>{const first=guide.steps.flatMap(s=>s.actions).find(a=>a.partId===p.id);return[p.id,{position:[...(first?first.fromPosition:p.position)],rotation:[...(first?first.fromRotation:p.rotation)],visible:p.initiallyVisible,active:false,spin:0,spinAxis:[0,1,0]}];}));
+ const firstActions=new Map();for(const step of guide.steps)for(const action of step.actions)if(!firstActions.has(action.partId))firstActions.set(action.partId,action);
+ const state=Object.fromEntries(guide.parts.map(p=>{const first=firstActions.get(p.id);return[p.id,{position:[...(first?first.fromPosition:p.position)],rotation:[...(first?first.fromRotation:p.rotation)],visible:p.initiallyVisible,active:false,spin:0,spinAxis:[0,1,0]}];}));
  const starts=[];
  for(const step of guide.steps){starts.push(clone(state));apply(state,step,1);revealAncestors(state,guide);}
  return{guide,starts};

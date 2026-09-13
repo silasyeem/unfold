@@ -1,7 +1,7 @@
 const stages=['Send manual','Read pages','Identify parts','Build guide','Check 3D'];
 export function conversionStage(message){
  if(/Checking source|Checking 3D|Rendering|Comparing rendered|Correcting/i.test(message))return 4;
- if(/Constructing 3D/i.test(message))return 3;
+ if(/Constructing 3D|Planning shared|Building 3D parts/i.test(message))return 3;
  if(/Cross-checking|Independently verifying/i.test(message))return 2;
  if(/Reading source/i.test(message))return 1;
  return 0;

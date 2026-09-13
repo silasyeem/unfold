@@ -4,14 +4,15 @@ const object=properties=>({type:'object',properties,required:Object.keys(propert
 const list=items=>({type:'array',items});
 const extractionSchema=object({productName:text,inventory:list(object({name:text,code:text,quantity:{type:'integer'},description:text})),pages:list(object({pageIndex:{type:'integer'},kind:{type:'string',enum:['cover','inventory','safety','assembly','other']},steps:list(object({number:text,title:{type:'string',minLength:1},instruction:{type:'string',minLength:1},orientation:{type:'string',enum:['upright','on_back','on_front','on_left','on_right','upside_down']},parts:list(text),notes:list(text)}))}))});
 export function base64(bytes){let out='';for(let i=0;i<bytes.length;i+=8192)out+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(out);}
-export async function requestStructured({apiKey,model,instructions,content,schema,name,maxTokens=10000,reasoningEffort='low',signal,fetchImpl=fetch}){
- const response=await fetchImpl('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model,store:false,instructions,input:[{role:'user',content}],text:{format:{type:'json_schema',name,strict:true,schema}},max_output_tokens:maxTokens,reasoning:{effort:reasoningEffort}}),signal});
+export async function requestStructured({apiKey,model,instructions,content,schema,name,maxTokens=10000,reasoningEffort='low',serviceTier,signal,fetchImpl=fetch}){
+ signal?.throwIfAborted();
+ const response=await fetchImpl('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model,store:false,instructions,input:[{role:'user',content}],text:{format:{type:'json_schema',name,strict:true,schema}},max_output_tokens:maxTokens,reasoning:{effort:reasoningEffort},...(serviceTier?{service_tier:serviceTier}:{})}),signal});
  const body=await response.json();
  if(!response.ok){const code=body.error?.code;throw new Error(code==='insufficient_quota'?'The API project needs available credits before conversion can run.':response.status===401?'The server API credential was rejected.':response.status===429?'The conversion service is busy. Please retry shortly.':`Conversion service returned ${response.status} (${code||'request_error'}). Please retry.`);}
  if(body.status!=='completed')throw new Error('This conversion pass reached its output limit. Try a shorter manual.');
  const value=body.output?.flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('');
  if(!value)throw new Error('The manual could not be interpreted. Try a clearer assembly PDF.');
- try{return{data:JSON.parse(value),usage:body.usage};}catch{throw new Error('The conversion returned unreadable data. Please retry.');}
+ try{return{data:JSON.parse(value),usage:body.usage,serviceTier:body.service_tier??null};}catch{throw new Error('The conversion returned unreadable data. Please retry.');}
 }
 export async function extractManual(bytes,options){
  let document;try{document=await PDFDocument.load(bytes);}catch{throw new Error('The PDF could not be parsed. Choose an unlocked, valid PDF.');}
