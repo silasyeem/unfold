@@ -1,4 +1,12 @@
 import {planGuideStages} from '../dist/render-plan.js';
+export function createStageReporter(bucket,id){
+ let pending=Promise.resolve();
+ const enabled=Boolean(bucket)&&validConversionId(id),key='conversion-progress/'+id;
+ return{
+  report(data){if(!enabled)return;pending=pending.then(()=>bucket.put(key,JSON.stringify({message:String(data.message).slice(0,600),sequence:data.sequence,updatedAt:data.updatedAt,expires:Date.now()+30*60*1000}))).catch(()=>{});return pending;},
+  async clear(){await pending;if(enabled)try{await bucket.delete(key);}catch{}},
+ };
+}
 export function createR2Renderer(bucket,emit,conversionId){
  return async(guide,{signal,overviewPage})=>{
   if(!bucket)throw new Error('Hosted render storage is unavailable.');
@@ -19,8 +27,9 @@ export function createR2Renderer(bucket,emit,conversionId){
 export async function pollRender(request,env){
  const id=new URL(request.url).pathname.split('/').at(-1);
  if(request.method!=='GET'||!validConversionId(id)||!env.BUCKET)return Response.json({error:'Unknown conversion.'},{status:404});
- const object=await env.BUCKET.get('conversion-renders/'+id),data=object&&await object.json();
- return Response.json(data&&data.expires>Date.now()?data:{pending:true},{headers:{'Cache-Control':'no-store'}});
+ const [object,progressObject]=await Promise.all([env.BUCKET.get('conversion-renders/'+id),env.BUCKET.get('conversion-progress/'+id)]);
+ const data=object&&await object.json(),progress=progressObject&&await progressObject.json();
+ return Response.json({...(data&&data.expires>Date.now()?data:{pending:true}),...(progress&&progress.expires>Date.now()?{progress}:{})},{headers:{'Cache-Control':'no-store'}});
 }
 export const validConversionId=id=>typeof id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id);
 export async function receiveRenders(request,env){

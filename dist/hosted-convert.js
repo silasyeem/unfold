@@ -1,5 +1,5 @@
-class HttpEngine {
- constructor(){this.abort=new AbortController();this.captures=[];this.id=crypto.randomUUID();this.seenRenders=new Set();queueMicrotask(()=>this.onopen?.());}
+export class HttpEngine {
+ constructor(){this.abort=new AbortController();this.captures=[];this.id=crypto.randomUUID();this.seenRenders=new Set();this.stageSequence=0;queueMicrotask(()=>this.onopen?.());}
  close(){this.abort.abort();}
  send(value){
   if(value instanceof File){this.upload(value).catch(error=>{if(!this.abort.signal.aborted)this.onmessage?.({data:JSON.stringify({type:'error',message:error.message})});});return;}
@@ -14,26 +14,28 @@ class HttpEngine {
   if(!response.ok)throw new Error((await response.json()).error||'Conversion failed.');
   const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='';
   while(true){const {done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let end;
-   while((end=buffer.indexOf('\n\n'))>=0){const message=buffer.slice(0,end);buffer=buffer.slice(end+2);const type=message.split('\n').find(line=>line.startsWith('event: '))?.slice(7),raw=message.split('\n').filter(line=>line.startsWith('data: ')).map(line=>line.slice(6)).join('\n');if(!type||!raw)continue;const data=JSON.parse(raw);if(type==='render')this.deliverRender(data);else this.onmessage?.({data:JSON.stringify(type==='result'?{type,result:data}:{type,...data})});}
+   while((end=buffer.indexOf('\n\n'))>=0){const message=buffer.slice(0,end);buffer=buffer.slice(end+2);const type=message.split('\n').find(line=>line.startsWith('event: '))?.slice(7),raw=message.split('\n').filter(line=>line.startsWith('data: ')).map(line=>line.slice(6)).join('\n');if(!type||!raw)continue;const data=JSON.parse(raw);if(type==='render')this.deliverRender(data);else if(type==='stage')this.deliverStage(data);else this.onmessage?.({data:JSON.stringify(type==='result'?{type,result:data}:{type,...data})});}
   }
   this.onclose?.();
  }
  deliverRender(data){if(this.seenRenders.has(data.requestId))return;this.seenRenders.add(data.requestId);this.onmessage?.({data:JSON.stringify({type:'render',...data})});}
+ deliverStage(data){if(Number.isFinite(data.sequence)){if(data.sequence<=this.stageSequence)return;this.stageSequence=data.sequence;}this.onmessage?.({data:JSON.stringify({type:'stage',...data})});}
  async pollRenders(){
   while(!this.abort.signal.aborted){
-   try{const response=await fetch('/api/conversion-render/'+this.id,{cache:'no-store',signal:this.abort.signal});if(response.ok){const data=await response.json();if(data.requestId)this.deliverRender(data);}}catch{}
+   try{const response=await fetch('/api/conversion-render/'+this.id,{cache:'no-store',signal:this.abort.signal});if(response.ok){const data=await response.json();this.oncontact?.();if(data.progress)this.deliverStage(data.progress);if(data.requestId)this.deliverRender(data);}}catch{}
    if(!this.abort.signal.aborted)await new Promise(resolve=>setTimeout(resolve,1500));
   }
  }
 }
-export function convertInBrowser(file,{pageCount,signal,onStage=()=>{}}={}){
+export function convertInBrowser(file,{pageCount,signal,onStage=()=>{},onContact=()=>{}}={}){
  return new Promise((resolve,reject)=>{
   const socket=new HttpEngine();let renderer,done=false,rendering=false;
   const timer=setTimeout(()=>finish(new Error('Conversion took too long. Try a shorter manual.')),20*60*1000);
   function finish(error,result){if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',cancel);renderer?.remove();socket.close();error?reject(error):resolve(result);}
   function cancel(){finish(new DOMException('Conversion cancelled.','AbortError'));}
   signal?.addEventListener('abort',cancel,{once:true});if(signal?.aborted){cancel();return;}
-  socket.onopen=()=>{onStage('Creating your guide. Keep this tab open while we read and check the manual…');socket.send(JSON.stringify({type:'init',pageCount,filename:file.name}));socket.send(file);};
+  socket.oncontact=onContact;
+  socket.onopen=()=>{onStage('Sending your manual. Keep this tab open while we create and check the guide…');socket.send(JSON.stringify({type:'init',pageCount,filename:file.name}));socket.send(file);};
   socket.onerror=()=>finish(new Error('The live engine could not connect. Please reload and try again.'));
   socket.onclose=()=>{if(!done)finish(new Error('The engine connection closed. Keep this page open during conversion and retry.'));};
   socket.onmessage=async event=>{

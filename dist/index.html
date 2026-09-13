@@ -43,12 +43,17 @@
 </section>
 
   <section class="source-screen" aria-labelledby="source-heading">
-    <div class="source-intro">
-      <div class="brand source-brand"><span class="brand-symbol" aria-hidden="true">◇</span> unfold</div>
-      <img class="source-mascot" src="/assets/unfold-mascot.png" width="180" height="180" alt="Unfold’s friendly waving manual helper">
-      <span class="eyebrow">FROM MANUAL TO MOTION</span>
-      <h1 id="source-heading">What shall we build today?</h1>
-      <p>Start with your manual. Follow along in 3D.</p>
+    <div class="source-hero">
+      <div class="source-intro">
+        <span class="eyebrow">FROM MANUAL TO MOTION</span>
+        <h1 id="source-heading">What shall we build today?</h1>
+        <p>Turn your assembly manual into a 3D guide. See how the parts fit, then follow each step at your own pace.</p>
+      </div>
+      <ol class="source-process" aria-label="How Unfold works">
+        <li><span class="source-process-number" aria-hidden="true">01</span><div><strong>Bring your manual</strong><p>Find it online or upload your pages.</p></div></li>
+        <li><span class="source-process-number" aria-hidden="true">02</span><div><strong>Make sense of the parts</strong><p>Review a 3D guide beside the diagrams.</p></div></li>
+        <li><span class="source-process-number" aria-hidden="true">03</span><div><strong>Build, one step at a time</strong><p>Rotate, replay, and ask your guide.</p></div></li>
+      </ol>
     </div>
     <div class="source-choices">
       <div id="manual-library" class="source-choice source-search">
@@ -76,6 +81,7 @@
         <h2 class="conversion-heading">Turn the pages into a guide.</h2>
         <strong id="conversion-title">Choose your manual</strong>
         <p id="conversion-status" role="status">Check the pages, then create animated instructions for your build.</p>
+        <div id="conversion-progress" class="conversion-progress" hidden></div>
       </div>
       <div class="conversion-actions"><button class="button primary" id="convert" disabled>Create animated guide <span aria-hidden="true">→</span></button><button class="button" id="cancel" hidden>Cancel</button></div>
       <p class="conversion-note">Your manual is sent to OpenAI to interpret the diagrams. You can review the parts and steps afterward.</p>

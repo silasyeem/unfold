@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 import {fixture} from './fixture.mjs';
+import {mountConversionProgress} from '../dist/conversion-progress.js';
 import {KNARREVIK} from '../dist/knarrevik.js';
 import {createEngineCopilotAdapter} from '../dist/engine-copilot.js';
 import {createToolDispatcher} from '../dist/copilot-tools.js';
@@ -36,7 +37,7 @@ async function harness({pageCount=1}={}){
  let viewMode='whole',loaded=0,photoOptions,voiceOptions;const voiceSession={current:null,end(){},updateContext(){},refreshAvailability(){}};const photoCalls=[],fetchCalls=[];
  const fakeViewer={load(){loaded++;viewMode='whole';},setState(){viewMode='guided';},guide(){viewMode='guided';},wholeBuild(){viewMode='whole';},setExploded(){viewMode='whole';},selectPart(){},dispose(){}};
  const fakePdf={numPages:pageCount,destroy:async()=>{},getPage:async()=>({getViewport:()=>({width:100,height:100}),render:()=>({promise:Promise.resolve(),cancel(){}})})};
- const context={document,queueMicrotask,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:()=>({setDisabled(){},destroy(){}}),createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
+ const context={document,queueMicrotask,mountConversionProgress,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:()=>({setDisabled(){},destroy(){}}),createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
 
  const scannerSource=(await readFile(new URL('../dist/guide-scanner.js',import.meta.url),'utf8')).replace(/^import .*$/gm,'').replace('export function','function');
  context.mountGuideScanner=new Function('document','KNARREVIK',scannerSource+';return mountGuideScanner;')(document,KNARREVIK);

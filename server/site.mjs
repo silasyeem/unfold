@@ -4,7 +4,7 @@ import {handlePhotos} from './photos.mjs';
 import {handleLibrary} from './library.mjs';
 import {createWorkerLibraryStore} from './library-worker-store.mjs';
 import {handleApi} from './api.mjs';
-import {createR2Renderer,receiveRenders,pollRender,validConversionId} from './render-relay.mjs';
+import {createR2Renderer,receiveRenders,pollRender,validConversionId,createStageReporter} from './render-relay.mjs';
 import {DEFAULT_MODEL} from '../engine/convert.mjs';
 const stores=new WeakMap();
 export default {async fetch(request,env,ctx){
@@ -16,7 +16,8 @@ export default {async fetch(request,env,ctx){
  if(path==='/api/convert'){
   const id=request.headers.get('x-unfold-conversion-id');
   if(id&&!validConversionId(id))return Response.json({error:'Invalid conversion ID.'},{status:400});
-  return handleApi(request,{...env,createRenderer:emit=>createR2Renderer(env.BUCKET,emit,id)});
+  const stages=createStageReporter(env.BUCKET,id);
+  return handleApi(request,{...env,reportStage:stages.report,clearProgress:stages.clear,createRenderer:emit=>createR2Renderer(env.BUCKET,emit,id)});
  }
  if(path==='/api/photos')return handlePhotos(request,env);
  if(path==='/api/library'||path.startsWith('/api/library/')){if(!stores.has(env))stores.set(env,createWorkerLibraryStore(env));return handleLibrary(request,{...env,libraryStore:stores.get(env)});}
