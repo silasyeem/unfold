@@ -172,7 +172,7 @@ Tests cover the hosted boundary, including refusal to use a configured server ke
 
 See [BUILD_SPEC.md](BUILD_SPEC.md) for product behavior and the prepared STRANDMON reference sequence. Work on feature branches and review changes through pull requests. Playback changes should be checked with direct step jumps, backward navigation, orientation changes and connector close-ups.
 
-The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `server/site.mjs` preserves scanner APIs alongside the voice copilot; `server/scan-worker.mjs` remains the scanner-only entry. Use `npm run build` for the combined deployment. Manual conversion and library search use the local Node server. The full `server/worker.mjs` still needs bundling, Node compatibility for the library modules, and a durable library adapter before those features can be hosted.
+The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `server/site.mjs` preserves scanner APIs alongside the voice copilot; `server/scan-worker.mjs` remains the scanner-only entry. Use `npm run build` for the combined deployment. Manual conversion and library search run on Sites through the combined Worker and R2 adapter.
 
 ## Sources and dependencies
 
@@ -186,6 +186,6 @@ The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `se
 
 ## Live engine on Sites
 
-The hosted workspace now performs real PDF/photo conversion. Sites runs extraction, generation, source reconciliation and visual review; the visitor’s WebGL browser renders the same overview, assembly and connection views used by the local Chromium checker. Keep the tab open during conversion. Missing renders, mismatches, cancellation and disconnects fail visibly instead of producing an unchecked success. Uploaded manuals and render images remain in the conversion session; they are not stored by the app.
+The homepage opens the manual engine; the prepared STRANDMON guide remains at `/demo.html`, and `/engine.html` is a compatible entry point. The hosted workspace supports PDF/photo conversion. Sites runs extraction, generation, source reconciliation and visual review; the visitor’s WebGL browser renders the same overview, assembly and connection views used by the local Chromium checker. Keep the tab open during conversion. Missing renders, mismatches, cancellation and disconnects fail visibly instead of producing an unchecked success. Uploaded manuals remain in the conversion session. Browser render requests and captures use temporary R2 objects that are deleted when the check completes.
 
 The hosted manual library uses R2 with conditional writes for its JSON index and cached PDFs. KNARREVIK’s verified manual is available immediately. Hosted manufacturer downloads are restricted to IKEA domains; upload PDFs from other manufacturers directly. The existing local library and Chromium pipeline remain supported. Voice and scanner routes are preserved. Run `npm run build` for the complete Sites Worker; the legacy scanner-only staging script does not publish the live engine.

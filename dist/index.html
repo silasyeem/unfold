@@ -1,26 +1,126 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f8fa"><title>Unfold — STRANDMON in motion</title><meta name="description" content="Follow the STRANDMON assembly manual with an interactive 3D chair, animated steps, and original diagrams side by side."><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232c50ed'/%3E%3Cpath d='m7 11 9-5 9 5-9 5zM7 17l9 5 9-5M7 23l9 5 9-5' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E"><link rel="stylesheet" href="/style.css"><script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script></head>
-<body>
-<header class="topbar"><a class="brand" href="/" aria-label="Unfold home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m5 10 11-6 11 6-11 6zM5 16l11 6 11-6M5 22l11 6 11-6"/></svg>unfold<span class="beta">MVP</span></a><div class="topbar-actions"><a class="button" href="/screws.html">Screw lab</a><a class="button primary" href="/engine.html">Convert a PDF →</a><button class="button" id="copilot-toggle" aria-expanded="false" aria-controls="copilot-panel">Talk to guide <span id="copilot-indicator" aria-live="polite"></span></button><button class="button" id="copilot-quick-end" aria-label="End voice" hidden>End voice</button><button class="button" id="upload-open"><span aria-hidden="true">↑</span> Upload manual</button></div></header>
-<div class="projectbar"><div><div class="eyebrow">IKEA / WING CHAIR</div><h1>STRANDMON <span class="guide-tag">Prepared guide</span></h1></div><div class="project-meta"><span>16 steps</span><span class="divider"></span><a href="/assets/strandmon.pdf" target="_blank" rel="noopener">Original PDF ↗</a></div></div>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Unfold — Your assembly, made clear</title>
+  <meta name="description" content="Find or upload an assembly manual, then follow its steps in interactive 3D.">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/photo-intake.css">
+  <link rel="stylesheet" href="/manual-library.css">
+  <link rel="stylesheet" href="/engine.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+</head>
+<body class="engine" data-state="empty">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Unfold home"><span class="brand-symbol" aria-hidden="true">◇</span> unfold</a>
+    <div class="header-actions">
+      <button class="button" id="copilot-toggle" aria-expanded="false" aria-controls="copilot-panel">Talk to guide <span id="copilot-indicator" aria-live="polite"></span></button>
+      <button class="button" id="copilot-quick-end" aria-label="End voice" hidden>End voice</button>
+      <button class="button demo-button" type="button" data-knarrevik-demo disabled>KNARREVIK demo</button>
+      <a class="button" href="/screws.html">Screw lab</a>
+      <a class="example-link" href="/demo.html">STRANDMON demo <span aria-hidden="true">↗</span></a>
+      <button class="button change-manual" id="change-manual">Change manual</button>
+      <details class="guide-menu">
+        <summary aria-label="Guide options" title="Guide options"><span aria-hidden="true">•••</span></summary>
+        <div class="guide-menu-items">
+          <label class="file-button">Open a saved guide<input id="guide-file" type="file" disabled accept=".json,application/json" aria-label="Open a saved guide"></label>
+          <button id="export" disabled>Download guide</button>
+          <button id="download-manual" disabled>Download manual PDF</button>
+        </div>
+      </details>
+    </div>
+  </header>
+
 <section id="copilot-panel" class="copilot-panel" aria-labelledby="copilot-title" hidden>
-<div class="copilot-heading"><div><div class="eyebrow">VOICE COPILOT</div><h2 id="copilot-title">A little help, right where you need it.</h2></div><button class="icon-button" id="copilot-collapse" aria-label="Collapse voice panel; active voice continues">−</button></div>
-<p>Try “the round bit before the nut” or “show me where the other side attaches.” The guide can change steps, manual pages and views while you talk.</p>
-<p class="copilot-privacy">Starting sends microphone audio and prepared guide context to OpenAI and uses paid API access. Uploaded PDFs and their filenames stay in your browser. Voice continues when this panel is collapsed.</p>
+<div class="copilot-heading"><div><div class="eyebrow">VOICE COPILOT</div><h2 id="copilot-title">Talk through your build.</h2></div><button class="icon-button" id="copilot-collapse" aria-label="Collapse voice panel; active voice continues">−</button></div>
+<p>Try “explain step three”, “show the whole table”, or “replay that step”. The guide can change steps, manual pages and views while you talk.</p>
+<p class="copilot-privacy">Starting sends microphone audio and the loaded guide’s instructions, parts, review notes and current step to OpenAI using paid API access. The voice feature does not send PDF files or filenames. Voice continues when this panel is collapsed.</p>
 <div class="copilot-key"><label for="copilot-api-key">OpenAI API key <span>(required on the hosted site)</span></label><input id="copilot-api-key" type="password" autocomplete="off" spellcheck="false" autocapitalize="none" maxlength="4096" aria-describedby="copilot-key-note" placeholder="Enter your project API key"><p id="copilot-key-note">Sent once on Start voice through this site’s server to authenticate with OpenAI. Unfold never saves it to disk or browser storage. Re-enter it for each start, including after failure. On localhost, you may leave it blank to use a configured local key.</p></div>
 <div class="copilot-controls"><button class="button primary" id="copilot-start">Start voice</button><button class="button" id="copilot-mute" aria-pressed="false" disabled>Mute</button><button class="button" id="copilot-end" disabled>End</button><span id="copilot-status" role="status">Ready when you are. Enter your key, then start voice.</span></div>
 <p id="copilot-audio-note" hidden>Your browser paused the guide audio. Press play below to listen.</p><audio id="copilot-audio" controls autoplay aria-label="Guide voice playback" hidden></audio>
 <div id="copilot-transcript" class="copilot-transcript" role="log" aria-label="Voice transcript" aria-live="polite" aria-relevant="text additions"></div>
 </section>
-<main class="workspace">
-<nav class="steps-panel" aria-label="Assembly steps"><div class="panel-heading"><h2>Assembly guide</h2><span class="small" id="step-count">00 / 16</span></div><div class="step-list" id="step-list"><button class="step-item active" data-step="0"><span class="step-number">◇</span><span>Overview<small>Meet your chair</small></span></button></div><div class="sidebar-note"><span class="note-icon">i</span><p>Simplified 3D geometry.<br>Keep the original instructions handy.</p></div></nav>
-<section class="viewer-panel" aria-label="Interactive 3D assembly"><div class="scene" id="scene"><div class="canvas-header"><span class="view-label"><span class="cube-icon">◇</span> <span id="shot-label">Whole chair</span></span><div class="view-tools"><button class="tool-button" id="guided-view" aria-pressed="true" title="Return to this step’s recommended angle">Step view</button><button class="tool-button" id="whole-build" title="Zoom out to see the entire build">Whole build</button><button class="tool-button" id="underside" title="Inspect the connections under the seat">Underside</button><button class="tool-button" id="explode" aria-pressed="false" title="Separate the chair into its parts">Exploded view</button><button class="icon-button" id="reset-view" aria-label="Reset camera" title="Reset camera">↺</button></div></div><div class="scene-error" id="scene-error" hidden>3D is unavailable in this browser. Try a browser with WebGL enabled; the original manual is still available.</div><div class="detail-sequence" id="detail-sequence" hidden><span>1 <strong>Washer</strong></span><b>→</b><span>2 <strong>Nut</strong></span><b>→</b><span>3 <strong>Tool</strong></span></div><div class="view-caption"><span class="hint-dot"></span><span id="view-caption">Drag to rotate · Scroll to zoom</span></div><div class="orientation" aria-hidden="true">Y<span>↗</span>X</div></div>
-<div class="instruction"><div class="instruction-top"><span class="eyebrow" id="instruction-kicker">BEFORE YOU BEGIN</span><span class="page-pill" id="page-pill">Manual · p. 1</span></div><h2 id="instruction-title">A familiar chair. A clearer way to build it.</h2><p id="instruction-body">Explore the parts in 3D, then follow each move alongside the original manual.</p><div class="parts" id="parts"><span>16 animated steps</span><span>360° view</span><span>Original diagrams</span></div></div>
-<div class="player"><button class="icon-button" id="previous" aria-label="Previous step" disabled>‹</button><button class="play-button" id="play" aria-label="Play assembly"><span id="play-icon">▶</span></button><div class="timeline"><label class="sr-only" for="timeline">Animation progress</label><input id="timeline" type="range" min="0" max="1000" value="0"><div class="timeline-labels"><span id="time-label">Overview</span><span id="duration-label">Step by step</span></div></div><button class="speed-button" id="speed" aria-label="Playback speed: 1 times">1×</button><button class="button primary" id="next">Start assembly <span aria-hidden="true">→</span></button></div>
-</section>
-<aside class="manual-panel"><div class="panel-heading"><h2>Original manual</h2><span class="linked-label">↔ Linked</span></div><div class="manual-paper"><button id="manual-expand" class="manual-expand" aria-label="Enlarge current manual page"><img id="manual-image" src="/assets/manual-01.png" alt="STRANDMON manual cover" draggable="false"></button><canvas id="manual-canvas" hidden></canvas></div><div class="manual-pagination"><button class="icon-button" id="manual-prev" aria-label="Previous manual page">‹</button><span id="manual-page-label">Page 1 of 20</span><button class="icon-button" id="manual-next" aria-label="Next manual page">›</button></div><button class="text-button" id="relink" hidden>Return to current step ↔</button><div class="source-note"><strong>From paper to motion</strong><p>Each animation follows the matching diagram in IKEA’s STRANDMON manual.</p><a href="https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf" target="_blank" rel="noopener">IKEA · AA-2019535-7 ↗</a></div></aside>
-</main>
-<dialog id="upload-dialog"><form method="dialog" class="dialog-top"><div class="eyebrow">ADD A MANUAL</div><button class="icon-button" aria-label="Close upload dialog">×</button></form><h2>From pages to parts.</h2><p>Open a STRANDMON PDF to load its prepared 3D guide, or <a href="/engine.html">generate a new guide from a manual</a>.</p><label class="dropzone" id="dropzone" for="pdf-input"><span class="upload-symbol">↑</span><strong>Drop your assembly manual here</strong><span>or choose a PDF · up to 20 MB</span><input id="pdf-input" type="file" accept="application/pdf,.pdf"></label><div id="upload-status" class="upload-status" role="status"></div><p class="upload-note">This MVP supports STRANDMON (AA-2019535-7). Other PDFs can be previewed here. Use Convert a PDF for AI-generated guides. Files in this prepared-guide viewer stay in your browser.</p><button class="button primary full-width" id="load-example">Try the STRANDMON example →</button></dialog>
-<dialog id="manual-dialog"><form method="dialog" class="dialog-top"><strong id="large-page-label">Original manual</strong><button class="icon-button" aria-label="Close enlarged manual">×</button></form><img id="large-manual-image" alt="Enlarged manual page"></dialog>
-<div id="toast" role="status" class="toast" hidden></div><script type="module" src="/app.js"></script>
-</body></html>
+
+  <section class="source-screen" aria-labelledby="source-heading">
+    <div class="source-intro">
+      <img class="source-mascot" src="/assets/unfold-mascot.png" width="180" height="180" alt="Unfold’s friendly waving manual helper">
+      <span class="eyebrow">FROM MANUAL TO MOTION</span>
+      <h1 id="source-heading">A clearer way to build.</h1>
+      <p>Start with your manual. Follow along in 3D.</p>
+    </div>
+    <div class="source-choices">
+      <div id="manual-library" class="source-choice source-search">
+        <span class="source-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 4.5 4.5"></path></svg></span>
+      </div>
+      <label class="source-choice source-upload file-button">
+        <span class="source-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m-4 4 4-4 4 4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"></path></svg></span>
+        <span class="source-choice-title">Upload your manual</span>
+        <span class="source-choice-description">Choose a PDF or photos of the pages.</span>
+        <input id="manual-file" type="file" disabled multiple accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" aria-label="Upload your manual">
+      </label>
+    </div>
+    <p class="source-footnote">Keep the original diagrams beside you, every step of the way.</p>
+    <button class="source-resume text-link" id="resume-manual" hidden>Back to manual <span aria-hidden="true">→</span></button>
+  </section>
+
+  <div class="build-shell">
+    <div class="projectbar">
+      <div><div class="eyebrow" id="document-label">YOUR MANUAL</div><h1><span id="product-name">Your assembly guide</span><span class="guide-tag" id="draft-tag">Generated draft</span></h1></div>
+      <div class="project-meta" id="guide-meta">Source-linked · Interactive 3D</div>
+    </div>
+    <section class="conversion-bar" aria-label="Manual conversion">
+      <div class="conversion-copy">
+        <span class="eyebrow conversion-eyebrow">YOUR NEXT STEP</span>
+        <h2 class="conversion-heading">Turn the pages into a guide.</h2>
+        <strong id="conversion-title">Choose your manual</strong>
+        <p id="conversion-status" role="status">Check the pages, then create animated instructions for your build.</p>
+      </div>
+      <div class="conversion-actions"><button class="button primary" id="convert" disabled>Create animated guide <span aria-hidden="true">→</span></button><button class="button" id="cancel" hidden>Cancel</button></div>
+      <p class="conversion-note">Your manual is sent to OpenAI to interpret the diagrams. You can review the parts and steps afterward.</p>
+    </section>
+
+    <section class="guide-scan" id="guide-scan" aria-labelledby="guide-scan-heading" hidden>
+      <div><span class="eyebrow">GUIDE READY · NEXT, CHECK YOUR PARTS</span><h2 id="guide-scan-heading">Meet your KNARREVIK parts.</h2><p>Scan a photo against the manual’s checklist, then follow your assembly guide.</p></div>
+      <button class="button primary" id="open-parts-scan" disabled>Scan my parts →</button>
+    </section>
+
+    <main class="workspace">
+      <nav class="steps-panel" aria-label="Assembly steps">
+        <div class="panel-heading"><h2>Assembly guide</h2><span class="small" id="step-count">—</span></div>
+        <div class="step-list" id="step-list"><p class="empty-note">Your steps will appear here.</p></div>
+        <div class="sidebar-note"><button class="text-link sidebar-demo" type="button" data-knarrevik-demo disabled>KNARREVIK demo</button><p>Generated shapes are approximate. Check connections against the original diagrams.</p></div>
+      </nav>
+      <section class="viewer-panel">
+        <div class="scene" id="generated-scene">
+          <div class="canvas-header"><span class="view-label" id="view-label">Parts and connections</span><div class="view-tools"><button class="tool-button" id="step-view" disabled>Step view</button><button class="tool-button" id="whole-view" disabled>Whole build</button><button class="tool-button" id="exploded" aria-pressed="false" disabled>Exploded view</button></div></div>
+          <div class="empty-scene" id="empty-scene"><span class="empty-mark" aria-hidden="true">◇</span><h2>Your guide will appear here.</h2><p>Follow each step and take a closer look at the connections.</p></div>
+          <div class="view-caption"><span id="orientation-label">Drag to rotate · Scroll to zoom</span></div>
+        </div>
+        <div class="instruction">
+          <div class="instruction-top"><span class="eyebrow" id="instruction-step">READY WHEN YOU ARE</span><span class="page-pill" id="source-page"></span></div>
+          <h2 id="instruction-title">Your assembly, one step at a time.</h2><p id="instruction-text">Read the source diagram, rotate the build, and inspect the active connection.</p>
+          <div class="parts" id="active-parts"></div><div class="step-review"><button class="text-link" id="edit-step" disabled>Review this step</button><span id="review-state"></span></div>
+        </div>
+        <div class="player"><button class="icon-button" id="prev" aria-label="Previous step" disabled>‹</button><button class="play-button" id="play" aria-label="Play step" disabled>▶</button><div class="timeline"><label class="sr-only" for="progress">Animation progress</label><input id="progress" type="range" min="0" max="1000" value="0" disabled><div class="timeline-labels"><span id="time-label">Overview</span><span id="duration-label"></span></div></div><button class="speed-button" id="speed" disabled>1×</button><button class="button primary" id="next" disabled>Next step →</button></div>
+      </section>
+      <aside class="manual-panel">
+        <div class="panel-heading"><h2>Original manual</h2><span class="linked-label" id="manual-link-state">No manual</span></div>
+        <div class="manual-paper"><button class="manual-expand" id="enlarge" aria-label="Enlarge source diagram" disabled><canvas id="pdf-canvas" hidden></canvas><p class="empty-note" id="manual-empty">Source pages stay beside the animation.</p></button></div>
+        <div class="manual-pagination"><button class="icon-button" id="page-prev" aria-label="Previous manual page" disabled>‹</button><span id="page-label">—</span><button class="icon-button" id="page-next" aria-label="Next manual page" disabled>›</button></div>
+        <button class="text-button" id="relink" hidden>Return to current step</button>
+        <div class="source-note"><strong>Review notes</strong><ul id="review-notes"><li>Unclear details will be flagged here.</li></ul><details><summary id="parts-summary">Parts inventory</summary><div id="parts-list"></div></details></div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="photo-intake"></div>
+  <dialog id="parts-scan-dialog" aria-labelledby="parts-scan-heading">
+    <div class="parts-scan-toolbar"><strong id="parts-scan-heading">Guide ready → Check parts → Assemble</strong><button class="button" id="close-parts-scan" autofocus>Back to assembly guide →</button></div>
+    <div id="parts-scan-content"></div>
+  </dialog>
+  <dialog id="review-dialog"><form id="review-form"><div class="dialog-top"><strong>Review step</strong><button class="icon-button" type="button" id="review-close" aria-label="Close review">×</button></div><label>Title<input id="review-title" maxlength="1500" required></label><label>Instruction<textarea id="review-instruction" rows="5" maxlength="1500" required></textarea></label><label>Source manual page<input id="review-page" type="number" min="1" required></label><label>Working orientation<select id="review-orientation"><option value="upright">Upright</option><option value="upside_down">Upside down</option><option value="on_back">On its back</option><option value="on_left">On its left side</option><option value="on_right">On its right side</option></select></label><p>Review the diagram before marking this step checked. Geometry remains approximate.</p><button class="button primary full-width" type="submit">Save and mark checked</button></form></dialog>
+  <dialog id="page-dialog"><form method="dialog" class="dialog-top"><strong>Original diagram</strong><button class="icon-button" aria-label="Close diagram">×</button></form><img id="large-page" alt="Enlarged source diagram"></dialog>
+  <script type="module" src="/engine-app.js"></script>
+</body>
+</html>

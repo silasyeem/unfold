@@ -28,3 +28,18 @@ test('HTTP render relay receives requested browser captures and deletes temporar
  const render=createR2Renderer(bucket,(event,data)=>{assert.equal(event,'render');submitted=receiveRenders(new Request('https://unfold.example/api/render/'+data.requestId,{method:'POST',headers:{Origin:'https://unfold.example','X-Unfold-Render':'1'},body:JSON.stringify(data.stages.map(stage=>({...stage,imageDataUrl:'test-image'})))}),{BUCKET:bucket});});
  const captures=await render(fixture(),{signal:new AbortController().signal,overviewPage:1});assert.equal((await submitted).status,200);assert.equal(captures.length,5);assert.equal(objects.size,0);
 });
+
+test('browser can fetch render work while the conversion response is buffered',async()=>{
+ const {createR2Renderer,pollRender,receiveRenders}=await import('../server/render-relay.mjs');
+ const {fixture}=await import('./fixture.mjs');
+ const objects=new Map(),bucket={async get(key){const value=objects.get(key);return value?{json:async()=>JSON.parse(value)}:null;},async put(key,value){objects.set(key,value);},async delete(key){objects.delete(key);}};
+ const id=crypto.randomUUID();let submit;
+ const render=createR2Renderer(bucket,()=>{submit=(async()=>{
+  const response=await pollRender(new Request('https://unfold.example/api/conversion-render/'+id),{BUCKET:bucket});
+  const job=await response.json();assert.equal(job.stages.length,5);
+  return receiveRenders(new Request('https://unfold.example/api/render/'+job.requestId,{method:'POST',headers:{Origin:'https://unfold.example','X-Unfold-Render':'1'},body:JSON.stringify(job.stages.map(stage=>({...stage,imageDataUrl:'test'})))}),{BUCKET:bucket});
+ })();},id);
+ assert.equal((await render(fixture(),{signal:new AbortController().signal,overviewPage:1})).length,5);
+ assert.equal((await submit).status,200);assert.equal(objects.size,0);
+ assert.equal((await pollRender(new Request('https://unfold.example/api/conversion-render/invalid'),{BUCKET:bucket})).status,404);
+});

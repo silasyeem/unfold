@@ -1,5 +1,5 @@
 class HttpEngine {
- constructor(){this.abort=new AbortController();this.captures=[];queueMicrotask(()=>this.onopen?.());}
+ constructor(){this.abort=new AbortController();this.captures=[];this.id=crypto.randomUUID();this.seenRenders=new Set();queueMicrotask(()=>this.onopen?.());}
  close(){this.abort.abort();}
  send(value){
   if(value instanceof File){this.upload(value).catch(error=>{if(!this.abort.signal.aborted)this.onmessage?.({data:JSON.stringify({type:'error',message:error.message})});});return;}
@@ -9,18 +9,25 @@ class HttpEngine {
   if(data.type==='rendered'){const captures=this.captures;this.captures=[];fetch('/api/render/'+data.requestId,{method:'POST',headers:{'Content-Type':'application/json','X-Unfold-Render':'1'},body:JSON.stringify(captures),signal:this.abort.signal}).then(async response=>{if(!response.ok)throw new Error((await response.json()).error||'Render upload failed.');}).catch(error=>{if(!this.abort.signal.aborted)this.onmessage?.({data:JSON.stringify({type:'error',message:error.message})});});}
  }
  async upload(file){
-  const response=await fetch('/api/convert',{method:'POST',headers:{'Content-Type':'application/pdf','X-Unfold-Convert':'1','X-Pdf-Pages':String(this.init.pageCount),'X-Pdf-Name':encodeURIComponent(this.init.filename)},body:file,signal:this.abort.signal});
+  this.pollRenders();
+  const response=await fetch('/api/convert',{method:'POST',headers:{'Content-Type':'application/pdf','X-Unfold-Convert':'1','X-Unfold-Conversion-Id':this.id,'X-Pdf-Pages':String(this.init.pageCount),'X-Pdf-Name':encodeURIComponent(this.init.filename)},body:file,signal:this.abort.signal});
   if(!response.ok)throw new Error((await response.json()).error||'Conversion failed.');
   const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='';
   while(true){const {done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let end;
-   while((end=buffer.indexOf('\n\n'))>=0){const message=buffer.slice(0,end);buffer=buffer.slice(end+2);const type=message.split('\n').find(line=>line.startsWith('event: '))?.slice(7),raw=message.split('\n').filter(line=>line.startsWith('data: ')).map(line=>line.slice(6)).join('\n');if(!type||!raw)continue;const data=JSON.parse(raw);this.onmessage?.({data:JSON.stringify(type==='result'?{type,result:data}:{type,...data})});}
+   while((end=buffer.indexOf('\n\n'))>=0){const message=buffer.slice(0,end);buffer=buffer.slice(end+2);const type=message.split('\n').find(line=>line.startsWith('event: '))?.slice(7),raw=message.split('\n').filter(line=>line.startsWith('data: ')).map(line=>line.slice(6)).join('\n');if(!type||!raw)continue;const data=JSON.parse(raw);if(type==='render')this.deliverRender(data);else this.onmessage?.({data:JSON.stringify(type==='result'?{type,result:data}:{type,...data})});}
   }
   this.onclose?.();
+ }
+ deliverRender(data){if(this.seenRenders.has(data.requestId))return;this.seenRenders.add(data.requestId);this.onmessage?.({data:JSON.stringify({type:'render',...data})});}
+ async pollRenders(){
+  while(!this.abort.signal.aborted){
+   try{const response=await fetch('/api/conversion-render/'+this.id,{cache:'no-store',signal:this.abort.signal});if(response.ok){const data=await response.json();if(data.requestId)this.deliverRender(data);}}catch{}
+   if(!this.abort.signal.aborted)await new Promise(resolve=>setTimeout(resolve,1500));
+  }
  }
 }
 export function convertInBrowser(file,{pageCount,signal,onStage=()=>{}}={}){
  return new Promise((resolve,reject)=>{
-  const url=new URL('/api/convert-socket',location.href);url.protocol=url.protocol==='https:'?'wss:':'ws:';
   const socket=new HttpEngine();let renderer,done=false,rendering=false;
   const timer=setTimeout(()=>finish(new Error('Conversion took too long. Try a shorter manual.')),20*60*1000);
   function finish(error,result){if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',cancel);renderer?.remove();socket.close();error?reject(error):resolve(result);}

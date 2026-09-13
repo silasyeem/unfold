@@ -1,19 +1,28 @@
 import {planGuideStages} from '../dist/render-plan.js';
-export function createR2Renderer(bucket,emit){
+export function createR2Renderer(bucket,emit,conversionId){
  return async(guide,{signal,overviewPage})=>{
   if(!bucket)throw new Error('Hosted render storage is unavailable.');
   const requestId=crypto.randomUUID(),key='render-jobs/'+requestId,expires=Date.now()+180000;
   await bucket.put(key,JSON.stringify({expires,state:'pending'}));
   try{
-   emit('render',{requestId,guide,stages:planGuideStages(guide,{overviewPage})});
+   const payload={requestId,guide,stages:planGuideStages(guide,{overviewPage})};
+   if(conversionId)await bucket.put('conversion-renders/'+conversionId,JSON.stringify({...payload,expires}));
+   emit('render',payload);
    while(Date.now()<expires){
     signal.throwIfAborted();const object=await bucket.get(key);if(object){const data=await object.json();if(data.state==='complete')return data.captures;}
     await new Promise(resolve=>setTimeout(resolve,1000));
    }
    throw new Error('Browser rendering timed out. Keep this tab open and retry.');
-  }finally{await bucket.delete(key);}
+  }finally{await bucket.delete(key);if(conversionId)await bucket.delete('conversion-renders/'+conversionId);}
  };
 }
+export async function pollRender(request,env){
+ const id=new URL(request.url).pathname.split('/').at(-1);
+ if(request.method!=='GET'||!validConversionId(id)||!env.BUCKET)return Response.json({error:'Unknown conversion.'},{status:404});
+ const object=await env.BUCKET.get('conversion-renders/'+id),data=object&&await object.json();
+ return Response.json(data&&data.expires>Date.now()?data:{pending:true},{headers:{'Cache-Control':'no-store'}});
+}
+export const validConversionId=id=>typeof id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id);
 export async function receiveRenders(request,env){
  const url=new URL(request.url),id=url.pathname.split('/').at(-1);
  if(request.method!=='POST'||request.headers.get('origin')!==url.origin||request.headers.get('x-unfold-render')!=='1')return Response.json({error:'Invalid render request.'},{status:403});

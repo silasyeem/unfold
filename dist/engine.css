@@ -22,6 +22,7 @@ body.engine{height:100dvh;min-width:320px;display:flex;flex-direction:column;ove
 .engine .file-button:has(input:disabled){cursor:default;opacity:.45}
 .engine .text-link{font:inherit;font-size:13px;color:var(--blue);cursor:pointer}
 .engine .source-screen{width:min(860px,100%);padding:62px 30px 48px;margin:auto;flex:1;display:flex;flex-direction:column;justify-content:center;min-height:450px}
+.engine .source-mascot{display:block;width:clamp(120px,18vh,180px);height:auto;margin:-25px auto 14px}
 .engine .source-intro{text-align:center;margin:0 0 32px}
 .engine .source-intro .eyebrow{font-size:11px;letter-spacing:1.9px;color:#8290aa}
 .engine .source-intro h1{display:block;font-size:clamp(32px,4.5vw,43px);font-weight:550;letter-spacing:-1.55px;line-height:1.18;margin:13px 0 14px}
