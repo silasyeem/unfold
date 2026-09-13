@@ -20,7 +20,7 @@ test('readiness is boolean/model only; startup and missing key never call upstre
   assert.equal((await s.post()).status, 503); assert.equal(calls, 0);
   const staticPage = await fetch(s.url + '/'); assert.equal(staticPage.status, 200); assert.match(await staticPage.text(), /copilot-panel/);
 });
-test('GPT-Live upstream wire shape and sanitized response; full catalog in backend, key server only', async t => {
+test('GPT-Live upstream wire shape and sanitized response; current catalog via tools, key server only', async t => {
   const captures = [];
   const s = await serve(t, {apiKey: 'test-secret', backendModel: 'configured-backend', fetchImpl: async (...args) => {
     captures.push(args); return {ok: true, json: async () => ({session: {id: 'live_opaque-id', key: 'hidden'}, transport: {type: 'webrtc', sdp: 'answer'}, secret: 'hidden'})};
@@ -31,7 +31,10 @@ test('GPT-Live upstream wire shape and sanitized response; full catalog in backe
   const body = JSON.parse(options.body); assert.deepEqual(body, sessionRequest('offer', 'configured-backend'));
   assert.equal(body.session.model, 'gpt-live-1'); assert.equal(body.session.delegation.type, 'responses'); assert.equal(body.session.delegation.responses.parallel_tool_calls, false);
   assert.equal(body.transport.type, 'webrtc'); assert.equal(body.transport.sdp, 'offer');
-  assert.match(body.session.delegation.responses.instructions, /Fit the seat cushion/); assert.equal(body.session.delegation.responses.tools.length, 6);
+  assert.match(body.session.delegation.responses.instructions, /get_assembly_state/);
+  assert.match(body.session.delegation.responses.instructions, /list_assembly_steps/);
+  assert.doesNotMatch(body.session.delegation.responses.instructions, /STRANDMON|Fit the seat cushion/);
+  assert.equal(body.session.delegation.responses.tools.length, 6);
   assert.doesNotMatch(JSON.stringify(body), /test-secret/);
 });
 test('API boundaries reject wrong origins/hosts, malformed inputs, body limits and unsupported methods', async t => {

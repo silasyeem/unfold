@@ -5,6 +5,8 @@ import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 import {fixture} from './fixture.mjs';
 import {KNARREVIK} from '../dist/knarrevik.js';
+import {createEngineCopilotAdapter} from '../dist/engine-copilot.js';
+import {createToolDispatcher} from '../dist/copilot-tools.js';
 import {assertGuide} from '../dist/guide-schema.js';
 import {compileGuide,evaluateGuide,orientations,smooth} from '../dist/guide-state.js';
 import * as Base from '../dist/vendor/three.module.js';
@@ -31,16 +33,16 @@ async function harness({pageCount=1}={}){
  document.createElement=name=>{const element=create(name);if(name==='canvas'){element.getContext=()=>({drawImage(){}});element.toDataURL=()=>'';}return element;};
  for(const element of document.querySelectorAll('canvas'))element.getContext=()=>({drawImage(){}});
  for(const dialog of document.querySelectorAll('dialog')){dialog.showModal=()=>dialog.setAttribute('open','');dialog.close=()=>dialog.removeAttribute('open');Object.defineProperty(dialog,'open',{get:()=>dialog.hasAttribute('open')});}
- let viewMode='whole',loaded=0,photoOptions;const photoCalls=[],fetchCalls=[];
+ let viewMode='whole',loaded=0,photoOptions,voiceOptions;const voiceSession={current:null,end(){},updateContext(){},refreshAvailability(){}};const photoCalls=[],fetchCalls=[];
  const fakeViewer={load(){loaded++;viewMode='whole';},setState(){viewMode='guided';},guide(){viewMode='guided';},wholeBuild(){viewMode='whole';},setExploded(){viewMode='whole';},selectPart(){},dispose(){}};
  const fakePdf={numPages:pageCount,destroy:async()=>{},getPage:async()=>({getViewport:()=>({width:100,height:100}),render:()=>({promise:Promise.resolve(),cancel(){}})})};
- const context={document,mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:()=>({setDisabled(){},destroy(){}}),createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
+ const context={document,queueMicrotask,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:()=>({setDisabled(){},destroy(){}}),createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
 
  const scannerSource=(await readFile(new URL('../dist/guide-scanner.js',import.meta.url),'utf8')).replace(/^import .*$/gm,'').replace('export function','function');
  context.mountGuideScanner=new Function('document','KNARREVIK',scannerSource+';return mountGuideScanner;')(document,KNARREVIK);
  let source=await readFile(new URL('../dist/engine-app.js',import.meta.url),'utf8');source=source.replace(/^import .*$/gm,'').replace("await import('./vendor/pdf.mjs')",'__pdfModule');
  vm.runInNewContext(source+'\nglobalThis.harness={loadGuide,setStep,pickPdf,pickManual,showPage,state:()=>({output,index,page,playing,progress,exploded,pdfHash})};',context);
- return{document,context,app:context.harness,photoCalls,photoOptions,fetchCalls,getMode:()=>viewMode,getLoads:()=>loaded};
+ return{document,context,app:context.harness,voice:voiceOptions,photoCalls,photoOptions,fetchCalls,getMode:()=>viewMode,getLoads:()=>loaded};
 }
 test('play and pause preserve guided camera mode',async()=>{
  const h=await harness();h.app.loadGuide({guide:fixture()});h.app.setStep(0);h.document.querySelector('#play').onclick();assert.equal(h.getMode(),'guided');h.document.querySelector('#play').onclick();assert.equal(h.getMode(),'guided');assert.equal(h.app.state().playing,false);h.document.querySelector('#exploded').onclick();assert.equal(h.app.state().exploded,true);h.document.querySelector('#step-view').onclick();assert.equal(h.app.state().exploded,false);assert.equal(h.getMode(),'guided');
@@ -167,4 +169,25 @@ test('the saved KNARREVIK demo offers scanning after both guide and manual load'
  assert.equal($('#guide-scan').hidden,false);assert.equal($('#open-parts-scan').disabled,false);
  assert.equal(h.app.state().output.guide.productName,'KNARREVIK');
  assert.equal($('#manual-link-state').textContent,'Linked');
+});
+
+
+test('engine voice is wired to demo navigation, playback, manual pages and human revision changes',async()=>{
+ const h=await harness({pageCount:12});const result=JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8'));
+ assert.equal(h.voice.canStart(),false);assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);
+ await h.app.pickPdf(new File(['%PDF-1.7\nknarrevik'],'private-name.pdf',{type:'application/pdf'}));
+ result.provenance.sha256=h.app.state().pdfHash;h.app.loadGuide(result);
+ assert.equal(h.voice.canStart(),true);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
+ assert.equal((await h.voice.dispatch('navigate_assembly_step',{step:6})).state.manualPage,12);assert.equal(h.app.state().index,5);
+ assert.equal((await h.voice.dispatch('control_playback',{action:'play'})).state.playing,true);
+ assert.equal((await h.voice.dispatch('control_playback',{action:'pause'})).state.playing,false);
+ assert.equal((await h.voice.dispatch('set_assembly_view',{mode:'exploded'})).state.view,'exploded');
+ assert.equal((await h.voice.dispatch('set_assembly_view',{mode:'guided'})).state.view,'guided');assert.equal(h.app.state().exploded,false);
+ assert.equal((await h.voice.dispatch('show_manual_page',{page:7})).state.linked,false);assert.equal(h.app.state().index,5);
+ const revision=h.voice.getRevision();h.document.querySelector('#prev').click();assert(h.voice.getRevision()>revision);
+ assert.equal((await h.voice.dispatch('navigate_assembly_step',{step:1},{revision})).ok,false);
+ const beforeLoad=h.voice.getRevision();h.app.loadGuide(result);assert(h.voice.getRevision()>beforeLoad);
+ assert.doesNotMatch(JSON.stringify(h.voice.getState()),/private-name|sha256|sourceUrl/);
+ await h.app.pickPdf(new File(['%PDF-1.7\nother'],'different.pdf',{type:'application/pdf'}));
+ assert.equal(h.voice.canStart(),false);assert.equal(h.voice.getState().product,null);assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);
 });

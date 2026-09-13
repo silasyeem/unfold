@@ -225,3 +225,8 @@ body.engine{height:100dvh;min-width:320px;display:flex;flex-direction:column;ove
  .engine .parts-scan-toolbar{padding:13px 18px;flex-wrap:wrap;gap:10px}
  .engine .parts-scan-toolbar .button{font-size:12px}
 }
+
+/* Keep voice beside the current build without shrinking away its controls. */
+.engine .copilot-panel{flex-shrink:0;border-bottom:1px solid var(--line)}
+.engine .copilot-heading h2{margin:0;font-size:22px}
+.engine .copilot-panel p{margin-top:8px}

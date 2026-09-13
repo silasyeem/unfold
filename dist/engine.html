@@ -15,6 +15,8 @@
   <header class="topbar">
     <a class="brand" href="/engine.html" aria-label="Unfold home"><span class="brand-symbol" aria-hidden="true">◇</span> unfold</a>
     <div class="header-actions">
+      <button class="button" id="copilot-toggle" aria-expanded="false" aria-controls="copilot-panel" hidden>Talk to guide <span id="copilot-indicator" aria-live="polite"></span></button>
+      <button class="button" id="copilot-quick-end" aria-label="End voice" hidden>End voice</button>
       <button class="button demo-button" type="button" data-knarrevik-demo disabled>KNARREVIK demo</button>
       <a class="button" href="/screws.html">Screw lab</a>
       <a class="example-link" href="/">Try an example <span aria-hidden="true">↗</span></a>
@@ -29,6 +31,16 @@
       </details>
     </div>
   </header>
+
+<section id="copilot-panel" class="copilot-panel" aria-labelledby="copilot-title" hidden>
+<div class="copilot-heading"><div><div class="eyebrow">VOICE COPILOT</div><h2 id="copilot-title">Talk through your build.</h2></div><button class="icon-button" id="copilot-collapse" aria-label="Collapse voice panel; active voice continues">−</button></div>
+<p>Try “explain step three”, “show the whole table”, or “replay that step”. The guide can change steps, manual pages and views while you talk.</p>
+<p class="copilot-privacy">Starting sends microphone audio and the loaded guide’s instructions, parts, review notes and current step to OpenAI using paid API access. The voice feature does not send PDF files or filenames. Voice continues when this panel is collapsed.</p>
+<div class="copilot-key"><label for="copilot-api-key">OpenAI API key <span>(required on the hosted site)</span></label><input id="copilot-api-key" type="password" autocomplete="off" spellcheck="false" autocapitalize="none" maxlength="4096" aria-describedby="copilot-key-note" placeholder="Enter your project API key"><p id="copilot-key-note">Sent once on Start voice through this site’s server to authenticate with OpenAI. Unfold never saves it to disk or browser storage. Re-enter it for each start, including after failure. On localhost, you may leave it blank to use a configured local key.</p></div>
+<div class="copilot-controls"><button class="button primary" id="copilot-start">Start voice</button><button class="button" id="copilot-mute" aria-pressed="false" disabled>Mute</button><button class="button" id="copilot-end" disabled>End</button><span id="copilot-status" role="status">Ready when you are. Enter your key, then start voice.</span></div>
+<p id="copilot-audio-note" hidden>Your browser paused the guide audio. Press play below to listen.</p><audio id="copilot-audio" controls autoplay aria-label="Guide voice playback" hidden></audio>
+<div id="copilot-transcript" class="copilot-transcript" role="log" aria-label="Voice transcript" aria-live="polite" aria-relevant="text additions"></div>
+</section>
 
   <section class="source-screen" aria-labelledby="source-heading">
     <div class="source-intro">
