@@ -5,10 +5,10 @@ export const KNARREVIK = Object.freeze({
   revision: 'AA-2547698-1',
   manualSha256: '53a0acadcb500a9ac274651f88599b9eb3b046bb6252025c211a3b618c0cdc8c',
   parts: [
-    {id:'tray', name:'Metal trays', expected:2, code:'', page:7, exampleId:'tray-bottom', description:'Two solid rectangular trays with folded edges. The edges are integral, not separate rails.', use:'One tray forms the lower shelf (steps 1–3); the other forms the top (steps 4–5). A single photo may not distinguish them.'},
-    {id:'leg', name:'Angle legs', expected:4, code:'', page:9, exampleId:'leg-1', description:'Four separate long metal angle sections with screw holes. Not two preassembled side frames.', use:'Each leg attaches to both trays. Steps 1–3 attach the lower tray; steps 4–5 secure the top.'},
-    {id:'screw', name:'Assembly screws', expected:16, code:'10118490 / 10118469', page:6, exampleId:'screw-1', description:'16 screws in total. The manual lists alternative codes; these are not two sets of 16.', use:'Leave screws loose during steps 1–5. Stand the table upright and tighten all 16 in step 6. Check the supplied hardware against page 6.'},
-    {id:'hex_key', name:'Hex key', expected:1, code:'100006', page:6, exampleId:'hex-key', description:'One L-shaped hex key. A tool, not a permanent table component.', use:'The supplied key is used to insert and tighten the screws. It stays outside the finished table.'},
+    {id:'tray', name:'Metal trays', expected:2, code:'', page:7, exampleId:'tray-bottom', description:'Two solid rectangular trays with folded edges.', use:'One tray forms the lower shelf (steps 1–3); the other forms the top (steps 4–5). A single photo may not distinguish them.'},
+    {id:'leg', name:'Angle legs', expected:4, code:'', page:9, exampleId:'leg-1', description:'Four long metal angle sections with screw holes.', use:'Each leg attaches to both trays. Steps 1–3 attach the lower tray; steps 4–5 secure the top.'},
+    {id:'screw', name:'Assembly screws', expected:16, code:'10118490 / 10118469', page:6, exampleId:'screw-1', description:'16 assembly screws. The manual lists two alternative part codes.', use:'Leave screws loose during steps 1–5. Stand the table upright and tighten all 16 in step 6. Check the supplied hardware against page 6.'},
+    {id:'hex_key', name:'Hex key', expected:1, code:'100006', page:6, exampleId:'hex-key', description:'One L-shaped hex key for tightening the screws.', use:'Use the supplied key to insert and tighten the screws.'},
   ],
 });
 
