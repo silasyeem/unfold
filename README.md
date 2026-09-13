@@ -51,7 +51,7 @@ These are the repository's configured defaults:
 
 | Variable | Purpose | Default |
 | --- | --- | --- |
-| `OPENAI_API_KEY` | Server credential for conversion, search, scanning, and voice. | Unset |
+| `OPENAI_API_KEY` | Your OpenAI credential for local development. | Unset |
 | `OPENAI_MODEL` | Manual extraction, geometry generation, and review. | `gpt-6-astra` |
 | `OPENAI_SEARCH_MODEL` | Explicit web searches for manuals. | `gpt-5.4` |
 | `OPENAI_SCAN_MODEL` | Parts recognition. | `gpt-5.4` in `.env.example` |
@@ -60,7 +60,7 @@ These are the repository's configured defaults:
 
 Extraction, evidence reconciliation, and visual review use high reasoning; geometry generation uses medium. Voice uses `gpt-live-1`. If `OPENAI_SCAN_MODEL` is omitted, scanning falls back to `OPENAI_MODEL`, then `gpt-5.4`. Legacy `PORT` is used when `UNFOLD_PORT` is unset.
 
-The Node server reads `.env.local` and legacy `.env`, with `.env.local` taking precedence. Both are ignored by Git. Keep credentials out of frontend files, guide exports, and commits. Configure hosted credentials as runtime secrets.
+The Node server reads `.env.local` and legacy `.env`, with `.env.local` taking precedence. Both are ignored by Git. Keep credentials out of frontend files, guide exports, and commits. For your own deployment, supply credentials through runtime secrets.
 
 ## Guide behavior
 
@@ -74,7 +74,7 @@ Every Engine guide uses the same player, whether created locally, generated on S
 
 ### Voice copilot
 
-Voice is integrated into every Engine guide and the prepared STRANDMON demo. Open **Talk to guide**, choose **Start voice**, and allow microphone access. It uses the configured server key by default. **Voice settings** also accepts an optional key for that session; the field clears after submission and the app does not persist that override. A malformed override is rejected rather than silently falling back to the server key.
+Voice is integrated into every Engine guide and the prepared STRANDMON demo. Open **Talk to guide**, choose **Start voice**, and allow microphone access. Use **Voice settings** to supply your own OpenAI API key for a session. The field clears after submission, and the app does not persist the entered key.
 
 | Say | Intended behavior |
 | --- | --- |
@@ -175,7 +175,7 @@ The live Site uses the combined Worker in `server/site.mjs`, serving conversion,
 - `dist/client/`: public assets copied from the authored frontend.
 - `dist/.openai/hosting.json`: deployment metadata.
 
-Generated output is ignored by Git. Prior build output moves to ignored `.sites-runtime/build-backups`; authored files remain intact. Hosted conversion and the manual library require the `BUCKET` R2 binding. API features use the hosted `OPENAI_API_KEY`; voice can also use a session-only override.
+Generated output is ignored by Git. Prior build output moves to ignored `.sites-runtime/build-backups`; authored files remain intact. Hosted conversion and the manual library require the `BUCKET` R2 binding.
 
 Publish the Worker and assets together through Sites using the existing project in [.openai/hosting.json](.openai/hosting.json). Push the exact source to the Site's configured repository, package the build output, then save and deploy that version while preserving its access policy. **Pushing or merging to GitHub does not deploy Sites.** The scanner-only entry and a static-only upload do not provide the complete app.
 
@@ -185,7 +185,7 @@ For local Worker verification:
 npm run preview:hosted
 ```
 
-Open [localhost:4191](http://127.0.0.1:4191/). [wrangler.jsonc](wrangler.jsonc) configures the Worker, assets, and local R2 binding. With that preview running **without a configured server key**, `node scripts/verify-hosted.mjs` checks asset integrity, readiness, missing-key rejection, and request boundaries without calling OpenAI. Its keyless test setup is separate from the production behavior, which accepts the configured server key.
+Open [localhost:4191](http://127.0.0.1:4191/). [wrangler.jsonc](wrangler.jsonc) configures the Worker, assets, and local R2 binding. With that preview running **without API credentials**, `node scripts/verify-hosted.mjs` checks asset integrity, readiness, missing-key rejection, and request boundaries without calling OpenAI.
 
 ## Data handling
 
