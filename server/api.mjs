@@ -33,7 +33,7 @@ export async function handleApi(request,env){
   async start(controller){
    const emit=(event,data)=>{if(!cancelled)controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));};
    const heartbeat=setInterval(()=>{if(!cancelled)controller.enqueue(encoder.encode(': waiting\n\n'));},12000);
-   try{const result=await convertPdf(bytes,{apiKey:env.OPENAI_API_KEY,model:env.OPENAI_MODEL||DEFAULT_MODEL,pageCount,filename,signal:abort.signal,onStage:message=>emit('stage',{message})});emit('result',result);}
+   try{const result=await convertPdf(bytes,{apiKey:env.OPENAI_API_KEY,model:env.OPENAI_MODEL||DEFAULT_MODEL,pageCount,filename,signal:abort.signal,renderStages:env.createRenderer?.(emit),onStage:message=>emit('stage',{message})});emit('result',result);}
    catch(error){if(!cancelled)emit('error',{message:abort.signal.aborted?'Conversion took too long. Try a shorter manual.':error.message||'Conversion failed. Please retry.'});}
    finally{abort.abort();clearInterval(heartbeat);clearTimeout(timeout);active--;if(!cancelled)controller.close();}
   },cancel(){cancelled=true;abort.abort();}
