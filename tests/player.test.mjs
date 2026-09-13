@@ -36,7 +36,7 @@ async function harness({pageCount=1,hostedRendering=false,entry='engine.html'}={
  for(const dialog of document.querySelectorAll('dialog')){dialog.showModal=()=>dialog.setAttribute('open','');dialog.close=()=>dialog.removeAttribute('open');Object.defineProperty(dialog,'open',{get:()=>dialog.hasAttribute('open')});}
  let viewMode='whole',loaded=0,photoOptions,voiceOptions;const voiceSession={current:null,end(){this.current=null;},updateContext(){},refreshAvailability(){}};const photoCalls=[],fetchCalls=[],loadedGuides=[];
  let viewerIndex=-1;
- const fakeViewer={load(guide){loaded++;loadedGuides.push(guide);viewMode='whole';viewerIndex=-1;},setState(index){if(index!==viewerIndex)viewMode='whole';viewerIndex=index;},getView:()=>({mode:viewMode}),guide(){viewMode='guided';},wholeBuild(){viewMode='whole';},setExploded(){viewMode='whole';},selectPart(){},dispose(){}};
+ const fakeViewer={load(guide){loaded++;loadedGuides.push(guide);viewMode='whole';viewerIndex=-1;},setState(index){if(index!==viewerIndex)viewMode='whole';viewerIndex=index;},getView:()=>({mode:viewMode}),guide(){viewMode=viewerIndex<0?'whole':'guided';},wholeBuild(){viewMode='whole';},setExploded(){viewMode='whole';},selectPart(){},dispose(){}};
  const fakePdf={numPages:pageCount,destroy:async()=>{},getPage:async()=>({getViewport:()=>({width:100,height:100}),render:()=>({promise:Promise.resolve(),cancel(){}})})};
  const context={document,queueMicrotask,mountConversionProgress,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:()=>({setDisabled(){},destroy(){}}),createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true,browserRendering:hostedRendering});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
 
@@ -49,21 +49,22 @@ async function harness({pageCount=1,hostedRendering=false,entry='engine.html'}={
 test('play and pause preserve guided camera mode',async()=>{
  const h=await harness();h.app.loadGuide({guide:fixture()});h.app.setStep(0);h.document.querySelector('#step-view').onclick();h.document.querySelector('#play').onclick();assert.equal(h.getMode(),'guided');h.document.querySelector('#play').onclick();assert.equal(h.getMode(),'guided');assert.equal(h.app.state().playing,false);h.document.querySelector('#exploded').onclick();assert.equal(h.app.state().exploded,true);h.document.querySelector('#step-view').onclick();assert.equal(h.app.state().exploded,false);assert.equal(h.getMode(),'guided');
 });
-test('step changes and playback keep the steady whole-build view, including voice commands',async()=>{
+test('step changes default to guided close-ups, including voice navigation and replay',async()=>{
  const h=await harness(),$=s=>h.document.querySelector(s);h.app.loadGuide({guide:fixture()});h.app.setStep(0);
- assert.equal(h.getMode(),'whole');$('#play').onclick();assert.equal(h.getMode(),'whole');$('#play').onclick();
+ assert.equal(h.getMode(),'guided');$('#play').onclick();assert.equal(h.getMode(),'guided');$('#play').onclick();
  $('#step-view').onclick();assert.equal(h.getMode(),'guided');
  let result=await h.voice.dispatch('navigate_relative_step',{direction:'previous'});
  assert.equal(result.state.step,0);assert.equal(h.getMode(),'whole');
  result=await h.voice.dispatch('navigate_relative_step',{direction:'next'});
- assert.equal(result.state.step,1);assert.equal(h.getMode(),'whole');
+ assert.equal(result.state.step,1);assert.equal(h.getMode(),'guided');
  result=await h.voice.dispatch('control_playback',{action:'replay'});
- assert.equal(result.state.playing,true);assert.equal(result.state.view,'whole');
+ assert.equal(result.state.playing,true);assert.equal(result.state.view,'guided');
  // Looking up a referenced step leaves selection and playback untouched.
  const before=h.app.state();await h.voice.dispatch('get_assembly_state',{});await h.voice.dispatch('list_assembly_steps',{});
- assert.equal(h.app.state().index,before.index);assert.equal(h.app.state().playing,before.playing);assert.equal(h.getMode(),'whole');
+ assert.equal(h.app.state().index,before.index);assert.equal(h.app.state().playing,before.playing);assert.equal(h.getMode(),'guided');
  $('#exploded').onclick();await h.voice.dispatch('control_playback',{action:'play'});
- assert.equal(h.app.state().exploded,false);assert.equal(h.getMode(),'whole');
+ assert.equal(h.app.state().exploded,false);assert.equal(h.getMode(),'guided');
+ $('#whole-view').onclick();await h.voice.dispatch('control_playback',{action:'replay'});assert.equal(h.getMode(),'whole','An explicitly chosen whole-build view remains available during playback.');
 });
 test('new PDF clears previous guide instructions and source references',async()=>{
  const h=await harness();h.app.loadGuide({guide:fixture()});h.app.setStep(0);assert.equal(h.document.querySelector('#source-page').textContent,'Manual · p. 1');

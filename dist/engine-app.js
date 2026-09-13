@@ -40,7 +40,7 @@ function syncReviewState(){
 }
 function setStep(next){
  if(!output)return;const guide=output.guide;if(next< -1||next>=guide.steps.length)return;
- if(exploded)viewer?.wholeBuild();index=next;progress=0;playing=false;exploded=false;$('#exploded').setAttribute('aria-pressed','false');viewer?.setState(index,progress);currentView=viewer?.getView?.().mode||'whole';syncPlay();
+ if(exploded)viewer?.wholeBuild();index=next;progress=0;playing=false;exploded=false;$('#exploded').setAttribute('aria-pressed','false');viewer?.setState(index,progress);viewer?.guide();currentView=viewer?.getView?.().mode||'whole';syncPlay();
  const step=guide.steps[index];$('#instruction-step').textContent=step?`STEP ${index+1} / ${guide.steps.length}`:'PARTS OVERVIEW';$('#instruction-title').textContent=step?step.title:guide.productName;$('#instruction-text').textContent=step?step.instruction:guide.summary;
  $('#source-page').textContent=step?`Manual · p. ${step.sourcePage}`:'';$('#step-count').textContent=`${Math.max(0,index+1)} / ${guide.steps.length}`;$('#time-label').textContent=step?`Step ${index+1} of ${guide.steps.length}`:'Overview';$('#duration-label').textContent=step?`${step.duration} sec`:'';
  $('#orientation-label').textContent=step?`${labels[step.orientation]} · drag to rotate · scroll to zoom`:'Drag to rotate · scroll to zoom';$('#view-label').textContent=currentView==='free'?'Free view':currentView==='guided'?'Step view · joint highlighted':'Whole build · steady camera';$('#prev').disabled=index<0;$('#next').disabled=false;$('#next').textContent=index===guide.steps.length-1?'Overview ↺':index<0?'Start assembly →':'Next step →';$('#progress').disabled=index<0;$('#edit-step').disabled=index<0;
@@ -116,7 +116,7 @@ $('#guide-file').onchange=async e=>{const selected=e.target.files[0];e.target.va
 $('#download-manual').onclick=()=>{if(!file)return;downloadFile(file,file.name);};
 function downloadFile(blob,name){$('.guide-menu').open=false;const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 $('#export').onclick=()=>{if(!output)return;const blob=new Blob([JSON.stringify({...output,reviewedSteps:[...reviewed]},null,2)],{type:'application/json'});downloadFile(blob,(output.guide.productName.replace(/[^a-zA-Z0-9_-]/g,'_')||'assembly')+'.unfold.json');};
-$('#play').onclick=()=>{if(index<0)setStep(0);if(progress>=1)progress=0;playing=!playing;if(exploded){clearExploded();currentView='whole';viewer?.wholeBuild();}syncPlay();};
+$('#play').onclick=()=>{if(index<0)setStep(0);if(progress>=1)progress=0;playing=!playing;if(exploded){clearExploded();currentView='guided';viewer?.guide();}viewer?.setState(index,progress);syncPlay();};
 $('#next').onclick=()=>setStep(index===output.guide.steps.length-1?-1:index+1);$('#prev').onclick=()=>setStep(index-1);
 $('#progress').oninput=e=>{playing=false;progress=Number(e.target.value)/1000;viewer?.setState(index,progress);syncPlay();};
 $('#speed').onclick=()=>{const speeds=[.5,1,1.5,2];speed=speeds[(speeds.indexOf(speed)+1)%speeds.length];$('#speed').textContent=speed+'×';};
@@ -141,7 +141,7 @@ const appTools=createEngineCopilotAdapter(()=>({output,index,page,pdfPageCount:p
  navigateStep:value=>{setStep(value);reveal('.viewer-panel');},
  showManualPage:async value=>{linked=false;await showPage(value);reveal('.manual-panel');},
  setView:mode=>{playing=false;currentView=mode;exploded=mode==='exploded';$('#exploded').setAttribute('aria-pressed',String(exploded));if(mode==='exploded')viewer?.setExploded(true);else{clearExploded();if(mode==='whole')viewer?.wholeBuild();else viewer?.guide();}syncPlay();reveal('.viewer-panel');},
- controlPlayback:action=>{if(action==='pause'){playing=false;syncPlay();return;}if(index<0)setStep(0);if(action==='replay'||progress>=1)progress=0;if(exploded){clearExploded();currentView='whole';viewer?.wholeBuild();}viewer?.setState(index,progress);playing=true;syncPlay();reveal('.viewer-panel');}
+ controlPlayback:action=>{if(action==='pause'){playing=false;syncPlay();return;}if(index<0)setStep(0);if(action==='replay'||progress>=1)progress=0;if(exploded){clearExploded();currentView='guided';viewer?.guide();}viewer?.setState(index,progress);playing=true;syncPlay();reveal('.viewer-panel');}
 });
 copilot=mountCopilot({dispatch:createToolDispatcher(appTools),getRevision:appTools.getRevision,getState:appTools.getState,canStart:voiceAvailable});
 

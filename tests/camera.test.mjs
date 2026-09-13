@@ -46,6 +46,12 @@ test('guided close-ups follow the parent-transformed socket during approach, tig
  }
 }));
 
+test('close-ups refresh panel transparency so the active joint is visible through the furniture',async()=>withViewer(h=>{
+ h.viewer.load(jointGuide());h.draw();const material=h.scene.getObjectByName('panel').children[0].material,opaqueVersion=material.version;
+ h.at(.4);assert.equal(material.transparent,true);assert.equal(material.depthWrite,false);assert(material.opacity<.5);assert(material.version>opaqueVersion,'Entering a close-up must invalidate the opaque shader.');
+ const fadedVersion=material.version;h.viewer.wholeBuild();h.draw();assert.equal(material.transparent,false);assert.equal(material.depthWrite,true);assert.equal(material.opacity,1);assert(material.version>fadedVersion,'Pulling back must restore the opaque shader.');
+}));
+
 test('inter-joint transitions and scrubbing are deterministic rather than dependent on frame history',async()=>withViewer(h=>{
  const guide=jointGuide();h.viewer.load(guide);h.at(.6);const first=h.target.clone();h.at(.85);const second=h.target.clone(),position=h.camera.position.clone();
  h.at(.7);near(h.target,first,'The next approach begins at the previous joint.');
@@ -80,6 +86,32 @@ test('large-part placement retains source step focus and orientation-only stages
 }));
 
 const knarrevik=async()=>JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8')).guide;
+
+test('Step view zooms in while paused, pulls back after the final action, and zooms in again on replay',async()=>withViewer(h=>{
+ h.viewer.load(jointGuide());h.draw();const whole=h.camera.position.clone();
+ h.viewer.setState(0,0);h.viewer.guide();h.draw();near(h.camera.position,whole,'The automatic close-up begins smoothly.');
+ h.advance(1000);assert.equal(h.viewer.getView().mode,'guided');assert(h.camera.position.distanceTo(h.target)<.7,'Opening the step zooms in without waiting for playback progress.');
+ h.viewer.setState(0,.85);h.draw();const close=h.camera.position.clone(),pose=h.scene.getObjectByName('panel').parent.quaternion.clone();
+ h.viewer.setState(0,.98);h.draw();near(h.camera.position,close,'The final action starts a smooth pullback.');assert.equal(h.viewer.getView().mode,'whole');
+ h.advance(500);assert(h.camera.position.distanceTo(close)>.1&&h.camera.position.distanceTo(whole)>.1);
+ h.advance(500);near(h.camera.position,whole);assert(h.scene.getObjectByName('panel').parent.quaternion.angleTo(pose)<1e-7,'Zooming out does not turn the object.');
+ h.viewer.setState(0,0);h.advance(1000);assert.equal(h.viewer.getView().mode,'guided');assert(h.camera.position.distanceTo(h.target)<.7);
+},{animateTransitions:true}));
+
+for(const [width,height] of [[772,300],[340,300]])test(`step 6 keeps every tightening screw in frame throughout playback at ${width}×${height}`,async()=>withViewer(async h=>{
+ const guide=await knarrevik(),step=guide.steps[5];h.viewer.load(guide);h.viewer.setState(5,0);h.viewer.guide();
+ const seen=new Set();
+ for(let frame=0;frame<=270;frame++){
+  const time=frame/(step.duration*60);h.viewer.setState(5,time);h.advance(1000/60);h.camera.lookAt(h.target);h.camera.updateMatrixWorld(true);
+  for(const action of step.actions.filter(a=>a.kind==='tighten'&&a.partId!=='key'&&a.start<=time&&time<a.end)){
+   seen.add(action.partId);const screen=h.scene.getObjectByName(action.partId).getWorldPosition(new T.Vector3()).project(h.camera);
+   assert(Math.abs(screen.x)<=.65+1e-8&&Math.abs(screen.y)<=.65+1e-8&&Math.abs(screen.z)<1,`${action.partId} is out of frame at ${time}.`);
+  }
+ }
+ assert.deepEqual([...seen].sort(),step.actions.filter(a=>a.kind==='tighten'&&a.partId!=='key').map(a=>a.partId).sort());
+ assert.equal(h.viewer.getView().mode,'whole','After the last tightening/withdrawal, show the whole table.');
+},{animateTransitions:true,width,height}));
+
 const poseOf=step=>{
  if(!step.cameraUp)return new T.Quaternion().setFromEuler(new T.Euler(...orientations[step.orientation]));
  const frame=(back,up)=>{back.normalize();const right=up.cross(back).normalize();return new T.Quaternion().setFromRotationMatrix(new T.Matrix4().makeBasis(right,back.clone().cross(right),back));};

@@ -11,7 +11,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
  const grid=new T.GridHelper(10,40,0xe4e8f0,0xe9edf3);grid.position.y=.001;scene.add(grid);
  const rig=new T.Group();scene.add(rig);const meshes=new Map(),partReach=new Map();let compiled=null,index=-1,progress=0,mode='whole',exploded=false,selected=null,frame=0,dirty=true,disposed=false;
  const fitBox=new T.Box3(),bounds=new T.Box3(),center=new T.Vector3(),size=new T.Vector3(),q=new T.Quaternion(),p=new T.Vector3(),axis=new T.Vector3();
- let radius=1,baseCenter=new T.Vector3(0,.5,0),transition=null;
+ let radius=1,baseCenter=new T.Vector3(0,.5,0),transition=null,autoCompleted=false;
  const reducedMotion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const fixedDirection=new T.Vector3(1.2,.7,1.5).normalize();
  function workingPose(step){
@@ -22,10 +22,11 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
   const fixed=new T.Matrix4().lookAt(fixedDirection,new T.Vector3(),new T.Vector3(0,1,0));
   return new T.Quaternion().setFromRotationMatrix(fixed.multiply(reference.transpose()));
  }
- controls.addEventListener('start',()=>{mode='free';dirty=true;onView('Free view · drag to inspect');});
+ function beginTransition(){transition=compiled&&animateTransitions&&!reducedMotion?{pose:rig.quaternion.clone(),camera:camera.position.clone(),target:controls.target.clone(),start:performance.now()}:null;}
+ controls.addEventListener('start',()=>{mode='free';autoCompleted=false;dirty=true;onView('Free view · drag to inspect');});
  function disposeParts(){for(const child of [...rig.children]){child.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [].concat(o.material))m.dispose();});rig.remove(child);}meshes.clear();partReach.clear();}
  function load(guide){
-  const next=compileGuide(guide);disposeParts();compiled=next;transition=null;
+  const next=compileGuide(guide);disposeParts();compiled=next;transition=null;autoCompleted=false;
   for(const part of guide.parts){
    const group=new T.Group();group.name=part.id;
    for(const primitive of part.primitives){
@@ -58,27 +59,28 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
    const mesh=meshes.get(part.id),s=state?.[part.id];mesh.visible=state?s.visible:part.kind!=='tool';mesh.position.fromArray(s?s.position:part.position);mesh.rotation.set(...(s?s.rotation:part.rotation));
    if(s?.spin){axis.fromArray(s.spinAxis).normalize();q.setFromAxisAngle(axis,s.spin);mesh.quaternion.multiply(q);}
    if(exploded&&mesh.visible)mesh.position.add(p.fromArray(part.explodedOffset));
-   mesh.traverse(o=>{if(!o.isMesh||o.userData.partId!==part.id)return;const highlighted=s?.active||part.id===selected;o.material.emissive.set(highlighted?0x285bff:0);o.material.emissiveIntensity=highlighted?.35:0;const faded=mode==='guided'&&index>=0&&!highlighted&&part.kind==='part'&&(compiled.guide.steps[index].cameraDistance<1||guidance?.current?.small||guidance?.previous?.small&&guidance.blend<1);o.material.transparent=faded;o.material.opacity=faded?.32:1;o.material.depthWrite=!faded;});
+   mesh.traverse(o=>{if(!o.isMesh||o.userData.partId!==part.id)return;const highlighted=s?.active||part.id===selected;o.material.emissive.set(highlighted?0x285bff:0);o.material.emissiveIntensity=highlighted?.35:0;const faded=Boolean(mode==='guided'&&index>=0&&!highlighted&&part.kind==='part'&&(compiled.guide.steps[index].cameraDistance<1||guidance?.current?.small||guidance?.previous?.small&&guidance.blend<1));if(o.material.transparent!==faded){o.material.transparent=faded;o.material.needsUpdate=true;}o.material.opacity=faded?.32:1;o.material.depthWrite=!faded;});
   }
   groundRig(state);dirty=false;
   if(mode!=='free')positionCamera(guidance);
   if(transition){
    const blend=smooth((now-transition.start)/1000);
-   // Turn the furniture independently of the camera. The whole-build shot is
-   // fixed in world space; only an explicitly requested close-up changes it.
+   // Turn the furniture independently of the camera. Automatic close-ups pan
+   // and zoom without changing the manual's viewing direction.
    rig.quaternion.slerpQuaternions(transition.pose,pose,blend);groundRig(state);
    if(mode!=='free'){camera.position.lerpVectors(transition.camera,camera.position,blend);controls.target.lerpVectors(transition.target,controls.target,blend);}
    if(blend>=1)transition=null;
   }
+  keepTighteningInFrame();
  }
  function guidedOperation(){
   if(mode!=='guided'||index<0)return null;
   const actions=compiled.guide.steps[index].actions.map(action=>{const kind=compiled.guide.parts.find(part=>part.id===action.partId).kind;return{action,small:kind!=='part',rank:kind==='tool'?2:kind==='hardware'?1:0};});
   const at=time=>actions.filter(item=>item.action.start<=time&&time<item.action.end).sort((a,b)=>b.rank-a.rank||b.action.start-a.action.start)[0]||actions.filter(item=>item.action.end<=time).sort((a,b)=>b.action.end-a.action.end||b.action.start-a.action.start)[0]||null;
-  const current=at(progress),previous=current?at(current.action.start-1e-6):null;
+  const current=at(progress)||[...actions].sort((a,b)=>a.action.start-b.action.start)[0],previous=current?at(current.action.start-1e-6):null;
   // Derive the entire camera transition from timeline position so seeking,
   // playback and server screenshots always produce the same view.
-  const blend=current?smooth((progress-current.action.start)/Math.min(.05,(current.action.end-current.action.start)*.4)):1;
+  const blend=current&&previous&&current.action.kind!=='tighten'?smooth((progress-current.action.start)/Math.min(.05,(current.action.end-current.action.start)*.4)):1;
   return{current,previous,blend};
  }
  function positionCamera(guidance){
@@ -87,7 +89,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
   // upright-only fit can crop the lower edge when the furniture lies on its side.
   const target=new T.Vector3(0,radius,0);let direction=fixedDirection.clone();let distance=radius*5;
   if(mode==='guided'&&index>=0&&compiled.guide.steps[index].actions.length){
-   const step=compiled.guide.steps[index],close=smooth(progress/.23);
+   const step=compiled.guide.steps[index];
    const viewFor=operation=>{
     if(!operation?.small)return{focus:new T.Vector3(...step.focus).applyMatrix4(rig.matrixWorld),distance:step.cameraDistance};
     const action=operation.action,mesh=meshes.get(action.partId);
@@ -99,21 +101,44 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
    };
    const before=viewFor(guidance?.previous),after=viewFor(guidance?.current),blend=guidance?.blend??1;
    const focus=before.focus.lerp(after.focus,blend),jointDistance=T.MathUtils.lerp(before.distance,after.distance,blend);
-   target.lerp(focus,close);direction.fromArray(step.cameraDirection).normalize().applyQuaternion(rig.quaternion);
+   target.copy(focus);direction.fromArray(step.cameraDirection).normalize().applyQuaternion(rig.quaternion);
    // Generated camera directions can point through the support surface after a flip.
    direction.y=Math.max(.25,Math.abs(direction.y));direction.normalize();
-   distance=T.MathUtils.lerp(radius*5,jointDistance,close);
+   distance=jointDistance;
   }
   if(exploded)distance*=1.45;
   distance*=Math.max(1,.95/camera.aspect);controls.target.copy(target);camera.position.copy(target).addScaledVector(direction,distance);camera.position.y=Math.max(.1,camera.position.y);camera.near=Math.max(.005,distance/300);camera.far=Math.max(100,distance*10);camera.updateProjectionMatrix();
  }
+ function keepTighteningInFrame(){
+  if(mode!=='guided'||index<0)return;
+  const active=compiled.guide.steps[index].actions.filter(a=>a.kind==='tighten'&&a.start<=progress&&progress<a.end);
+  const screws=active.filter(a=>compiled.guide.parts.find(part=>part.id===a.partId).kind==='hardware');
+  const points=(screws.length?screws:active).map(a=>meshes.get(a.partId).getWorldPosition(new T.Vector3()));
+  if(!points.length)return;
+  camera.lookAt(controls.target);camera.updateMatrixWorld(true);
+  const outside=points.some(point=>{const screen=point.clone().project(camera);return Math.abs(screen.x)>.65||Math.abs(screen.y)>.65||Math.abs(screen.z)>1;});
+  if(!outside)return;
+  // A rapid jump, initial zoom or simultaneous operation must never leave the
+  // screw being tightened off-screen. Keep the same viewing direction.
+  const focus=new T.Box3().setFromPoints(points).getCenter(new T.Vector3()),offset=camera.position.clone().sub(controls.target);
+  const spread=Math.max(...points.map(point=>point.distanceTo(focus)));
+  offset.setLength(Math.max(offset.length(),spread/(Math.tan(camera.fov*Math.PI/360)*.6)*Math.max(1,1/camera.aspect)));
+  controls.target.copy(focus);camera.position.copy(focus).add(offset);camera.position.y=Math.max(.1,camera.position.y);
+  if(transition){transition.camera.copy(camera.position);transition.target.copy(focus);}
+ }
  const observer=new ResizeObserver(()=>{const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();dirty=true;});observer.observe(container);
  function draw(now=performance.now()){if(disposed)return;frame=requestAnimationFrame(draw);if(dirty||transition)drawState(now);controls.update();renderer.render(scene,camera);}draw();
  return{
-  load,setState(i,t){if(index!==i){transition=compiled&&animateTransitions&&!reducedMotion?{pose:rig.quaternion.clone(),camera:camera.position.clone(),target:controls.target.clone(),start:performance.now()}:null;mode='whole';exploded=false;}index=i;progress=t;dirty=true;},
-  guide(){mode=index<0?'whole':'guided';exploded=false;dirty=true;onView(index<0?'Whole build':compiled.guide.steps[index].actions.length?'Step view · joint highlighted':'Whole build · orientation');},
-  wholeBuild(){mode='whole';exploded=false;dirty=true;onView('Whole build');},
-  setExploded(v){exploded=v;mode='whole';dirty=true;onView(v?'Exploded parts':'Whole build');},
+  load,setState(i,t){
+   const end=compiled&&i>=0?Math.max(0,...compiled.guide.steps[i].actions.map(a=>a.end)):0;
+   if(index!==i){beginTransition();mode='whole';exploded=false;autoCompleted=false;}
+   else if(end&&mode==='guided'&&progress<end&&t>=end){beginTransition();mode='whole';autoCompleted=true;onView('Whole build · step complete');}
+   else if(autoCompleted&&t<end){beginTransition();mode='guided';autoCompleted=false;onView('Step view · joint highlighted');}
+   index=i;progress=t;dirty=true;
+  },
+  guide(){const next=index>=0&&compiled.guide.steps[index].actions.length?'guided':'whole';if(mode!==next&&!transition)beginTransition();mode=next;autoCompleted=false;exploded=false;dirty=true;onView(mode==='guided'?'Step view · joint highlighted':'Whole build · orientation');},
+  wholeBuild(){if(mode!=='whole')beginTransition();mode='whole';autoCompleted=false;exploded=false;dirty=true;onView('Whole build');},
+  setExploded(v){autoCompleted=false;exploded=v;mode='whole';dirty=true;onView(v?'Exploded parts':'Whole build');},
   selectPart(id){selected=id;dirty=true;},
   capture(){if(dirty||transition)drawState();controls.update();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/jpeg',.9);},
   getView(){return{mode,index,progress,exploded};},
