@@ -174,10 +174,15 @@ test('the saved KNARREVIK demo offers scanning after both guide and manual load'
 
 test('engine voice is wired to demo navigation, playback, manual pages and human revision changes',async()=>{
  const h=await harness({pageCount:12});const result=JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8'));
- assert.equal(h.voice.canStart(),false);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
+ assert.equal(h.voice.canStart(),false);assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);assert.equal(h.document.querySelector('#screw-lab').hidden,true);
  await h.app.pickPdf(new File(['%PDF-1.7\nknarrevik'],'private-name.pdf',{type:'application/pdf'}));
  result.provenance.sha256=h.app.state().pdfHash;h.app.loadGuide(result);
- assert.equal(h.voice.canStart(),true);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
+ assert.equal(h.voice.canStart(),true);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);assert.equal(h.document.querySelector('#screw-lab').hidden,false);
+ h.document.querySelector('#copilot-panel').hidden=false;h.document.querySelector('#copilot-toggle').setAttribute('aria-expanded','true');
+ h.document.querySelector('#change-manual').onclick();
+ assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);assert.equal(h.document.querySelector('#screw-lab').hidden,true);assert.equal(h.document.querySelector('#copilot-panel').hidden,true);assert.equal(h.document.querySelector('#copilot-toggle').getAttribute('aria-expanded'),'false');
+ h.document.querySelector('#resume-manual').onclick();
+ assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);assert.equal(h.document.querySelector('#screw-lab').hidden,false);
  assert.equal((await h.voice.dispatch('navigate_assembly_step',{step:6})).state.manualPage,12);assert.equal(h.app.state().index,5);
  assert.equal((await h.voice.dispatch('control_playback',{action:'play'})).state.playing,true);
  assert.equal((await h.voice.dispatch('control_playback',{action:'pause'})).state.playing,false);
@@ -189,5 +194,5 @@ test('engine voice is wired to demo navigation, playback, manual pages and human
  const beforeLoad=h.voice.getRevision();h.app.loadGuide(result);assert(h.voice.getRevision()>beforeLoad);
  assert.doesNotMatch(JSON.stringify(h.voice.getState()),/private-name|sha256|sourceUrl/);
  await h.app.pickPdf(new File(['%PDF-1.7\nother'],'different.pdf',{type:'application/pdf'}));
- assert.equal(h.voice.canStart(),false);assert.equal(h.voice.getState().product,null);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
+ assert.equal(h.voice.canStart(),false);assert.equal(h.voice.getState().product,null);assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);assert.equal(h.document.querySelector('#screw-lab').hidden,true);
 });
