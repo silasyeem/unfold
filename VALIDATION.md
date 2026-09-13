@@ -64,3 +64,8 @@ The user’s existing IKEA LACK search results were enriched from actual manufac
 Aside confirmed the product photos loaded, including the exact LACK side table 305.147.91, and Download manual produced real browser downloads for the side table and wall shelf unit, and Use this manual opened the 12-page LACK wall shelf PDF preview with its product name and Create animated guide. The download path does not start conversion. The result dialog fit a 390 px viewport with no horizontal overflow. Automated checks cover exact article matching, failed lookups, caching across restarts, retained PDF revisions, and safe HTML/image/PDF source handling.
 
 ![LACK side table with product photo and download](docs/validation/lack-table.png)
+
+
+## Screw generator — 2026-09-13
+
+The standalone screw generator is linked from the home page and workspace header. Eight automated tests validate all seven metric presets and three head styles, closed mesh topology, winding, dimensions, pitch, handedness, STL round-trip serialization, form/export state, WebGL fallback and preview disposal. The complete integrated suite passes 52 tests. No physical print, slicer validation or browser visual QA has been performed. Exported dimensions and thread topology do not establish load capacity or real-world fit.
