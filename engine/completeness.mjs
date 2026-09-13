@@ -11,7 +11,7 @@ const page={type:'integer',minimum:1,maximum:40};
 const kinds=['part','hardware','tool'];
 const shapes=['solid_panel','open_frame','linear','compound','fastener','tool'];
 const roles=['surface','support','frame','connector','tool','other'];
-const orientations=['upright','on_back','on_left','on_right','upside_down'];
+const orientations=['upright','on_back','on_front','on_left','on_right','upside_down'];
 
 export const componentEvidenceSchema=object({
  components:{...list(object({id,name:text,code:text,kind:{type:'string',enum:kinds},quantity:{type:'integer',minimum:1,maximum:80},role:{type:'string',enum:roles},geometryClass:{type:'string',enum:shapes},description:text,sourcePages:{...list(page,40),minItems:1}})),minItems:1},

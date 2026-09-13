@@ -1,5 +1,5 @@
 import {assertGuide} from './guide-schema.js';
-export const orientations={upside_down:[Math.PI,0,0],upright:[0,0,0],on_back:[-Math.PI/2,0,0],on_left:[0,0,Math.PI/2],on_right:[0,0,-Math.PI/2]};
+export const orientations={upside_down:[Math.PI,0,0],upright:[0,0,0],on_back:[-Math.PI/2,0,0],on_front:[Math.PI/2,0,0],on_left:[0,0,Math.PI/2],on_right:[0,0,-Math.PI/2]};
 export const clamp=x=>Math.max(0,Math.min(1,x));
 export const smooth=x=>{x=clamp(x);return x*x*(3-2*x);};
 const lerp=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);

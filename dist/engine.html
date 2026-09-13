@@ -61,7 +61,6 @@
         <input id="manual-file" type="file" disabled multiple accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" aria-label="Upload your manual">
       </label>
     </div>
-    <p class="source-footnote">Keep the original diagrams beside you, every step of the way.</p>
     <button class="source-resume text-link" id="resume-manual" hidden>Back to manual <span aria-hidden="true">→</span></button>
   </section>
 
@@ -121,7 +120,7 @@
     <div class="parts-scan-toolbar"><strong id="parts-scan-heading">Guide ready → Check parts → Assemble</strong><button class="button" id="close-parts-scan" autofocus>Back to assembly guide →</button></div>
     <div id="parts-scan-content"></div>
   </dialog>
-  <dialog id="review-dialog"><form id="review-form"><div class="dialog-top"><strong>Review step</strong><button class="icon-button" type="button" id="review-close" aria-label="Close review">×</button></div><label>Title<input id="review-title" maxlength="1500" required></label><label>Instruction<textarea id="review-instruction" rows="5" maxlength="1500" required></textarea></label><label>Source manual page<input id="review-page" type="number" min="1" required></label><label>Working orientation<select id="review-orientation"><option value="upright">Upright</option><option value="upside_down">Upside down</option><option value="on_back">On its back</option><option value="on_left">On its left side</option><option value="on_right">On its right side</option></select></label><p>Review the diagram before marking this step checked. Geometry remains approximate.</p><button class="button primary full-width" type="submit">Save and mark checked</button></form></dialog>
+  <dialog id="review-dialog"><form id="review-form"><div class="dialog-top"><strong>Review step</strong><button class="icon-button" type="button" id="review-close" aria-label="Close review">×</button></div><label>Title<input id="review-title" maxlength="1500" required></label><label>Instruction<textarea id="review-instruction" rows="5" maxlength="1500" required></textarea></label><label>Source manual page<input id="review-page" type="number" min="1" required></label><label>Working orientation<select id="review-orientation"><option value="upright">Upright</option><option value="upside_down">Upside down</option><option value="on_back">On its back</option><option value="on_front">On its front</option><option value="on_left">On its left side</option><option value="on_right">On its right side</option></select></label><p>Review the diagram before marking this step checked. Geometry remains approximate.</p><button class="button primary full-width" type="submit">Save and mark checked</button></form></dialog>
   <dialog id="page-dialog"><form method="dialog" class="dialog-top"><strong>Original diagram</strong><button class="icon-button" aria-label="Close diagram">×</button></form><img id="large-page" alt="Enlarged source diagram"></dialog>
   <script type="module" src="/engine-app.js"></script>
 </body>

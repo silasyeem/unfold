@@ -80,8 +80,41 @@ test('large-part placement retains source step focus and orientation-only stages
 }));
 
 const knarrevik=async()=>JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8')).guide;
-const poseOf=step=>new T.Quaternion().setFromEuler(new T.Euler(...orientations[step.orientation]));
+const poseOf=step=>{
+ if(!step.cameraUp)return new T.Quaternion().setFromEuler(new T.Euler(...orientations[step.orientation]));
+ const frame=(back,up)=>{back.normalize();const right=up.cross(back).normalize();return new T.Quaternion().setFromRotationMatrix(new T.Matrix4().makeBasis(right,back.clone().cross(right),back));};
+ return frame(new T.Vector3(1.2,.7,1.5),new T.Vector3(0,1,0)).multiply(frame(new T.Vector3(...step.cameraDirection),new T.Vector3(...step.cameraUp)).invert());
+};
 const nearPose=(actual,expected,message)=>assert(actual.angleTo(expected)<1e-7,message);
+
+test('KNARREVIK main drawings preserve foot direction, panel handedness and the newly elevated corner',async()=>withViewer(async h=>{
+ const guide=await knarrevik();h.viewer.load(guide);
+ // Signed landmark directions read from the MAIN drawings on PDF pages 7–11.
+ // From the near joint, the shelf runs up-right and the long foot end down-right.
+ const corners=[[.782,1.14,-.582],[-.782,1.14,-.582],[-.782,1.14,.582],[-.782,1.994,.582],[.782,1.994,-.582]];
+ const across=[[-1.564,0,0],[0,0,1.164],[1.564,0,0],[1.564,0,0],[-1.564,0,0]];
+ for(let index=0;index<5;index++){
+  h.viewer.setState(index,1);h.draw();h.camera.lookAt(h.target);h.camera.updateMatrixWorld(true);
+  const rig=h.scene.getObjectByName('leg1').parent;
+  const project=point=>point.clone().applyMatrix4(rig.matrixWorld).project(h.camera);
+  const joint=new T.Vector3(...corners[index]),origin=project(joint),panel=project(joint.clone().add(new T.Vector3(...across[index]))),foot=project(new T.Vector3(joint.x,0,joint.z));
+  assert(panel.x>origin.x&&panel.y>origin.y,`Step ${index+1}: panel must extend up-right as drawn.`);
+  assert(foot.x>origin.x&&foot.y<origin.y,`Step ${index+1}: foot must extend down-right, not mirror the manual.`);
+  assert(Math.abs(rig.matrixWorld.determinant()-1)<1e-8,'Manual matching uses rotation, never reflection.');
+  if(index===1){
+   const old=h.scene.getObjectByName('leg1'),added=h.scene.getObjectByName('leg4');
+   assert(added.getWorldPosition(new T.Vector3()).y>old.getWorldPosition(new T.Vector3()).y+1,'Page 8 adds the upper leg while the first leg rests below.');
+   assert(!h.scene.getObjectByName('leg2').visible&&!h.scene.getObjectByName('leg3').visible,'The two remaining corners are introduced on page 9.');
+  }
+ }
+}));
+
+test('an arbitrary guide preserves its reference viewing axes while the camera stays fixed',async()=>withViewer(h=>{
+ const guide=fixture();guide.productName='Another cabinet';guide.steps[0].cameraDirection=[.4,-.8,.6];guide.steps[0].cameraUp=[0,0,1];h.viewer.load(guide);h.draw();const camera=h.camera.position.clone(),target=h.target.clone();
+ h.viewer.setState(0,1);h.advance(1000);const rig=h.scene.getObjectByName('panel').parent;
+ near(new T.Vector3(...guide.steps[0].cameraDirection).applyQuaternion(rig.quaternion).normalize(),camera.clone().sub(target).normalize(),'The manual observer maps to the fixed camera.');
+ near(h.camera.position,camera);near(h.target,target);
+},{animateTransitions:true}));
 
 test('KNARREVIK turns in place with a fixed camera; step 4 stays on the same side and step 5 flips',async()=>withViewer(async h=>{
  const guide=await knarrevik();h.viewer.load(guide);h.draw();
@@ -143,13 +176,13 @@ for(const [width,height] of [[772,300],[340,300]])test(`the fixed view fits KNAR
  }
 },{animateTransitions:true,width,height}));
 
-test('interrupted navigation resumes from the displayed pose, and free orbit retains camera control',async()=>withViewer(async h=>{
+test('interrupted navigation resumes from the displayed pose; the next step restores its manual view after free orbit',async()=>withViewer(async h=>{
  const guide=await knarrevik();h.viewer.load(guide);h.viewer.setState(0,1);h.advance(1000);
  h.viewer.setState(1,0);h.advance(350);const rig=h.scene.getObjectByName('leg1').parent,pose=rig.quaternion.clone(),camera=h.camera.position.clone(),target=h.target.clone();
  h.viewer.setState(2,0);h.draw();nearPose(rig.quaternion,pose);near(h.camera.position,camera);near(h.target,target);
  h.free();h.camera.position.set(9,8,7);h.target.set(4,5,6);h.advance(1000);
  nearPose(rig.quaternion,poseOf(guide.steps[2]));near(h.camera.position,new T.Vector3(9,8,7));near(h.target,new T.Vector3(4,5,6));assert.equal(h.viewer.getView().mode,'free');
- h.viewer.setState(4,0);h.advance(1000);near(h.camera.position,new T.Vector3(9,8,7));near(h.target,new T.Vector3(4,5,6));nearPose(rig.quaternion,poseOf(guide.steps[4]));
+ h.viewer.setState(4,0);h.draw();near(h.camera.position,new T.Vector3(9,8,7));h.advance(1000);assert.equal(h.viewer.getView().mode,'whole');assert(h.camera.position.distanceTo(new T.Vector3(9,8,7))>1);nearPose(rig.quaternion,poseOf(guide.steps[4]));
 },{animateTransitions:true}));
 
 test('reduced motion immediately shows the destination working pose',async()=>withViewer(async h=>{

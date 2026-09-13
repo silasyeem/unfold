@@ -14,7 +14,7 @@ export const guideSchema=object({
  })),minItems:1},
  steps:{...list(object({
   title:string,instruction:string,sourcePage:{type:'integer',minimum:1,maximum:40},duration:{type:'number',minimum:3,maximum:30},
-  orientation:{type:'string',enum:['upright','on_back','on_left','on_right','upside_down']},focus:vector,cameraDirection:vector,cameraDistance:{type:'number',minimum:0.15,maximum:10},
+  orientation:{type:'string',enum:['upright','on_back','on_front','on_left','on_right','upside_down']},focus:vector,cameraDirection:vector,cameraUp:vector,cameraDistance:{type:'number',minimum:0.15,maximum:10},
   reviewNotes:list(string,8),
   actions:list(object({partId:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,60}$'},kind:{type:'string',enum:['place','insert','rotate','tighten','remove']},fromPosition:vector,toPosition:vector,fromRotation:vector,toRotation:vector,axis:vector,turns:{type:'integer',minimum:-8,maximum:8},start:{type:'number',minimum:0,maximum:1},end:{type:'number',minimum:0,maximum:1}}),24)
  }),32),minItems:1}
@@ -37,7 +37,10 @@ function inspect(value,schema,path,errors){
  if(schema.enum&&!schema.enum.includes(value))errors.push(`${path}: unsupported value`);
 }
 export function validateGuide(guide,expectedPageCount){
- const errors=[];inspect(guide,guideSchema,'guide',errors);
+ // Older saved schema-1 guides predate explicit manual viewing axes. Validate
+ // them without changing their data; the player retains their canonical poses.
+ const inspected=Array.isArray(guide?.steps)?{...guide,steps:guide.steps.map(step=>step&&typeof step==='object'?{cameraUp:[0,0,0],...step}:step)}:guide;
+ const errors=[];inspect(inspected,guideSchema,'guide',errors);
  if(errors.length)return errors.slice(0,30);
  if(expectedPageCount&&guide.pageCount!==expectedPageCount)errors.push('The guide page count does not match the uploaded PDF.');
  const ids=new Set();
@@ -46,6 +49,7 @@ export function validateGuide(guide,expectedPageCount){
  guide.steps.forEach((s,i)=>{
   if(s.sourcePage>guide.pageCount)errors.push(`Step ${i+1}: invalid source page`);
   if(Math.hypot(...s.cameraDirection)<0.01)errors.push(`Step ${i+1}: camera direction cannot be zero`);
+  if(s.cameraUp){const [x,y,z]=s.cameraDirection,[a,b,c]=s.cameraUp;const cross=Math.hypot(y*c-z*b,z*a-x*c,x*b-y*a);if(Math.hypot(a,b,c)<.01||cross/(Math.hypot(x,y,z)*Math.hypot(a,b,c))<.01)errors.push(`Step ${i+1}: camera up must be nonzero and independent of camera direction`);}
   const tracks=new Map();
   s.actions.forEach(a=>{
    if(!ids.has(a.partId))errors.push(`Step ${i+1}: unknown part ${a.partId}`);

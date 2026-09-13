@@ -13,6 +13,15 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
  const fitBox=new T.Box3(),bounds=new T.Box3(),center=new T.Vector3(),size=new T.Vector3(),q=new T.Quaternion(),p=new T.Vector3(),axis=new T.Vector3();
  let radius=1,baseCenter=new T.Vector3(0,.5,0),transition=null;
  const reducedMotion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const fixedDirection=new T.Vector3(1.2,.7,1.5).normalize();
+ function workingPose(step){
+  if(!step?.cameraUp)return new T.Quaternion().setFromEuler(new T.Euler(...orientations[step?.orientation||'upright']));
+  // Preserve the manual's signed viewing axes with a proper 3D rotation. The
+  // camera remains fixed; no negative scale or screen reflection is involved.
+  const reference=new T.Matrix4().lookAt(new T.Vector3(...step.cameraDirection),new T.Vector3(),new T.Vector3(...step.cameraUp));
+  const fixed=new T.Matrix4().lookAt(fixedDirection,new T.Vector3(),new T.Vector3(0,1,0));
+  return new T.Quaternion().setFromRotationMatrix(fixed.multiply(reference.transpose()));
+ }
  controls.addEventListener('start',()=>{mode='free';dirty=true;onView('Free view · drag to inspect');});
  function disposeParts(){for(const child of [...rig.children]){child.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [].concat(o.material))m.dispose();});rig.remove(child);}meshes.clear();partReach.clear();}
  function load(guide){
@@ -43,7 +52,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
  function drawState(now=performance.now()){
   if(!compiled)return;
   const state=index<0?null:evaluateGuide(compiled,index,progress),guidance=guidedOperation();
-  const pose=new T.Quaternion().setFromEuler(new T.Euler(...orientations[index<0?'upright':compiled.guide.steps[index].orientation]));
+  const pose=workingPose(index<0?null:compiled.guide.steps[index]);
   rig.quaternion.copy(pose);
   for(const part of compiled.guide.parts){
    const mesh=meshes.get(part.id),s=state?.[part.id];mesh.visible=state?s.visible:part.kind!=='tool';mesh.position.fromArray(s?s.position:part.position);mesh.rotation.set(...(s?s.rotation:part.rotation));
@@ -76,7 +85,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
   if(!compiled)return;
   // Reserve room for the grounded build in every working orientation. A tighter
   // upright-only fit can crop the lower edge when the furniture lies on its side.
-  const target=new T.Vector3(0,radius,0);let direction=new T.Vector3(1.2,.7,1.5).normalize();let distance=radius*5;
+  const target=new T.Vector3(0,radius,0);let direction=fixedDirection.clone();let distance=radius*5;
   if(mode==='guided'&&index>=0&&compiled.guide.steps[index].actions.length){
    const step=compiled.guide.steps[index],close=smooth(progress/.23);
    const viewFor=operation=>{
@@ -101,7 +110,7 @@ export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.m
  const observer=new ResizeObserver(()=>{const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();dirty=true;});observer.observe(container);
  function draw(now=performance.now()){if(disposed)return;frame=requestAnimationFrame(draw);if(dirty||transition)drawState(now);controls.update();renderer.render(scene,camera);}draw();
  return{
-  load,setState(i,t){if(index!==i){transition=compiled&&animateTransitions&&!reducedMotion?{pose:rig.quaternion.clone(),camera:camera.position.clone(),target:controls.target.clone(),start:performance.now()}:null;if(mode!=='free')mode='whole';exploded=false;}index=i;progress=t;dirty=true;},
+  load,setState(i,t){if(index!==i){transition=compiled&&animateTransitions&&!reducedMotion?{pose:rig.quaternion.clone(),camera:camera.position.clone(),target:controls.target.clone(),start:performance.now()}:null;mode='whole';exploded=false;}index=i;progress=t;dirty=true;},
   guide(){mode=index<0?'whole':'guided';exploded=false;dirty=true;onView(index<0?'Whole build':compiled.guide.steps[index].actions.length?'Step view · joint highlighted':'Whole build · orientation');},
   wholeBuild(){mode='whole';exploded=false;dirty=true;onView('Whole build');},
   setExploded(v){exploded=v;mode='whole';dirty=true;onView(v?'Exploded parts':'Whole build');},

@@ -39,6 +39,11 @@ test('brackets reveal their detached parent and inherit subsequent panel motion'
 test('back-down orientation points the documented front upward',()=>{
  const front=new T.Vector3(0,0,1).applyEuler(new T.Euler(...orientations.on_back));assert(front.y>.999);
 });
+test('manual viewing axes validate without breaking or mutating legacy saved guides',()=>{
+ const legacy=fixture(),before=JSON.stringify(legacy);assert.deepEqual(validateGuide(legacy),[]);assert.equal(JSON.stringify(legacy),before);
+ const guide=fixture();guide.steps[0].orientation='on_front';guide.steps[0].cameraDirection=[1,-1,-.5];guide.steps[0].cameraUp=[0,0,-1];assert.deepEqual(validateGuide(guide),[]);
+ for(const up of [[0,0,0],[2,-2,-1],[NaN,0,1]]){guide.steps[0].cameraUp=up;assert(validateGuide(guide).length);}
+});
 test('duplicate whole-build rotation is rejected while detached panel movement remains valid',()=>{
  const guide=fixture();guide.parts[0].initiallyVisible=true;
  const turn={...guide.steps[1].actions[0],kind:'rotate',fromPosition:[0,0,0],toPosition:[0,0,0],toRotation:[Math.PI,0,0]};

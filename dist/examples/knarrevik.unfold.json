@@ -7,7 +7,7 @@
     "reviewNotes": [
       "Saved demonstration draft. The final visual review was not completed; compare each operation with the original manual.",
       "Draft only: shapes, joint locations and dimensions are approximate. Overall proportions follow the drawings and the corroborating 37:28:45 label proportions, uniformly scaled to approximately 2 units high.",
-      "The active corners have been reassigned to the elevated side in each main working pose. Concluding handling arrows are represented by the following step's orientation, not by rotating individual parts.",
+      "Working poses and leg introductions were corrected against the six main source drawings. Signed camera direction and page-up axes preserve the illustrated handedness; the fixed viewer rotates the object to match them.",
       "Front is not marked in the manual. The left/back/right working labels use a consistent inferred convention.",
       "Both panels have continuous metal sheet faces and four integral folded rims. Each leg consists of two joined perpendicular flanges forming an open L section.",
       "The foot-end feature is visible, but whether it is formed or factory fitted is unresolved; no separate cap inventory is established.",
@@ -317,7 +317,7 @@
         "parentId": "",
         "name": "Right front leg",
         "kind": "part",
-        "sourcePage": 8,
+        "sourcePage": 9,
         "color": "#686F74",
         "position": [
           0.782,
@@ -441,7 +441,7 @@
         "parentId": "",
         "name": "Left rear leg",
         "kind": "part",
-        "sourcePage": 9,
+        "sourcePage": 8,
         "color": "#686F74",
         "position": [
           -0.782,
@@ -663,7 +663,7 @@
         "parentId": "shelf",
         "name": "Shelf screw 3",
         "kind": "hardware",
-        "sourcePage": 8,
+        "sourcePage": 9,
         "color": "#ADB2B5",
         "position": [
           0.824,
@@ -743,7 +743,7 @@
         "parentId": "shelf",
         "name": "Shelf screw 4",
         "kind": "hardware",
-        "sourcePage": 8,
+        "sourcePage": 9,
         "color": "#ADB2B5",
         "position": [
           0.75,
@@ -983,7 +983,7 @@
         "parentId": "shelf",
         "name": "Shelf screw 7",
         "kind": "hardware",
-        "sourcePage": 9,
+        "sourcePage": 8,
         "color": "#ADB2B5",
         "position": [
           -0.824,
@@ -1063,7 +1063,7 @@
         "parentId": "shelf",
         "name": "Shelf screw 8",
         "kind": "hardware",
-        "sourcePage": 9,
+        "sourcePage": 8,
         "color": "#ADB2B5",
         "position": [
           -0.75,
@@ -1303,7 +1303,7 @@
         "parentId": "top",
         "name": "Top screw 3",
         "kind": "hardware",
-        "sourcePage": 10,
+        "sourcePage": 11,
         "color": "#ADB2B5",
         "position": [
           -0.824,
@@ -1383,7 +1383,7 @@
         "parentId": "top",
         "name": "Top screw 4",
         "kind": "hardware",
-        "sourcePage": 10,
+        "sourcePage": 11,
         "color": "#ADB2B5",
         "position": [
           -0.75,
@@ -1623,7 +1623,7 @@
         "parentId": "top",
         "name": "Top screw 7",
         "kind": "hardware",
-        "sourcePage": 11,
+        "sourcePage": 10,
         "color": "#ADB2B5",
         "position": [
           0.824,
@@ -1703,7 +1703,7 @@
         "parentId": "top",
         "name": "Top screw 8",
         "kind": "hardware",
-        "sourcePage": 11,
+        "sourcePage": 10,
         "color": "#ADB2B5",
         "position": [
           0.75,
@@ -1847,7 +1847,7 @@
         "instruction": "Support the lower shelf on an edge, with the first leg extending horizontally. Fit the leg's L-section around the illustrated shelf corner. Insert two screws, one through each perpendicular leg flange into the corresponding folded shelf rim, and engage them with the hex key without fully tightening. Reposition the subassembly afterward using the lower-right turning diagram.",
         "sourcePage": 7,
         "duration": 10,
-        "orientation": "on_left",
+        "orientation": "on_front",
         "focus": [
           0.79,
           1.1,
@@ -1855,19 +1855,19 @@
         ],
         "cameraDirection": [
           1,
-          0.55,
-          -1
+          -1,
+          -0.5
         ],
         "cameraDistance": 1.7,
         "reviewNotes": [
-          "The first leg is at +X, the elevated edge in this working pose; it is not the floor-side leg.",
+          "The broad shelf edge is horizontal and its short edge is vertical, matching the main drawing on page 7. The -Z corner is elevated.",
+          "The first leg is at +X,-Z. Its longer foot end projects down-right; the shelf extends up-right.",
           "Adds one leg and two screws. The shorter leg portion points toward the future tabletop.",
           "The main fastening pose precedes the turning thumbnail. The next step supplies the changed whole-build orientation.",
           "Establish one shelf and introduce the first of four legs. Insert exactly two screws.",
           "The shorter leg portion extends toward the future tabletop; the longer portion terminates at the foot.",
           "The screw projected downward on the page enters a leg flange and shelf rim, not the shelf's broad sheet surface.",
-          "The main operation is side-lying, not upside down. The small turning thumbnail describes subsequent handling.",
-          "Page 5 recommends two-person assembly and a soft protective work surface."
+          "The main operation is side-lying, not upside down. The small turning thumbnail describes subsequent handling."
         ],
         "actions": [
           {
@@ -2158,6 +2158,11 @@
             "start": 0.85,
             "end": 0.94
           }
+        ],
+        "cameraUp": [
+          0,
+          0,
+          -1
         ]
       },
       {
@@ -2165,20 +2170,21 @@
         "instruction": "After the indicated turn, keep the shelf on edge and fit a second leg around the next illustrated corner. Insert two screws through the leg's two perpendicular flanges into the adjoining shelf rims. Leave them partly tightened. Match the illustrated foot-end direction and turn the subassembly again as shown.",
         "sourcePage": 8,
         "duration": 10,
-        "orientation": "on_back",
+        "orientation": "on_right",
         "focus": [
-          0.79,
+          -0.79,
           1.1,
-          0.58
+          -0.58
         ],
         "cameraDirection": [
-          1,
-          0.55,
-          1
+          -0.62,
+          -1,
+          -1
         ],
         "cameraDistance": 1.7,
         "reviewNotes": [
-          "The second leg is at +Z, above the previously attached -Z leg in this working pose.",
+          "After a quarter-turn, the long shelf edge is vertical, matching page 8. The second leg is at -X,-Z above the first +X,-Z leg.",
+          "The shelf extends up-right from the new joint and both long foot ends point down-right, matching the drawing without reflection.",
           "Adds one leg and two screws: two legs and four screws are attached.",
           "The enlarged foot detail does not establish a separate loose cap.",
           "Introduce one additional leg and two screws: two legs and four screws are now attached to the shelf.",
@@ -2188,26 +2194,26 @@
         ],
         "actions": [
           {
-            "partId": "leg2",
+            "partId": "leg4",
             "kind": "place",
             "fromPosition": [
-              1.132,
+              -1.132,
               1,
-              0.932
+              -0.932
             ],
             "toPosition": [
-              0.782,
+              -0.782,
               1,
-              0.582
+              -0.582
             ],
             "fromRotation": [
               0,
-              1.570796,
+              -1.570796,
               0
             ],
             "toRotation": [
               0,
-              1.570796,
+              -1.570796,
               0
             ],
             "axis": [
@@ -2220,27 +2226,27 @@
             "end": 0.18
           },
           {
-            "partId": "s3",
+            "partId": "s7",
             "kind": "insert",
             "fromPosition": [
-              1.024,
+              -1.024,
               -0.04,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              0.824,
+              -0.824,
               -0.04,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -2255,24 +2261,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              1.024,
+              -1.024,
               1.1,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              0.82,
+              -0.82,
               1.1,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -2287,24 +2293,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              0.82,
+              -0.82,
               1.1,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              0.82,
+              -0.82,
               1.1,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -2319,24 +2325,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              0.82,
+              -0.82,
               1.1,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              1.024,
+              -1.024,
               1.1,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -2348,27 +2354,27 @@
             "end": 0.52
           },
           {
-            "partId": "s4",
+            "partId": "s8",
             "kind": "insert",
             "fromPosition": [
-              0.75,
+              -0.75,
               -0.04,
-              0.824
+              -0.824
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               -0.04,
-              0.624
+              -0.624
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -2383,24 +2389,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              0.75,
+              -0.75,
               1.1,
-              0.824
+              -0.824
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               1.1,
-              0.62
+              -0.62
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -2415,24 +2421,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              0.75,
+              -0.75,
               1.1,
-              0.62
+              -0.62
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               1.1,
-              0.62
+              -0.62
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -2447,24 +2453,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              0.75,
+              -0.75,
               1.1,
-              0.62
+              -0.62
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               1.1,
-              0.824
+              -0.824
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -2475,6 +2481,11 @@
             "start": 0.85,
             "end": 0.94
           }
+        ],
+        "cameraUp": [
+          -1,
+          0,
+          0
         ]
       },
       {
@@ -2482,7 +2493,7 @@
         "instruction": "With the first two legs on the lower side of the side-lying subassembly, fit the remaining two legs around the unoccupied shelf corners. Insert four screws, two per new leg through its perpendicular flanges into the shelf rims, leaving them partly tightened. Then follow the lower-right insertion drawing to position the single solid tabletop between the short upper ends of the four legs.",
         "sourcePage": 9,
         "duration": 12,
-        "orientation": "on_right",
+        "orientation": "on_back",
         "focus": [
           -0.79,
           1.1,
@@ -2490,12 +2501,12 @@
         ],
         "cameraDirection": [
           -1,
-          0.55,
+          -1,
           1
         ],
         "cameraDistance": 2.6,
         "reviewNotes": [
-          "The new legs and all four active shelf screws are at -X, elevated in this working pose. Existing +X joints remain in place.",
+          "The two existing -Z legs are below the two new +Z legs. Add the two +Z legs and their four shelf screws, then the tabletop.",
           "Adds two legs, four shelf screws and one solid tabletop. All eight shelf screws are now installed.",
           "The tabletop's eight screws are added in steps 4 and 5; its folded rims are integral, not additional rails.",
           "Introduce two legs and four screws. The shelf now connects to all four legs with eight screws.",
@@ -2537,26 +2548,26 @@
             "end": 0.08
           },
           {
-            "partId": "leg4",
+            "partId": "leg2",
             "kind": "place",
             "fromPosition": [
-              -1.132,
+              1.132,
               1,
-              -0.932
+              0.932
             ],
             "toPosition": [
-              -0.782,
+              0.782,
               1,
-              -0.582
+              0.582
             ],
             "fromRotation": [
               0,
-              -1.570796,
+              1.570796,
               0
             ],
             "toRotation": [
               0,
-              -1.570796,
+              1.570796,
               0
             ],
             "axis": [
@@ -2825,27 +2836,27 @@
             "end": 0.48
           },
           {
-            "partId": "s7",
+            "partId": "s3",
             "kind": "insert",
             "fromPosition": [
-              -1.024,
+              1.024,
               -0.04,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -0.824,
+              0.824,
               -0.04,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -2860,24 +2871,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              -1.024,
+              1.024,
               1.1,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -0.82,
+              0.82,
               1.1,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -2892,24 +2903,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              -0.82,
+              0.82,
               1.1,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -0.82,
+              0.82,
               1.1,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -2924,24 +2935,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              -0.82,
+              0.82,
               1.1,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -1.024,
+              1.024,
               1.1,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -2953,27 +2964,27 @@
             "end": 0.64
           },
           {
-            "partId": "s8",
+            "partId": "s4",
             "kind": "insert",
             "fromPosition": [
-              -0.75,
+              0.75,
               -0.04,
-              -0.824
+              0.824
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               -0.04,
-              -0.624
+              0.624
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -2988,24 +2999,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              -0.75,
+              0.75,
               1.1,
-              -0.824
+              0.824
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               1.1,
-              -0.62
+              0.62
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3020,24 +3031,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              -0.75,
+              0.75,
               1.1,
-              -0.62
+              0.62
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               1.1,
-              -0.62
+              0.62
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3052,24 +3063,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              -0.75,
+              0.75,
               1.1,
-              -0.62
+              0.62
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               1.1,
-              -0.824
+              0.824
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3112,6 +3123,11 @@
             "start": 0.84,
             "end": 0.98
           }
+        ],
+        "cameraUp": [
+          0,
+          0,
+          1
         ]
       },
       {
@@ -3119,7 +3135,7 @@
         "instruction": "Keep the assembly on the same side with the tabletop seated inside the upper leg ends. At each of the two exposed tabletop corners, insert one screw through each perpendicular leg flange into the corresponding folded tabletop rim, four screws total. Leave them partly tightened. Roll the assembly onto the opposite side as indicated by the lower-right arrow.",
         "sourcePage": 10,
         "duration": 12,
-        "orientation": "on_right",
+        "orientation": "on_back",
         "focus": [
           -0.79,
           1.954,
@@ -3127,14 +3143,13 @@
         ],
         "cameraDirection": [
           -1,
-          0.6,
+          -1,
           1
         ],
         "cameraDistance": 1.8,
         "reviewNotes": [
-          "All four new tabletop screws belong to the two elevated -X corners. The opposite +X tabletop corners remain unfastened until step 5.",
+          "Keep the page 9 working pose. Fasten the four tabletop screws at the two elevated +Z corners.",
           "Twelve screws are now installed. No additional primary part is introduced.",
-          "The focus is the elevated front corner and exposes both entry faces. Neither screw enters the broad tabletop face.",
           "Introduce no new primary part and insert exactly four screws. Twelve screws are now installed.",
           "These screws secure two tabletop-to-leg corner joints. The already fastened shelf behind them is not another component introduction.",
           "The two screws at each corner have perpendicular physical entry axes through rim/side faces; neither is a broad tabletop-face fastening.",
@@ -3398,27 +3413,27 @@
             "end": 0.48
           },
           {
-            "partId": "s11",
+            "partId": "s15",
             "kind": "insert",
             "fromPosition": [
-              -1.024,
+              1.024,
               -0.04,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -0.824,
+              0.824,
               -0.04,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -3433,24 +3448,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              -1.024,
+              1.024,
               1.954,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -0.82,
+              0.82,
               1.954,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -3465,24 +3480,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              -0.82,
+              0.82,
               1.954,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -0.82,
+              0.82,
               1.954,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -3497,24 +3512,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              -0.82,
+              0.82,
               1.954,
-              -0.55
+              0.55
             ],
             "toPosition": [
-              -1.024,
+              1.024,
               1.954,
-              -0.55
+              0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              1.570796
+              -1.570797
             ],
             "axis": [
               0,
@@ -3526,27 +3541,27 @@
             "end": 0.72
           },
           {
-            "partId": "s12",
+            "partId": "s16",
             "kind": "insert",
             "fromPosition": [
-              -0.75,
+              0.75,
               -0.04,
-              -0.824
+              0.824
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               -0.04,
-              -0.624
+              0.624
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3561,24 +3576,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              -0.75,
+              0.75,
               1.954,
-              -0.824
+              0.824
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               1.954,
-              -0.62
+              0.62
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3593,24 +3608,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              -0.75,
+              0.75,
               1.954,
-              -0.62
+              0.62
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               1.954,
-              -0.62
+              0.62
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3625,24 +3640,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              -0.75,
+              0.75,
               1.954,
-              -0.62
+              0.62
             ],
             "toPosition": [
-              -0.75,
+              0.75,
               1.954,
-              -0.824
+              0.824
             ],
             "fromRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "toRotation": [
-              -1.570796,
+              -1.570797,
               0,
-              0
+              3.141593
             ],
             "axis": [
               0,
@@ -3653,6 +3668,11 @@
             "start": 0.92,
             "end": 0.97
           }
+        ],
+        "cameraUp": [
+          0,
+          0,
+          1
         ]
       },
       {
@@ -3660,7 +3680,7 @@
         "instruction": "On the opposite side, insert the remaining four screws at the other two tabletop corners, one through each leg flange into its adjoining tabletop rim. Leave these screws partly tightened until the final alignment step. Then carefully turn the completed assembly upright onto its four feet, following the lower-right handling arrow.",
         "sourcePage": 11,
         "duration": 12,
-        "orientation": "on_left",
+        "orientation": "on_front",
         "focus": [
           0.79,
           1.954,
@@ -3668,12 +3688,12 @@
         ],
         "cameraDirection": [
           1,
-          0.6,
+          -1,
           -1
         ],
         "cameraDistance": 1.8,
         "reviewNotes": [
-          "The remaining +X tabletop corners are now elevated; the previously fastened -X corners are on the lower side.",
+          "Roll onto the opposite side. Fasten the remaining four tabletop screws at the now-elevated -Z corners. The next step shows the concluding upright position.",
           "All sixteen supplied screws are installed. No additional tabletop or other primary part is introduced.",
           "The main fastening pose remains side-lying. The concluding turn upright is represented by step 6.",
           "Introduce no new primary part and insert exactly four screws. All sixteen supplied screws are now installed.",
@@ -3939,27 +3959,27 @@
             "end": 0.48
           },
           {
-            "partId": "s15",
+            "partId": "s11",
             "kind": "insert",
             "fromPosition": [
-              1.024,
+              -1.024,
               -0.04,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              0.824,
+              -0.824,
               -0.04,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -3974,24 +3994,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              1.024,
+              -1.024,
               1.954,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              0.82,
+              -0.82,
               1.954,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -4006,24 +4026,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              0.82,
+              -0.82,
               1.954,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              0.82,
+              -0.82,
               1.954,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -4038,24 +4058,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              0.82,
+              -0.82,
               1.954,
-              0.55
+              -0.55
             ],
             "toPosition": [
-              1.024,
+              -1.024,
               1.954,
-              0.55
+              -0.55
             ],
             "fromRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "toRotation": [
+              -3.141593,
               0,
-              0,
-              -1.570796
+              1.570797
             ],
             "axis": [
               0,
@@ -4067,27 +4087,27 @@
             "end": 0.72
           },
           {
-            "partId": "s16",
+            "partId": "s12",
             "kind": "insert",
             "fromPosition": [
-              0.75,
+              -0.75,
               -0.04,
-              0.824
+              -0.824
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               -0.04,
-              0.624
+              -0.624
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -4102,24 +4122,24 @@
             "partId": "key",
             "kind": "place",
             "fromPosition": [
-              0.75,
+              -0.75,
               1.954,
-              0.824
+              -0.824
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               1.954,
-              0.62
+              -0.62
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -4134,24 +4154,24 @@
             "partId": "key",
             "kind": "tighten",
             "fromPosition": [
-              0.75,
+              -0.75,
               1.954,
-              0.62
+              -0.62
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               1.954,
-              0.62
+              -0.62
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -4166,24 +4186,24 @@
             "partId": "key",
             "kind": "remove",
             "fromPosition": [
-              0.75,
+              -0.75,
               1.954,
-              0.62
+              -0.62
             ],
             "toPosition": [
-              0.75,
+              -0.75,
               1.954,
-              0.824
+              -0.824
             ],
             "fromRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "toRotation": [
-              1.570796,
+              1.570797,
               0,
-              0
+              -3.141593
             ],
             "axis": [
               0,
@@ -4194,6 +4214,11 @@
             "start": 0.92,
             "end": 0.97
           }
+        ],
+        "cameraUp": [
+          0,
+          0,
+          -1
         ]
       },
       {
@@ -4203,25 +4228,25 @@
         "duration": 12,
         "orientation": "upright",
         "focus": [
-          0.79,
+          -0.79,
           1.954,
           0.58
         ],
         "cameraDirection": [
-          1,
-          0.65,
+          -1,
+          0.5,
           1
         ],
         "cameraDistance": 3,
         "reviewNotes": [
+          "The completed view matches page 12: the broad tabletop edge extends up-right from the nearest front corner.",
           "The animation demonstrates final tightening at six joints. The original manual requires checking and tightening all sixteen screws.",
           "The 16x callout is tightening, not additional insertion: eight shelf screws and eight tabletop screws.",
           "Every existing screw receives a tightening action. The key approaches, seats in the outward-opening recess, turns and withdraws at each joint.",
           "The table is modeled square throughout; no unsupported racking deformation is introduced.",
           "Final tightening order and decorative turn counts are illustrative. The key is absent from the completed assembly.",
           "The 16x callout is final tightening of existing screws, not insertion of sixteen additional screws.",
-          "The completed joints contain eight shelf-to-leg screws and eight tabletop-to-leg screws.",
-          "Pages 2–4 warn against sitting on the product and specify a maximum product load of 10 kg (22 lb), not a separate allowance for each panel."
+          "The completed joints contain eight shelf-to-leg screws and eight tabletop-to-leg screws."
         ],
         "actions": [
           {
@@ -4992,6 +5017,11 @@
             "start": 0.34,
             "end": 0.355
           }
+        ],
+        "cameraUp": [
+          0,
+          1,
+          0
         ]
       }
     ]
@@ -5213,7 +5243,7 @@
         "title": "Attach the first leg to the lower shelf",
         "instruction": "Support the lower shelf on an edge, with the first leg extending horizontally. Fit the leg's L-section around the illustrated shelf corner. Insert two screws, one through each perpendicular leg flange into the corresponding folded shelf rim, and engage them with the hex key without fully tightening. Reposition the subassembly afterward using the lower-right turning diagram.",
         "sourcePage": 7,
-        "orientation": "on_left",
+        "orientation": "on_front",
         "componentIds": [
           "lower_shelf",
           "corner_leg",
@@ -5234,7 +5264,7 @@
         "title": "Attach the second leg to the lower shelf",
         "instruction": "After the indicated turn, keep the shelf on edge and fit a second leg around the next illustrated corner. Insert two screws through the leg's two perpendicular flanges into the adjoining shelf rims. Leave them partly tightened. Match the illustrated foot-end direction and turn the subassembly again as shown.",
         "sourcePage": 8,
-        "orientation": "on_back",
+        "orientation": "on_right",
         "componentIds": [
           "lower_shelf",
           "corner_leg",
@@ -5254,7 +5284,7 @@
         "title": "Attach the remaining legs and position the tabletop",
         "instruction": "With the first two legs on the lower side of the side-lying subassembly, fit the remaining two legs around the unoccupied shelf corners. Insert four screws, two per new leg through its perpendicular flanges into the shelf rims, leaving them partly tightened. Then follow the lower-right insertion drawing to position the single solid tabletop between the short upper ends of the four legs.",
         "sourcePage": 9,
-        "orientation": "on_right",
+        "orientation": "on_back",
         "componentIds": [
           "lower_shelf",
           "corner_leg",
@@ -5275,7 +5305,7 @@
         "title": "Fasten the first two tabletop corners",
         "instruction": "Keep the assembly on the same side with the tabletop seated inside the upper leg ends. At each of the two exposed tabletop corners, insert one screw through each perpendicular leg flange into the corresponding folded tabletop rim, four screws total. Leave them partly tightened. Roll the assembly onto the opposite side as indicated by the lower-right arrow.",
         "sourcePage": 10,
-        "orientation": "on_right",
+        "orientation": "on_back",
         "componentIds": [
           "tabletop",
           "lower_shelf",
@@ -5296,7 +5326,7 @@
         "title": "Fasten the remaining tabletop corners and stand upright",
         "instruction": "On the opposite side, insert the remaining four screws at the other two tabletop corners, one through each leg flange into its adjoining tabletop rim. Leave these screws partly tightened until the final alignment step. Then carefully turn the completed assembly upright onto its four feet, following the lower-right handling arrow.",
         "sourcePage": 11,
-        "orientation": "on_left",
+        "orientation": "on_front",
         "componentIds": [
           "tabletop",
           "lower_shelf",
