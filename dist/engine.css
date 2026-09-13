@@ -202,3 +202,8 @@ body.engine{height:100dvh;min-width:320px;display:flex;flex-direction:column;ove
 @media(prefers-reduced-motion:reduce){.engine .conversion-bar.busy #conversion-title::after{animation:none}}
 
 .engine:is([data-state="ready"],[data-state="converting"]) .conversion-bar.error #conversion-status{color:#984b2b}
+
+/* The demo remains available in the header before and after a guide opens. */
+.engine .demo-button{font-size:14px;padding:9px 12px}
+.engine .sidebar-demo{font-size:14px;margin-bottom:12px;text-align:left}
+@media(max-width:640px){.engine .topbar{flex-wrap:wrap}.engine .header-actions{flex:1}.engine .demo-button{padding:8px 10px}}

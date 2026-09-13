@@ -1,0 +1,5370 @@
+{
+  "guide": {
+    "schemaVersion": "1",
+    "productName": "KNARREVIK",
+    "summary": "Draft schematic assembly guide for a rectangular metal bedside table with two solid panels, four angle-section legs and sixteen screws. Start screws loosely, then align the upright table and finish tightening.",
+    "pageCount": 12,
+    "reviewNotes": [
+      "Saved demonstration draft. The final visual review was not completed; compare each operation with the original manual.",
+      "Draft only: shapes, joint locations and dimensions are approximate. Overall proportions follow the drawings and the corroborating 37:28:45 label proportions, uniformly scaled to approximately 2 units high.",
+      "The active corners have been reassigned to the elevated side in each main working pose. Concluding handling arrows are represented by the following step's orientation, not by rotating individual parts.",
+      "Front is not marked in the manual. The left/back/right working labels use a consistent inferred convention.",
+      "Both panels have continuous metal sheet faces and four integral folded rims. Each leg consists of two joined perpendicular flanges forming an open L section.",
+      "The foot-end feature is visible, but whether it is formed or factory fitted is unresolved; no separate cap inventory is established.",
+      "The paired screw codes identify one illustrated type with sixteen instances, not two sets of sixteen. No loose washers or nuts are depicted.",
+      "Screw heads have outward-opening recessed drive cavities, represented schematically with rings. The permitted primitives approximate, rather than reproduce, the six-sided socket profile and screw threads.",
+      "Muted grey represents metal. Exact finish, sheet thickness, section widths and tool dimensions are not established by the diagrams.",
+      "Use two people and a soft protective work surface as advised on page 5. Do not sit on the table. The maximum total product load is 10 kg (22 lb), not a separate allowance for each panel.",
+      "Animated turns are decorative, not torque instructions. Final tightening is a condensed sixteen-joint overview; the source does not specify a corner-by-corner order."
+    ],
+    "parts": [
+      {
+        "id": "shelf",
+        "parentId": "",
+        "name": "Lower shelf",
+        "kind": "part",
+        "sourcePage": 7,
+        "color": "#747A7E",
+        "position": [
+          0,
+          1.14,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          0.65
+        ],
+        "initiallyVisible": true,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              1.628,
+              0.012,
+              1.228
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              1.628,
+              0.08,
+              0.008
+            ],
+            "position": [
+              0,
+              -0.04,
+              0.61
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              1.628,
+              0.08,
+              0.008
+            ],
+            "position": [
+              0,
+              -0.04,
+              -0.61
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              0.08,
+              1.22
+            ],
+            "position": [
+              -0.81,
+              -0.04,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              0.08,
+              1.22
+            ],
+            "position": [
+              0.81,
+              -0.04,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "top",
+        "parentId": "",
+        "name": "Tabletop",
+        "kind": "part",
+        "sourcePage": 9,
+        "color": "#747A7E",
+        "position": [
+          0,
+          1.994,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0.55,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              1.628,
+              0.012,
+              1.228
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              1.628,
+              0.08,
+              0.008
+            ],
+            "position": [
+              0,
+              -0.04,
+              0.61
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              1.628,
+              0.08,
+              0.008
+            ],
+            "position": [
+              0,
+              -0.04,
+              -0.61
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              0.08,
+              1.22
+            ],
+            "position": [
+              -0.81,
+              -0.04,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              0.08,
+              1.22
+            ],
+            "position": [
+              0.81,
+              -0.04,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "leg1",
+        "parentId": "",
+        "name": "Right rear leg",
+        "kind": "part",
+        "sourcePage": 7,
+        "color": "#686F74",
+        "position": [
+          0.782,
+          1,
+          -0.582
+        ],
+        "rotation": [
+          0,
+          3.141593,
+          0
+        ],
+        "explodedOffset": [
+          0.35,
+          0,
+          -0.35
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              2,
+              0.08
+            ],
+            "position": [
+              -0.036,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.08,
+              2,
+              0.008
+            ],
+            "position": [
+              0,
+              0,
+              0.036
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "leg2",
+        "parentId": "",
+        "name": "Right front leg",
+        "kind": "part",
+        "sourcePage": 8,
+        "color": "#686F74",
+        "position": [
+          0.782,
+          1,
+          0.582
+        ],
+        "rotation": [
+          0,
+          1.570796,
+          0
+        ],
+        "explodedOffset": [
+          0.35,
+          0,
+          0.35
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              2,
+              0.08
+            ],
+            "position": [
+              -0.036,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.08,
+              2,
+              0.008
+            ],
+            "position": [
+              0,
+              0,
+              0.036
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "leg3",
+        "parentId": "",
+        "name": "Left front leg",
+        "kind": "part",
+        "sourcePage": 9,
+        "color": "#686F74",
+        "position": [
+          -0.782,
+          1,
+          0.582
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          -0.35,
+          0,
+          0.35
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              2,
+              0.08
+            ],
+            "position": [
+              -0.036,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.08,
+              2,
+              0.008
+            ],
+            "position": [
+              0,
+              0,
+              0.036
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "leg4",
+        "parentId": "",
+        "name": "Left rear leg",
+        "kind": "part",
+        "sourcePage": 9,
+        "color": "#686F74",
+        "position": [
+          -0.782,
+          1,
+          -0.582
+        ],
+        "rotation": [
+          0,
+          -1.570796,
+          0
+        ],
+        "explodedOffset": [
+          -0.35,
+          0,
+          -0.35
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              0.008,
+              2,
+              0.08
+            ],
+            "position": [
+              -0.036,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.08,
+              2,
+              0.008
+            ],
+            "position": [
+              0,
+              0,
+              0.036
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s1",
+        "parentId": "shelf",
+        "name": "Shelf screw 1",
+        "kind": "hardware",
+        "sourcePage": 7,
+        "color": "#ADB2B5",
+        "position": [
+          0.824,
+          -0.04,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          -1.570796
+        ],
+        "explodedOffset": [
+          0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "parentId": "shelf",
+        "name": "Shelf screw 2",
+        "kind": "hardware",
+        "sourcePage": 7,
+        "color": "#ADB2B5",
+        "position": [
+          0.75,
+          -0.04,
+          -0.624
+        ],
+        "rotation": [
+          -1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          -0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "parentId": "shelf",
+        "name": "Shelf screw 3",
+        "kind": "hardware",
+        "sourcePage": 8,
+        "color": "#ADB2B5",
+        "position": [
+          0.824,
+          -0.04,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          -1.570796
+        ],
+        "explodedOffset": [
+          0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s4",
+        "parentId": "shelf",
+        "name": "Shelf screw 4",
+        "kind": "hardware",
+        "sourcePage": 8,
+        "color": "#ADB2B5",
+        "position": [
+          0.75,
+          -0.04,
+          0.624
+        ],
+        "rotation": [
+          1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s5",
+        "parentId": "shelf",
+        "name": "Shelf screw 5",
+        "kind": "hardware",
+        "sourcePage": 9,
+        "color": "#ADB2B5",
+        "position": [
+          -0.824,
+          -0.04,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          1.570796
+        ],
+        "explodedOffset": [
+          -0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s6",
+        "parentId": "shelf",
+        "name": "Shelf screw 6",
+        "kind": "hardware",
+        "sourcePage": 9,
+        "color": "#ADB2B5",
+        "position": [
+          -0.75,
+          -0.04,
+          0.624
+        ],
+        "rotation": [
+          1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s7",
+        "parentId": "shelf",
+        "name": "Shelf screw 7",
+        "kind": "hardware",
+        "sourcePage": 9,
+        "color": "#ADB2B5",
+        "position": [
+          -0.824,
+          -0.04,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          1.570796
+        ],
+        "explodedOffset": [
+          -0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s8",
+        "parentId": "shelf",
+        "name": "Shelf screw 8",
+        "kind": "hardware",
+        "sourcePage": 9,
+        "color": "#ADB2B5",
+        "position": [
+          -0.75,
+          -0.04,
+          -0.624
+        ],
+        "rotation": [
+          -1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          -0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s9",
+        "parentId": "top",
+        "name": "Top screw 1",
+        "kind": "hardware",
+        "sourcePage": 10,
+        "color": "#ADB2B5",
+        "position": [
+          -0.824,
+          -0.04,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          1.570796
+        ],
+        "explodedOffset": [
+          -0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s10",
+        "parentId": "top",
+        "name": "Top screw 2",
+        "kind": "hardware",
+        "sourcePage": 10,
+        "color": "#ADB2B5",
+        "position": [
+          -0.75,
+          -0.04,
+          0.624
+        ],
+        "rotation": [
+          1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s11",
+        "parentId": "top",
+        "name": "Top screw 3",
+        "kind": "hardware",
+        "sourcePage": 10,
+        "color": "#ADB2B5",
+        "position": [
+          -0.824,
+          -0.04,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          1.570796
+        ],
+        "explodedOffset": [
+          -0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s12",
+        "parentId": "top",
+        "name": "Top screw 4",
+        "kind": "hardware",
+        "sourcePage": 10,
+        "color": "#ADB2B5",
+        "position": [
+          -0.75,
+          -0.04,
+          -0.624
+        ],
+        "rotation": [
+          -1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          -0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s13",
+        "parentId": "top",
+        "name": "Top screw 5",
+        "kind": "hardware",
+        "sourcePage": 11,
+        "color": "#ADB2B5",
+        "position": [
+          0.824,
+          -0.04,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          -1.570796
+        ],
+        "explodedOffset": [
+          0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s14",
+        "parentId": "top",
+        "name": "Top screw 6",
+        "kind": "hardware",
+        "sourcePage": 11,
+        "color": "#ADB2B5",
+        "position": [
+          0.75,
+          -0.04,
+          -0.624
+        ],
+        "rotation": [
+          -1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          -0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s15",
+        "parentId": "top",
+        "name": "Top screw 7",
+        "kind": "hardware",
+        "sourcePage": 11,
+        "color": "#ADB2B5",
+        "position": [
+          0.824,
+          -0.04,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          -1.570796
+        ],
+        "explodedOffset": [
+          0.2,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "s16",
+        "parentId": "top",
+        "name": "Top screw 8",
+        "kind": "hardware",
+        "sourcePage": 11,
+        "color": "#ADB2B5",
+        "position": [
+          0.75,
+          -0.04,
+          0.624
+        ],
+        "rotation": [
+          1.570796,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0,
+          0.2
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "ring",
+            "size": [
+              0.05,
+              0.05,
+              0.012
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              1.570796,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.046,
+              0.004,
+              0.046
+            ],
+            "position": [
+              0,
+              -0.008,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "cylinder",
+            "size": [
+              0.022,
+              0.03,
+              0.022
+            ],
+            "position": [
+              0,
+              -0.025,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "key",
+        "parentId": "",
+        "name": "Hex key 100006",
+        "kind": "tool",
+        "sourcePage": 6,
+        "color": "#BCC1C4",
+        "position": [
+          1.1,
+          1.954,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          -1.570796
+        ],
+        "explodedOffset": [
+          0.4,
+          0,
+          0
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              0.01,
+              0.06,
+              0.01
+            ],
+            "position": [
+              0,
+              0.03,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "shape": "box",
+            "size": [
+              0.14,
+              0.01,
+              0.01
+            ],
+            "position": [
+              0.065,
+              0.055,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "title": "Attach the first leg to the lower shelf",
+        "instruction": "Support the lower shelf on an edge, with the first leg extending horizontally. Fit the leg's L-section around the illustrated shelf corner. Insert two screws, one through each perpendicular leg flange into the corresponding folded shelf rim, and engage them with the hex key without fully tightening. Reposition the subassembly afterward using the lower-right turning diagram.",
+        "sourcePage": 7,
+        "duration": 10,
+        "orientation": "on_left",
+        "focus": [
+          0.79,
+          1.1,
+          -0.58
+        ],
+        "cameraDirection": [
+          1,
+          0.55,
+          -1
+        ],
+        "cameraDistance": 1.7,
+        "reviewNotes": [
+          "The first leg is at +X, the elevated edge in this working pose; it is not the floor-side leg.",
+          "Adds one leg and two screws. The shorter leg portion points toward the future tabletop.",
+          "The main fastening pose precedes the turning thumbnail. The next step supplies the changed whole-build orientation.",
+          "Establish one shelf and introduce the first of four legs. Insert exactly two screws.",
+          "The shorter leg portion extends toward the future tabletop; the longer portion terminates at the foot.",
+          "The screw projected downward on the page enters a leg flange and shelf rim, not the shelf's broad sheet surface.",
+          "The main operation is side-lying, not upside down. The small turning thumbnail describes subsequent handling.",
+          "Page 5 recommends two-person assembly and a soft protective work surface."
+        ],
+        "actions": [
+          {
+            "partId": "leg1",
+            "kind": "place",
+            "fromPosition": [
+              1.132,
+              1,
+              -0.932
+            ],
+            "toPosition": [
+              0.782,
+              1,
+              -0.582
+            ],
+            "fromRotation": [
+              0,
+              3.141593,
+              0
+            ],
+            "toRotation": [
+              0,
+              3.141593,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0,
+            "end": 0.18
+          },
+          {
+            "partId": "s1",
+            "kind": "insert",
+            "fromPosition": [
+              1.024,
+              -0.04,
+              -0.55
+            ],
+            "toPosition": [
+              0.824,
+              -0.04,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.2,
+            "end": 0.29
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              1.024,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.31,
+            "end": 0.37
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.38,
+            "end": 0.45
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              1.024,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.46,
+            "end": 0.52
+          },
+          {
+            "partId": "s2",
+            "kind": "insert",
+            "fromPosition": [
+              0.75,
+              -0.04,
+              -0.824
+            ],
+            "toPosition": [
+              0.75,
+              -0.04,
+              -0.624
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.55,
+            "end": 0.64
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              0.75,
+              1.1,
+              -0.824
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.66,
+            "end": 0.73
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.74,
+            "end": 0.84
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              -0.824
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.85,
+            "end": 0.94
+          }
+        ]
+      },
+      {
+        "title": "Attach the second leg to the lower shelf",
+        "instruction": "After the indicated turn, keep the shelf on edge and fit a second leg around the next illustrated corner. Insert two screws through the leg's two perpendicular flanges into the adjoining shelf rims. Leave them partly tightened. Match the illustrated foot-end direction and turn the subassembly again as shown.",
+        "sourcePage": 8,
+        "duration": 10,
+        "orientation": "on_back",
+        "focus": [
+          0.79,
+          1.1,
+          0.58
+        ],
+        "cameraDirection": [
+          1,
+          0.55,
+          1
+        ],
+        "cameraDistance": 1.7,
+        "reviewNotes": [
+          "The second leg is at +Z, above the previously attached -Z leg in this working pose.",
+          "Adds one leg and two screws: two legs and four screws are attached.",
+          "The enlarged foot detail does not establish a separate loose cap.",
+          "Introduce one additional leg and two screws: two legs and four screws are now attached to the shelf.",
+          "The lower horizontal leg in the main drawing is the previously attached leg, not another newly introduced member.",
+          "The end-detail enlargement shows the foot-end feature on the leg; it does not provide a separate loose-cap quantity.",
+          "The leg axes remain horizontal. This is a different side-lying pose from step 1."
+        ],
+        "actions": [
+          {
+            "partId": "leg2",
+            "kind": "place",
+            "fromPosition": [
+              1.132,
+              1,
+              0.932
+            ],
+            "toPosition": [
+              0.782,
+              1,
+              0.582
+            ],
+            "fromRotation": [
+              0,
+              1.570796,
+              0
+            ],
+            "toRotation": [
+              0,
+              1.570796,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0,
+            "end": 0.18
+          },
+          {
+            "partId": "s3",
+            "kind": "insert",
+            "fromPosition": [
+              1.024,
+              -0.04,
+              0.55
+            ],
+            "toPosition": [
+              0.824,
+              -0.04,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.2,
+            "end": 0.29
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              1.024,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.31,
+            "end": 0.37
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.38,
+            "end": 0.45
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              1.024,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.46,
+            "end": 0.52
+          },
+          {
+            "partId": "s4",
+            "kind": "insert",
+            "fromPosition": [
+              0.75,
+              -0.04,
+              0.824
+            ],
+            "toPosition": [
+              0.75,
+              -0.04,
+              0.624
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.55,
+            "end": 0.64
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              0.75,
+              1.1,
+              0.824
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.66,
+            "end": 0.73
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.74,
+            "end": 0.84
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              0.824
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.85,
+            "end": 0.94
+          }
+        ]
+      },
+      {
+        "title": "Attach the remaining legs and position the tabletop",
+        "instruction": "With the first two legs on the lower side of the side-lying subassembly, fit the remaining two legs around the unoccupied shelf corners. Insert four screws, two per new leg through its perpendicular flanges into the shelf rims, leaving them partly tightened. Then follow the lower-right insertion drawing to position the single solid tabletop between the short upper ends of the four legs.",
+        "sourcePage": 9,
+        "duration": 12,
+        "orientation": "on_right",
+        "focus": [
+          -0.79,
+          1.1,
+          0.58
+        ],
+        "cameraDirection": [
+          -1,
+          0.55,
+          1
+        ],
+        "cameraDistance": 2.6,
+        "reviewNotes": [
+          "The new legs and all four active shelf screws are at -X, elevated in this working pose. Existing +X joints remain in place.",
+          "Adds two legs, four shelf screws and one solid tabletop. All eight shelf screws are now installed.",
+          "The tabletop's eight screws are added in steps 4 and 5; its folded rims are integral, not additional rails.",
+          "Introduce two legs and four screws. The shelf now connects to all four legs with eight screws.",
+          "The two lower legs are existing components; the two upper legs receive the four newly illustrated screws.",
+          "The lower-right drawing introduces one tabletop panel, not a separate frame, extra shelf, or pair of rails.",
+          "The tabletop is positioned here. Its eight fastening screws are inserted in steps 4 and 5."
+        ],
+        "actions": [
+          {
+            "partId": "leg3",
+            "kind": "place",
+            "fromPosition": [
+              -1.132,
+              1,
+              0.932
+            ],
+            "toPosition": [
+              -0.782,
+              1,
+              0.582
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0,
+            "end": 0.08
+          },
+          {
+            "partId": "leg4",
+            "kind": "place",
+            "fromPosition": [
+              -1.132,
+              1,
+              -0.932
+            ],
+            "toPosition": [
+              -0.782,
+              1,
+              -0.582
+            ],
+            "fromRotation": [
+              0,
+              -1.570796,
+              0
+            ],
+            "toRotation": [
+              0,
+              -1.570796,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.08,
+            "end": 0.16
+          },
+          {
+            "partId": "s5",
+            "kind": "insert",
+            "fromPosition": [
+              -1.024,
+              -0.04,
+              0.55
+            ],
+            "toPosition": [
+              -0.824,
+              -0.04,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.17,
+            "end": 0.21
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -1.024,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.22,
+            "end": 0.25
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.25,
+            "end": 0.29
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              -1.024,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.29,
+            "end": 0.32
+          },
+          {
+            "partId": "s6",
+            "kind": "insert",
+            "fromPosition": [
+              -0.75,
+              -0.04,
+              0.824
+            ],
+            "toPosition": [
+              -0.75,
+              -0.04,
+              0.624
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.33,
+            "end": 0.37
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              0.824
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.38,
+            "end": 0.41
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.41,
+            "end": 0.45
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              0.824
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.45,
+            "end": 0.48
+          },
+          {
+            "partId": "s7",
+            "kind": "insert",
+            "fromPosition": [
+              -1.024,
+              -0.04,
+              -0.55
+            ],
+            "toPosition": [
+              -0.824,
+              -0.04,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.49,
+            "end": 0.53
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -1.024,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.54,
+            "end": 0.57
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.82,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.57,
+            "end": 0.61
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.82,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              -1.024,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.61,
+            "end": 0.64
+          },
+          {
+            "partId": "s8",
+            "kind": "insert",
+            "fromPosition": [
+              -0.75,
+              -0.04,
+              -0.824
+            ],
+            "toPosition": [
+              -0.75,
+              -0.04,
+              -0.624
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.65,
+            "end": 0.69
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              -0.824
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.7,
+            "end": 0.73
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              -0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.73,
+            "end": 0.77
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              -0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              -0.824
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.77,
+            "end": 0.8
+          },
+          {
+            "partId": "top",
+            "kind": "place",
+            "fromPosition": [
+              0,
+              2.544,
+              0
+            ],
+            "toPosition": [
+              0,
+              1.994,
+              0
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.84,
+            "end": 0.98
+          }
+        ]
+      },
+      {
+        "title": "Fasten the first two tabletop corners",
+        "instruction": "Keep the assembly on the same side with the tabletop seated inside the upper leg ends. At each of the two exposed tabletop corners, insert one screw through each perpendicular leg flange into the corresponding folded tabletop rim, four screws total. Leave them partly tightened. Roll the assembly onto the opposite side as indicated by the lower-right arrow.",
+        "sourcePage": 10,
+        "duration": 12,
+        "orientation": "on_right",
+        "focus": [
+          -0.79,
+          1.954,
+          0.58
+        ],
+        "cameraDirection": [
+          -1,
+          0.6,
+          1
+        ],
+        "cameraDistance": 1.8,
+        "reviewNotes": [
+          "All four new tabletop screws belong to the two elevated -X corners. The opposite +X tabletop corners remain unfastened until step 5.",
+          "Twelve screws are now installed. No additional primary part is introduced.",
+          "The focus is the elevated front corner and exposes both entry faces. Neither screw enters the broad tabletop face.",
+          "Introduce no new primary part and insert exactly four screws. Twelve screws are now installed.",
+          "These screws secure two tabletop-to-leg corner joints. The already fastened shelf behind them is not another component introduction.",
+          "The two screws at each corner have perpendicular physical entry axes through rim/side faces; neither is a broad tabletop-face fastening.",
+          "The orientation records the main fastening pose before the concluding roll."
+        ],
+        "actions": [
+          {
+            "partId": "s9",
+            "kind": "insert",
+            "fromPosition": [
+              -1.024,
+              -0.04,
+              0.55
+            ],
+            "toPosition": [
+              -0.824,
+              -0.04,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.02,
+            "end": 0.08
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -1.024,
+              1.954,
+              0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.954,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.09,
+            "end": 0.13
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.82,
+              1.954,
+              0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.954,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.14,
+            "end": 0.19
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.82,
+              1.954,
+              0.55
+            ],
+            "toPosition": [
+              -1.024,
+              1.954,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.2,
+            "end": 0.24
+          },
+          {
+            "partId": "s10",
+            "kind": "insert",
+            "fromPosition": [
+              -0.75,
+              -0.04,
+              0.824
+            ],
+            "toPosition": [
+              -0.75,
+              -0.04,
+              0.624
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.26,
+            "end": 0.32
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -0.75,
+              1.954,
+              0.824
+            ],
+            "toPosition": [
+              -0.75,
+              1.954,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.33,
+            "end": 0.37
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.75,
+              1.954,
+              0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.954,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.38,
+            "end": 0.43
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.75,
+              1.954,
+              0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.954,
+              0.824
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.44,
+            "end": 0.48
+          },
+          {
+            "partId": "s11",
+            "kind": "insert",
+            "fromPosition": [
+              -1.024,
+              -0.04,
+              -0.55
+            ],
+            "toPosition": [
+              -0.824,
+              -0.04,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.5,
+            "end": 0.56
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -1.024,
+              1.954,
+              -0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.954,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.57,
+            "end": 0.61
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.82,
+              1.954,
+              -0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.954,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.62,
+            "end": 0.67
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.82,
+              1.954,
+              -0.55
+            ],
+            "toPosition": [
+              -1.024,
+              1.954,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.68,
+            "end": 0.72
+          },
+          {
+            "partId": "s12",
+            "kind": "insert",
+            "fromPosition": [
+              -0.75,
+              -0.04,
+              -0.824
+            ],
+            "toPosition": [
+              -0.75,
+              -0.04,
+              -0.624
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.74,
+            "end": 0.8
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -0.75,
+              1.954,
+              -0.824
+            ],
+            "toPosition": [
+              -0.75,
+              1.954,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.81,
+            "end": 0.85
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.75,
+              1.954,
+              -0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.954,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.86,
+            "end": 0.91
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.75,
+              1.954,
+              -0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.954,
+              -0.824
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.92,
+            "end": 0.97
+          }
+        ]
+      },
+      {
+        "title": "Fasten the remaining tabletop corners and stand upright",
+        "instruction": "On the opposite side, insert the remaining four screws at the other two tabletop corners, one through each leg flange into its adjoining tabletop rim. Leave these screws partly tightened until the final alignment step. Then carefully turn the completed assembly upright onto its four feet, following the lower-right handling arrow.",
+        "sourcePage": 11,
+        "duration": 12,
+        "orientation": "on_left",
+        "focus": [
+          0.79,
+          1.954,
+          -0.58
+        ],
+        "cameraDirection": [
+          1,
+          0.6,
+          -1
+        ],
+        "cameraDistance": 1.8,
+        "reviewNotes": [
+          "The remaining +X tabletop corners are now elevated; the previously fastened -X corners are on the lower side.",
+          "All sixteen supplied screws are installed. No additional tabletop or other primary part is introduced.",
+          "The main fastening pose remains side-lying. The concluding turn upright is represented by step 6.",
+          "Introduce no new primary part and insert exactly four screws. All sixteen supplied screws are now installed.",
+          "The similar main projection depicts fastening the opposite corners after the preceding roll, not installing another tabletop.",
+          "The main operation remains side-lying. The small thumbnail depicts the subsequent turn upright.",
+          "Standing the table is part of this numbered step, not a separate numbered operation."
+        ],
+        "actions": [
+          {
+            "partId": "s13",
+            "kind": "insert",
+            "fromPosition": [
+              1.024,
+              -0.04,
+              -0.55
+            ],
+            "toPosition": [
+              0.824,
+              -0.04,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.02,
+            "end": 0.08
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              1.024,
+              1.954,
+              -0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.954,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.09,
+            "end": 0.13
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.82,
+              1.954,
+              -0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.954,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.14,
+            "end": 0.19
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.82,
+              1.954,
+              -0.55
+            ],
+            "toPosition": [
+              1.024,
+              1.954,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.2,
+            "end": 0.24
+          },
+          {
+            "partId": "s14",
+            "kind": "insert",
+            "fromPosition": [
+              0.75,
+              -0.04,
+              -0.824
+            ],
+            "toPosition": [
+              0.75,
+              -0.04,
+              -0.624
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.26,
+            "end": 0.32
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              0.75,
+              1.954,
+              -0.824
+            ],
+            "toPosition": [
+              0.75,
+              1.954,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.33,
+            "end": 0.37
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              1.954,
+              -0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.954,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.38,
+            "end": 0.43
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.75,
+              1.954,
+              -0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.954,
+              -0.824
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.44,
+            "end": 0.48
+          },
+          {
+            "partId": "s15",
+            "kind": "insert",
+            "fromPosition": [
+              1.024,
+              -0.04,
+              0.55
+            ],
+            "toPosition": [
+              0.824,
+              -0.04,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.5,
+            "end": 0.56
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              1.024,
+              1.954,
+              0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.954,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.57,
+            "end": 0.61
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.82,
+              1.954,
+              0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.954,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.62,
+            "end": 0.67
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.82,
+              1.954,
+              0.55
+            ],
+            "toPosition": [
+              1.024,
+              1.954,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.68,
+            "end": 0.72
+          },
+          {
+            "partId": "s16",
+            "kind": "insert",
+            "fromPosition": [
+              0.75,
+              -0.04,
+              0.824
+            ],
+            "toPosition": [
+              0.75,
+              -0.04,
+              0.624
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.74,
+            "end": 0.8
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              0.75,
+              1.954,
+              0.824
+            ],
+            "toPosition": [
+              0.75,
+              1.954,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.81,
+            "end": 0.85
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              1.954,
+              0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.954,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.86,
+            "end": 0.91
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.75,
+              1.954,
+              0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.954,
+              0.824
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.92,
+            "end": 0.97
+          }
+        ]
+      },
+      {
+        "title": "Align the table and tighten all sixteen screws",
+        "instruction": "With the table upright on all four feet, align the legs and panels so the assembly is straight and square rather than racked as in the crossed-out example. Use the hex key to finish tightening all sixteen previously inserted screws and seat their heads.",
+        "sourcePage": 12,
+        "duration": 12,
+        "orientation": "upright",
+        "focus": [
+          0.79,
+          1.954,
+          0.58
+        ],
+        "cameraDirection": [
+          1,
+          0.65,
+          1
+        ],
+        "cameraDistance": 3,
+        "reviewNotes": [
+          "The animation demonstrates final tightening at six joints. The original manual requires checking and tightening all sixteen screws.",
+          "The 16x callout is tightening, not additional insertion: eight shelf screws and eight tabletop screws.",
+          "Every existing screw receives a tightening action. The key approaches, seats in the outward-opening recess, turns and withdraws at each joint.",
+          "The table is modeled square throughout; no unsupported racking deformation is introduced.",
+          "Final tightening order and decorative turn counts are illustrative. The key is absent from the completed assembly.",
+          "The 16x callout is final tightening of existing screws, not insertion of sixteen additional screws.",
+          "The completed joints contain eight shelf-to-leg screws and eight tabletop-to-leg screws.",
+          "Pages 2–4 warn against sitting on the product and specify a maximum product load of 10 kg (22 lb), not a separate allowance for each panel."
+        ],
+        "actions": [
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              1.024,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0,
+            "end": 0.014
+          },
+          {
+            "partId": "s1",
+            "kind": "tighten",
+            "fromPosition": [
+              0.824,
+              -0.04,
+              -0.55
+            ],
+            "toPosition": [
+              0.824,
+              -0.04,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.015,
+            "end": 0.039
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.015,
+            "end": 0.039
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.82,
+              1.1,
+              -0.55
+            ],
+            "toPosition": [
+              1.024,
+              1.1,
+              -0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.04,
+            "end": 0.055
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              0.75,
+              1.1,
+              -0.824
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.06,
+            "end": 0.074
+          },
+          {
+            "partId": "s2",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              -0.04,
+              -0.624
+            ],
+            "toPosition": [
+              0.75,
+              -0.04,
+              -0.624
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.075,
+            "end": 0.099
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.075,
+            "end": 0.099
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.75,
+              1.1,
+              -0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              -0.824
+            ],
+            "fromRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              -1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.1,
+            "end": 0.115
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              1.024,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.12,
+            "end": 0.134
+          },
+          {
+            "partId": "s3",
+            "kind": "tighten",
+            "fromPosition": [
+              0.824,
+              -0.04,
+              0.55
+            ],
+            "toPosition": [
+              0.824,
+              -0.04,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.135,
+            "end": 0.159
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.135,
+            "end": 0.159
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              1.024,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              -1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.16,
+            "end": 0.175
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              0.75,
+              1.1,
+              0.824
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.18,
+            "end": 0.194
+          },
+          {
+            "partId": "s4",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              -0.04,
+              0.624
+            ],
+            "toPosition": [
+              0.75,
+              -0.04,
+              0.624
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.195,
+            "end": 0.219
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.195,
+            "end": 0.219
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              0.75,
+              1.1,
+              0.824
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.22,
+            "end": 0.235
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -1.024,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.24,
+            "end": 0.254
+          },
+          {
+            "partId": "s5",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.824,
+              -0.04,
+              0.55
+            ],
+            "toPosition": [
+              -0.824,
+              -0.04,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.255,
+            "end": 0.279
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.255,
+            "end": 0.279
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.82,
+              1.1,
+              0.55
+            ],
+            "toPosition": [
+              -1.024,
+              1.1,
+              0.55
+            ],
+            "fromRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "toRotation": [
+              0,
+              0,
+              1.570796
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.28,
+            "end": 0.295
+          },
+          {
+            "partId": "key",
+            "kind": "place",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              0.824
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.3,
+            "end": 0.314
+          },
+          {
+            "partId": "s6",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.75,
+              -0.04,
+              0.624
+            ],
+            "toPosition": [
+              -0.75,
+              -0.04,
+              0.624
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.315,
+            "end": 0.339
+          },
+          {
+            "partId": "key",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 1,
+            "start": 0.315,
+            "end": 0.339
+          },
+          {
+            "partId": "key",
+            "kind": "remove",
+            "fromPosition": [
+              -0.75,
+              1.1,
+              0.62
+            ],
+            "toPosition": [
+              -0.75,
+              1.1,
+              0.824
+            ],
+            "fromRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "toRotation": [
+              1.570796,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.34,
+            "end": 0.355
+          }
+        ]
+      }
+    ]
+  },
+  "componentCoverage": [
+    {
+      "componentId": "tabletop",
+      "partIds": [
+        "top"
+      ]
+    },
+    {
+      "componentId": "lower_shelf",
+      "partIds": [
+        "shelf"
+      ]
+    },
+    {
+      "componentId": "corner_leg",
+      "partIds": [
+        "leg1",
+        "leg2",
+        "leg3",
+        "leg4"
+      ]
+    },
+    {
+      "componentId": "assembly_screw",
+      "partIds": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6",
+        "s7",
+        "s8",
+        "s9",
+        "s10",
+        "s11",
+        "s12",
+        "s13",
+        "s14",
+        "s15",
+        "s16"
+      ]
+    },
+    {
+      "componentId": "hex_key",
+      "partIds": [
+        "key"
+      ]
+    }
+  ],
+  "evidence": {
+    "components": [
+      {
+        "id": "tabletop",
+        "name": "Rectangular tabletop panel",
+        "code": "",
+        "kind": "part",
+        "quantity": 1,
+        "role": "surface",
+        "geometryClass": "solid_panel",
+        "description": "One broad, continuous rectangular sheet panel with shallow folded perimeter rims. Its solid upper face is visible on pages 1 and 12; the separate panel is introduced in the lower-right drawing on page 9. Two perpendicular rim faces at each corner receive screws through the enclosing leg flanges. The folded rims are not separately installed rails. Preserve unequal plan dimensions and a thickness small relative to both.",
+        "sourcePages": [
+          1,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "id": "lower_shelf",
+        "name": "Rectangular lower shelf panel",
+        "code": "",
+        "kind": "part",
+        "quantity": 1,
+        "role": "surface",
+        "geometryClass": "solid_panel",
+        "description": "One broad, continuous rectangular sheet panel with shallow folded perimeter rims, established in step 1. Its solid surface is confirmed by the cover and final perspective. It has approximately the tabletop's footprint and sits above the legs' midpoint, leaving longer leg portions below it than above. The unshaded underside and outlined perimeter in assembly views do not establish an open frame or separate rails.",
+        "sourcePages": [
+          1,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "id": "corner_leg",
+        "name": "Full-height L-section corner leg",
+        "code": "",
+        "kind": "part",
+        "quantity": 4,
+        "role": "support",
+        "geometryClass": "linear",
+        "description": "Four individual long members, introduced as one in step 1, one in step 2, and two in step 3. Each consists of two perpendicular thin flange faces sharing a continuous longitudinal bend: an open L/angle section, not two supports or a closed square tube. Each leg wraps one corner of both panels and receives four screws, one through each flange at each panel level. The first leg on page 7 visibly has a finished foot-end outline, and page 8 enlarges that feature on a leg. Whether the end feature is formed or a separately manufactured fitted cap is not established.",
+        "sourcePages": [
+          1,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "id": "assembly_screw",
+        "name": "Short flanged hex-socket screw",
+        "code": "10118490 / 10118469",
+        "kind": "hardware",
+        "quantity": 16,
+        "role": "connector",
+        "geometryClass": "fastener",
+        "description": "Short threaded screw with a broad, low round flange head and internal hex socket. Page 6 depicts one screw type with a total quantity of sixteen and prints both codes beside it; it does not explain code applicability or assign sixteen to each code. Each screw joins one leg flange to one folded panel rim. No separate loose washers or nuts are illustrated.",
+        "sourcePages": [
+          1,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "id": "hex_key",
+        "name": "L-shaped hex key",
+        "code": "100006",
+        "kind": "tool",
+        "quantity": 1,
+        "role": "tool",
+        "geometryClass": "tool",
+        "description": "One slim L-shaped key with unequal perpendicular arms and hexagonal working ends. Page 6 gives its code and quantity; the assembly details show it engaging the screws' internal hex sockets. It is a removable assembly tool, not a permanent table component.",
+        "sourcePages": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      }
+    ],
+    "referenceViews": [
+      {
+        "sourcePage": 1,
+        "kind": "cover",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw"
+        ],
+        "solidSurfaceComponentIds": [
+          "tabletop",
+          "lower_shelf"
+        ],
+        "description": "Upright table with two continuous rectangular surfaces and four corner legs. Four distinct foot ends are visible: left, foreground, right, and the partly occluded rear foot near the image center. The central-looking member traces to the rear panel corner; it is not an additional center support. The foreground leg's two visible faces belong to one L-section member. Overall height exceeds either horizontal dimension."
+      },
+      {
+        "sourcePage": 11,
+        "kind": "completed",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw"
+        ],
+        "solidSurfaceComponentIds": [
+          "tabletop",
+          "lower_shelf"
+        ],
+        "description": "The lower-right handling thumbnail shows the completed assembly being turned onto its four feet after the last four screws are inserted. Both panels and all four legs are existing components. The thumbnail and turning arrow introduce no additional parts."
+      },
+      {
+        "sourcePage": 12,
+        "kind": "completed",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "solidSurfaceComponentIds": [
+          "tabletop",
+          "lower_shelf"
+        ],
+        "description": "The main upright perspective confirms two solid panels and four distinct corner legs, including the rear leg partly hidden by both panels. The magnified detail shows the hex key tightening an existing screw through a leg flange into the tabletop rim."
+      },
+      {
+        "sourcePage": 12,
+        "kind": "completed",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw"
+        ],
+        "solidSurfaceComponentIds": [
+          "tabletop",
+          "lower_shelf"
+        ],
+        "description": "The bottom alignment inset contrasts a straight, square assembly with a crossed-out racked assembly. The panels are viewed edge-on. Their horizontal outlines are not additional rails, and the overlapping front/rear projections do not reduce the four-leg inventory."
+      }
+    ],
+    "steps": [
+      {
+        "sourceEntryId": "entry_1",
+        "number": "1",
+        "title": "Attach the first leg to the lower shelf",
+        "instruction": "Support the lower shelf on an edge, with the first leg extending horizontally. Fit the leg's L-section around the illustrated shelf corner. Insert two screws, one through each perpendicular leg flange into the corresponding folded shelf rim, and engage them with the hex key without fully tightening. Reposition the subassembly afterward using the lower-right turning diagram.",
+        "sourcePage": 7,
+        "orientation": "on_left",
+        "componentIds": [
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "notes": [
+          "Establish one shelf and introduce the first of four legs. Insert exactly two screws.",
+          "The shorter leg portion extends toward the future tabletop; the longer portion terminates at the foot.",
+          "The screw projected downward on the page enters a leg flange and shelf rim, not the shelf's broad sheet surface.",
+          "The main operation is side-lying, not upside down. The small turning thumbnail describes subsequent handling.",
+          "Page 5 recommends two-person assembly and a soft protective work surface."
+        ]
+      },
+      {
+        "sourceEntryId": "entry_2",
+        "number": "2",
+        "title": "Attach the second leg to the lower shelf",
+        "instruction": "After the indicated turn, keep the shelf on edge and fit a second leg around the next illustrated corner. Insert two screws through the leg's two perpendicular flanges into the adjoining shelf rims. Leave them partly tightened. Match the illustrated foot-end direction and turn the subassembly again as shown.",
+        "sourcePage": 8,
+        "orientation": "on_back",
+        "componentIds": [
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "notes": [
+          "Introduce one additional leg and two screws: two legs and four screws are now attached to the shelf.",
+          "The lower horizontal leg in the main drawing is the previously attached leg, not another newly introduced member.",
+          "The end-detail enlargement shows the foot-end feature on the leg; it does not provide a separate loose-cap quantity.",
+          "The leg axes remain horizontal. This is a different side-lying pose from step 1."
+        ]
+      },
+      {
+        "sourceEntryId": "entry_3",
+        "number": "3",
+        "title": "Attach the remaining legs and position the tabletop",
+        "instruction": "With the first two legs on the lower side of the side-lying subassembly, fit the remaining two legs around the unoccupied shelf corners. Insert four screws, two per new leg through its perpendicular flanges into the shelf rims, leaving them partly tightened. Then follow the lower-right insertion drawing to position the single solid tabletop between the short upper ends of the four legs.",
+        "sourcePage": 9,
+        "orientation": "on_right",
+        "componentIds": [
+          "lower_shelf",
+          "corner_leg",
+          "tabletop",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "notes": [
+          "Introduce two legs and four screws. The shelf now connects to all four legs with eight screws.",
+          "The two lower legs are existing components; the two upper legs receive the four newly illustrated screws.",
+          "The lower-right drawing introduces one tabletop panel, not a separate frame, extra shelf, or pair of rails.",
+          "The tabletop is positioned here. Its eight fastening screws are inserted in steps 4 and 5."
+        ]
+      },
+      {
+        "sourceEntryId": "entry_4",
+        "number": "4",
+        "title": "Fasten the first two tabletop corners",
+        "instruction": "Keep the assembly on the same side with the tabletop seated inside the upper leg ends. At each of the two exposed tabletop corners, insert one screw through each perpendicular leg flange into the corresponding folded tabletop rim, four screws total. Leave them partly tightened. Roll the assembly onto the opposite side as indicated by the lower-right arrow.",
+        "sourcePage": 10,
+        "orientation": "on_right",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "notes": [
+          "Introduce no new primary part and insert exactly four screws. Twelve screws are now installed.",
+          "These screws secure two tabletop-to-leg corner joints. The already fastened shelf behind them is not another component introduction.",
+          "The two screws at each corner have perpendicular physical entry axes through rim/side faces; neither is a broad tabletop-face fastening.",
+          "The orientation records the main fastening pose before the concluding roll."
+        ]
+      },
+      {
+        "sourceEntryId": "entry_5",
+        "number": "5",
+        "title": "Fasten the remaining tabletop corners and stand upright",
+        "instruction": "On the opposite side, insert the remaining four screws at the other two tabletop corners, one through each leg flange into its adjoining tabletop rim. Leave these screws partly tightened until the final alignment step. Then carefully turn the completed assembly upright onto its four feet, following the lower-right handling arrow.",
+        "sourcePage": 11,
+        "orientation": "on_left",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "notes": [
+          "Introduce no new primary part and insert exactly four screws. All sixteen supplied screws are now installed.",
+          "The similar main projection depicts fastening the opposite corners after the preceding roll, not installing another tabletop.",
+          "The main operation remains side-lying. The small thumbnail depicts the subsequent turn upright.",
+          "Standing the table is part of this numbered step, not a separate numbered operation."
+        ]
+      },
+      {
+        "sourceEntryId": "entry_6",
+        "number": "6",
+        "title": "Align the table and tighten all sixteen screws",
+        "instruction": "With the table upright on all four feet, align the legs and panels so the assembly is straight and square rather than racked as in the crossed-out example. Use the hex key to finish tightening all sixteen previously inserted screws and seat their heads.",
+        "sourcePage": 12,
+        "orientation": "upright",
+        "componentIds": [
+          "tabletop",
+          "lower_shelf",
+          "corner_leg",
+          "assembly_screw",
+          "hex_key"
+        ],
+        "notes": [
+          "The 16x callout is final tightening of existing screws, not insertion of sixteen additional screws.",
+          "The completed joints contain eight shelf-to-leg screws and eight tabletop-to-leg screws.",
+          "Pages 2–4 warn against sitting on the product and specify a maximum product load of 10 kg (22 lb), not a separate allowance for each panel."
+        ]
+      }
+    ],
+    "reviewNotes": [
+      "Reviewed the supplied evidence for all twelve pages. Pages 2–4 contain warnings; page 5 contains generic assembly advice rather than a product-specific parts inventory. The physical reconstruction relies on the cover, page 6 hardware illustrations, every numbered main drawing and detail, and the completed views.",
+      "The four-leg quantity survives the distinct-instance check: step 1 introduces one, step 2 introduces one, and step 3 introduces two. Cover and final views show four corresponding foot ends. The partly occluded member near the image center is the rear corner leg, and the two faces of an L-section leg are not separate supports. No fifth support or separately installed rail is established.",
+      "Permanent primary-piece introductions reconcile to one lower shelf established in step 1, four legs introduced across steps 1–3, and one tabletop introduced in the page 9 insertion thumbnail. Steps 4–6 introduce no further primary pieces. Both broad solid surfaces must remain represented despite their unshaded, frame-like underside drawings.",
+      "Fasteners reconcile exactly: four legs × two panels × two perpendicular flange-to-rim screws = sixteen screws. New insertions are 2 + 2 + 4 + 4 + 4; step 6 only tightens those same sixteen. Projected vertical arrows do not establish holes through either broad panel surface.",
+      "The visible page 6 inventory supports one key coded 100006 and sixteen screws bearing the paired codes 10118490 and 10118469. It does not explain the relationship between the screw codes. Other codes in the parsed text cannot be matched to additional visible inventory items and do not support extra hardware quantities.",
+      "The label's nominal 37 × 28 × 45 cm dimensions are consistent with a non-square rectangular footprint and a height exceeding either horizontal dimension. Preserve approximate overall proportions of 37:28:45, but do not treat these as exact individual-panel dimensions. The manual does not provide panel measurements, section widths, sheet thicknesses, screw dimensions, or tool size. Black finish is metadata context, not a parts-list fact.",
+      "The foot-end feature is positively visible on the leg being attached in step 1 and in the page 8 enlargement. Its manufacturing method and possible separate cap identity remain unresolved; no additional supplied-cap inventory or factory-attachment process is established. Similarly, the panels' matching construction does not establish interchangeability.",
+      "Each main drawing was checked separately: steps 1–5 have horizontal leg axes and panels on edge, not supports pointing upward from an inverted tabletop. The turns distinguish successive handling poses; steps 3–4 share a pose and step 5 follows a roll to the opposite side. The retained left/back/right labels are a consistent inferred convention because no front is marked. Step 6 is unambiguously upright. This remains a schematic document-based draft, not proof of physical correctness."
+    ]
+  },
+  "visualReview": {
+    "status": "not_completed",
+    "captures": [],
+    "issues": [],
+    "generationAttempts": 2,
+    "model": "gpt-6-astra",
+    "reasoningEffort": "high",
+    "note": "Final visual comparison was stopped at the user’s request. This saved demo is not a passed visual-review result."
+  },
+  "provenance": {
+    "filename": "KNARREVIK_Bedside_table_-_black_37x28x45_cm.pdf",
+    "pageCount": 12,
+    "sha256": "53a0acadcb500a9ac274651f88599b9eb3b046bb6252025c211a3b618c0cdc8c",
+    "model": "gpt-6-astra",
+    "reasoning": {
+      "parsing": "high",
+      "generation": "medium",
+      "visualReview": "high"
+    },
+    "generatedAt": "2026-09-13T07:10:23.347Z",
+    "status": "draft",
+    "geometry": "approximate",
+    "sourceUrl": "https://www.ikea.com/kr/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf"
+  }
+}

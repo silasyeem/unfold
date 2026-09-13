@@ -9,11 +9,11 @@ export function createGeneratedViewer(container,onView=()=>{}){
  scene.add(new T.HemisphereLight(0xffffff,0xb4bdce,2.5));const sun=new T.DirectionalLight(0xffffff,3.1);sun.position.set(4,7,5);scene.add(sun);
  const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.MeshStandardMaterial({color:0xf0f2f6,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.005;scene.add(floor);
  const grid=new T.GridHelper(10,40,0xe4e8f0,0xe9edf3);grid.position.y=.001;scene.add(grid);
- const rig=new T.Group();scene.add(rig);const meshes=new Map();let compiled=null,index=-1,progress=0,mode='whole',exploded=false,selected=null,frame=0,dirty=true,disposed=false;
+ const rig=new T.Group();scene.add(rig);const meshes=new Map(),partReach=new Map();let compiled=null,index=-1,progress=0,mode='whole',exploded=false,selected=null,frame=0,dirty=true,disposed=false;
  const fitBox=new T.Box3(),bounds=new T.Box3(),center=new T.Vector3(),size=new T.Vector3(),q=new T.Quaternion(),p=new T.Vector3(),axis=new T.Vector3();
  let radius=1,baseCenter=new T.Vector3(0,.5,0);
  controls.addEventListener('start',()=>{mode='free';dirty=true;onView('Free view · drag to inspect');});
- function disposeParts(){for(const child of [...rig.children]){child.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [].concat(o.material))m.dispose();});rig.remove(child);}meshes.clear();}
+ function disposeParts(){for(const child of [...rig.children]){child.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [].concat(o.material))m.dispose();});rig.remove(child);}meshes.clear();partReach.clear();}
  function load(guide){
   const next=compileGuide(guide);disposeParts();compiled=next;
   for(const part of guide.parts){
@@ -24,6 +24,7 @@ export function createGeneratedViewer(container,onView=()=>{}){
     mesh.scale.fromArray(primitive.size);mesh.position.fromArray(primitive.position);mesh.rotation.set(...primitive.rotation);mesh.userData.partId=part.id;group.add(mesh);
    }
    group.position.fromArray(part.position);group.rotation.set(...part.rotation);group.visible=part.kind!=='tool';rig.add(group);meshes.set(part.id,group);
+   partReach.set(part.id,Math.max(...part.primitives.map(primitive=>Math.hypot(...primitive.position)+Math.hypot(...primitive.size)/2)));
   }
   for(const part of guide.parts)if(part.parentId)meshes.get(part.parentId).add(meshes.get(part.id));
   rig.quaternion.identity();rig.position.set(0,0,0);rig.updateMatrixWorld(true);fitBox.makeEmpty();for(const part of guide.parts)if(part.kind!=='tool')fitBox.expandByObject(meshes.get(part.id));fitBox.getCenter(baseCenter);fitBox.getSize(size);radius=Math.max(.2,size.length()/2);index=-1;progress=0;mode='whole';exploded=false;selected=null;dirty=true;drawState();
@@ -36,12 +37,12 @@ export function createGeneratedViewer(container,onView=()=>{}){
  }
  function drawState(){
   if(!compiled)return;
-  const state=index<0?null:evaluateGuide(compiled,index,progress);pose();rig.position.set(0,0,0);
+  const state=index<0?null:evaluateGuide(compiled,index,progress),guidance=guidedOperation();pose();rig.position.set(0,0,0);
   for(const part of compiled.guide.parts){
    const mesh=meshes.get(part.id),s=state?.[part.id];mesh.visible=state?s.visible:part.kind!=='tool';mesh.position.fromArray(s?s.position:part.position);mesh.rotation.set(...(s?s.rotation:part.rotation));
    if(s?.spin){axis.fromArray(s.spinAxis).normalize();q.setFromAxisAngle(axis,s.spin);mesh.quaternion.multiply(q);}
    if(exploded&&mesh.visible)mesh.position.add(p.fromArray(part.explodedOffset));
-   mesh.traverse(o=>{if(!o.isMesh||o.userData.partId!==part.id)return;const highlighted=s?.active||part.id===selected;o.material.emissive.set(highlighted?0x285bff:0);o.material.emissiveIntensity=highlighted?.35:0;const faded=mode==='guided'&&index>=0&&!highlighted&&part.kind==='part'&&compiled.guide.steps[index].cameraDistance<1;o.material.transparent=faded;o.material.opacity=faded?.32:1;o.material.depthWrite=!faded;});
+   mesh.traverse(o=>{if(!o.isMesh||o.userData.partId!==part.id)return;const highlighted=s?.active||part.id===selected;o.material.emissive.set(highlighted?0x285bff:0);o.material.emissiveIntensity=highlighted?.35:0;const faded=mode==='guided'&&index>=0&&!highlighted&&part.kind==='part'&&(compiled.guide.steps[index].cameraDistance<1||guidance?.current?.small||guidance?.previous?.small&&guidance.blend<1);o.material.transparent=faded;o.material.opacity=faded?.32:1;o.material.depthWrite=!faded;});
   }
   rig.updateMatrixWorld(true);bounds.makeEmpty();
   const visibleInTree=object=>{for(let n=object;n&&n!==rig;n=n.parent)if(!n.visible)return false;return true;};
@@ -49,17 +50,38 @@ export function createGeneratedViewer(container,onView=()=>{}){
   collect(true);if(bounds.isEmpty())collect(false);
   if(!bounds.isEmpty())rig.position.y=-bounds.min.y;
   rig.updateMatrixWorld(true);dirty=false;
-  if(mode!=='free')positionCamera();
+  if(mode!=='free')positionCamera(guidance);
  }
- function positionCamera(){
+ function guidedOperation(){
+  if(mode!=='guided'||index<0)return null;
+  const actions=compiled.guide.steps[index].actions.map(action=>{const kind=compiled.guide.parts.find(part=>part.id===action.partId).kind;return{action,small:kind!=='part',rank:kind==='tool'?2:kind==='hardware'?1:0};});
+  const at=time=>actions.filter(item=>item.action.start<=time&&time<item.action.end).sort((a,b)=>b.rank-a.rank||b.action.start-a.action.start)[0]||actions.filter(item=>item.action.end<=time).sort((a,b)=>b.action.end-a.action.end||b.action.start-a.action.start)[0]||null;
+  const current=at(progress),previous=current?at(current.action.start-1e-6):null;
+  // Derive the entire camera transition from timeline position so seeking,
+  // playback and server screenshots always produce the same view.
+  const blend=current?smooth((progress-current.action.start)/Math.min(.05,(current.action.end-current.action.start)*.4)):1;
+  return{current,previous,blend};
+ }
+ function positionCamera(guidance){
   if(!compiled)return;
   const target=baseCenter.clone().applyMatrix4(rig.matrixWorld);let direction=new T.Vector3(1.2,.7,1.5).normalize();let distance=radius*3.5;
   if(mode==='guided'&&index>=0&&compiled.guide.steps[index].actions.length){
-   const step=compiled.guide.steps[index];const focus=new T.Vector3(...step.focus).applyMatrix4(rig.matrixWorld);const close=smooth(progress/.23);
+   const step=compiled.guide.steps[index],close=smooth(progress/.23);
+   const viewFor=operation=>{
+    if(!operation?.small)return{focus:new T.Vector3(...step.focus).applyMatrix4(rig.matrixWorld),distance:step.cameraDistance};
+    const action=operation.action,mesh=meshes.get(action.partId);
+    // Action coordinates belong to the evaluated parent. Approach aims at the
+    // destination socket; withdrawal holds that socket instead of chasing a tool.
+    const focus=new T.Vector3(...(action.kind==='remove'?action.fromPosition:action.toPosition)).applyMatrix4(mesh.parent.matrixWorld);
+    const distance=Math.max(.15,partReach.get(action.partId)*3.5,Math.min(step.cameraDistance,radius*.4));
+    return{focus,distance};
+   };
+   const before=viewFor(guidance?.previous),after=viewFor(guidance?.current),blend=guidance?.blend??1;
+   const focus=before.focus.lerp(after.focus,blend),jointDistance=T.MathUtils.lerp(before.distance,after.distance,blend);
    target.lerp(focus,close);direction.fromArray(step.cameraDirection).normalize().applyQuaternion(rig.quaternion);
    // Generated camera directions can point through the support surface after a flip.
    direction.y=Math.max(.25,Math.abs(direction.y));direction.normalize();
-   distance=T.MathUtils.lerp(radius*3.5,step.cameraDistance,close);
+   distance=T.MathUtils.lerp(radius*3.5,jointDistance,close);
   }
   if(exploded)distance*=1.45;
   distance*=Math.max(1,.95/camera.aspect);controls.target.copy(target);camera.position.copy(target).addScaledVector(direction,distance);camera.position.y=Math.max(.1,camera.position.y);camera.near=Math.max(.005,distance/300);camera.far=Math.max(100,distance*10);camera.updateProjectionMatrix();controls.update();

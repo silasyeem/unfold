@@ -25,7 +25,7 @@ export async function handleApi(request,env){
  if(!new TextDecoder().decode(bytes.subarray(0,1024)).includes('%PDF-'))return json({error:'The uploaded file is not a PDF.'},400);
  let filename;try{filename=decodeURIComponent(request.headers.get('x-pdf-name')||'manual.pdf');}catch{filename='manual.pdf';}
  if(active>=2)return json({error:'Two conversions are already running. Please try again shortly.'},429);
- active++;const abort=new AbortController();const timeout=setTimeout(()=>abort.abort(),600000);let cancelled=false;
+ active++;const abort=new AbortController();const timeout=setTimeout(()=>abort.abort(),1800000);let cancelled=false;
  const encoder=new TextEncoder();
  const stream=new ReadableStream({
   async start(controller){
