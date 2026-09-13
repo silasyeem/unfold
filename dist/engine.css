@@ -26,7 +26,8 @@ body.engine{height:100dvh;min-width:320px;display:flex;flex-direction:column;ove
 .engine .source-hero .source-intro{text-align:center;margin:0 auto;max-width:820px}
 .engine .source-hero .source-intro h1{font-size:clamp(36px,5.3vw,58px);line-height:1.08;font-weight:550;letter-spacing:-2.2px;max-width:100%;margin:20px auto 22px;text-wrap:balance}
 .engine .source-hero .source-intro p{font-size:17px;line-height:1.65;max-width:60ch;margin:0 auto;text-wrap:pretty}
-.engine .source-intro .eyebrow{font-size:11px;letter-spacing:1.9px;color:#8290aa}
+.engine .source-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:30px;font-size:clamp(42px,5.5vw,60px);font-weight:700;letter-spacing:-2.3px;line-height:1}
+.engine .source-logo>span{color:var(--blue);font-size:1.25em;font-weight:500;line-height:.8;letter-spacing:0}
 .engine .source-intro h1{display:block;font-size:clamp(32px,4.5vw,43px);font-weight:550;letter-spacing:-1.55px;line-height:1.18;margin:13px 0 14px}
 .engine .source-intro p{font-size:16px;line-height:1.6;color:#7b8494}
 .engine .source-choices{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -184,7 +185,6 @@ body.engine{height:100dvh;min-width:320px;display:flex;flex-direction:column;ove
  .engine .source-intro{margin-bottom:27px}
  .engine .source-intro h1{font-size:34px;letter-spacing:-1.2px}
  .engine .source-intro p{font-size:14px}
- .engine .source-intro .eyebrow{font-size:10px;letter-spacing:1.6px}
  .engine .source-choices{grid-template-columns:1fr;gap:14px}
  .engine .source-choice{min-height:165px}
  .engine .source-search>.library-launch{min-height:163px;padding:79px 22px 22px;font-size:18px}
