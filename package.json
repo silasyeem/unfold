@@ -1,0 +1,19 @@
+{
+  "name": "unfold",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local server/local.mjs",
+    "start": "node --env-file-if-exists=.env.local server/local.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "convert": "node --env-file-if-exists=.env.local scripts/convert.mjs"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "linkedom": "^0.18.12"
+  }
+}

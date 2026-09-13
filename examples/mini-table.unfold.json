@@ -1,0 +1,603 @@
+{
+  "guide": {
+    "schemaVersion": "1",
+    "productName": "MINI TABLE",
+    "summary": "Draft schematic guide for assembling a small square table with one tabletop and four threaded legs.",
+    "pageCount": 3,
+    "reviewNotes": [
+      "Draft guide based on the provided page-by-page extraction.",
+      "Leg mount positions and exact proportions are inferred from the description; no scaled diagram measurements were available.",
+      "No separate fasteners or tools are shown; each leg is treated as a threaded part that screws directly into the tabletop."
+    ],
+    "parts": [
+      {
+        "id": "A1",
+        "parentId": "",
+        "name": "Tabletop A",
+        "kind": "part",
+        "sourcePage": 1,
+        "color": "#C8A26E",
+        "position": [
+          0,
+          1.45,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0,
+          0.15,
+          0
+        ],
+        "initiallyVisible": true,
+        "primitives": [
+          {
+            "shape": "box",
+            "size": [
+              1.6,
+              0.1,
+              1.6
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B1",
+        "parentId": "A1",
+        "name": "Leg B1",
+        "kind": "part",
+        "sourcePage": 1,
+        "color": "#777777",
+        "position": [
+          -0.62,
+          -0.75,
+          -0.62
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          -0.12,
+          -0.35,
+          -0.12
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "cylinder",
+            "size": [
+              0.12,
+              1.4,
+              0.12
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B2",
+        "parentId": "A1",
+        "name": "Leg B2",
+        "kind": "part",
+        "sourcePage": 1,
+        "color": "#777777",
+        "position": [
+          0.62,
+          -0.75,
+          -0.62
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0.12,
+          -0.35,
+          -0.12
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "cylinder",
+            "size": [
+              0.12,
+              1.4,
+              0.12
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B3",
+        "parentId": "A1",
+        "name": "Leg B3",
+        "kind": "part",
+        "sourcePage": 1,
+        "color": "#777777",
+        "position": [
+          -0.62,
+          -0.75,
+          0.62
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          -0.12,
+          -0.35,
+          0.12
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "cylinder",
+            "size": [
+              0.12,
+              1.4,
+              0.12
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "B4",
+        "parentId": "A1",
+        "name": "Leg B4",
+        "kind": "part",
+        "sourcePage": 1,
+        "color": "#777777",
+        "position": [
+          0.62,
+          -0.75,
+          0.62
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "explodedOffset": [
+          0.12,
+          -0.35,
+          0.12
+        ],
+        "initiallyVisible": false,
+        "primitives": [
+          {
+            "shape": "cylinder",
+            "size": [
+              0.12,
+              1.4,
+              0.12
+            ],
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "title": "Fit the four legs",
+        "instruction": "Place part A upside down on a soft surface. Screw one part B clockwise into each of the four corner mounts. Hand-tighten each leg.",
+        "sourcePage": 2,
+        "duration": 11,
+        "orientation": "upside_down",
+        "focus": [
+          0,
+          1.4,
+          0
+        ],
+        "cameraDirection": [
+          1,
+          0.7,
+          1
+        ],
+        "cameraDistance": 2.2,
+        "reviewNotes": [
+          "The whole build is upside down for this step, as stated in the extraction.",
+          "Exact thread engagement is not visible; leg insertion depth is inferred from the final table height.",
+          "The tabletop stays upside down.",
+          "No separate screws or tools are required."
+        ],
+        "actions": [
+          {
+            "partId": "B1",
+            "kind": "insert",
+            "fromPosition": [
+              -0.62,
+              -1.25,
+              -0.62
+            ],
+            "toPosition": [
+              -0.62,
+              -0.75,
+              -0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0,
+            "end": 0.12
+          },
+          {
+            "partId": "B1",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.62,
+              -0.75,
+              -0.62
+            ],
+            "toPosition": [
+              -0.62,
+              -0.75,
+              -0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 3,
+            "start": 0.12,
+            "end": 0.22
+          },
+          {
+            "partId": "B2",
+            "kind": "insert",
+            "fromPosition": [
+              0.62,
+              -1.25,
+              -0.62
+            ],
+            "toPosition": [
+              0.62,
+              -0.75,
+              -0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.22,
+            "end": 0.34
+          },
+          {
+            "partId": "B2",
+            "kind": "tighten",
+            "fromPosition": [
+              0.62,
+              -0.75,
+              -0.62
+            ],
+            "toPosition": [
+              0.62,
+              -0.75,
+              -0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 3,
+            "start": 0.34,
+            "end": 0.44
+          },
+          {
+            "partId": "B3",
+            "kind": "insert",
+            "fromPosition": [
+              -0.62,
+              -1.25,
+              0.62
+            ],
+            "toPosition": [
+              -0.62,
+              -0.75,
+              0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.44,
+            "end": 0.56
+          },
+          {
+            "partId": "B3",
+            "kind": "tighten",
+            "fromPosition": [
+              -0.62,
+              -0.75,
+              0.62
+            ],
+            "toPosition": [
+              -0.62,
+              -0.75,
+              0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 3,
+            "start": 0.56,
+            "end": 0.66
+          },
+          {
+            "partId": "B4",
+            "kind": "insert",
+            "fromPosition": [
+              0.62,
+              -1.25,
+              0.62
+            ],
+            "toPosition": [
+              0.62,
+              -0.75,
+              0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 0,
+            "start": 0.66,
+            "end": 0.78
+          },
+          {
+            "partId": "B4",
+            "kind": "tighten",
+            "fromPosition": [
+              0.62,
+              -0.75,
+              0.62
+            ],
+            "toPosition": [
+              0.62,
+              -0.75,
+              0.62
+            ],
+            "fromRotation": [
+              0,
+              0,
+              0
+            ],
+            "toRotation": [
+              0,
+              0,
+              0
+            ],
+            "axis": [
+              0,
+              1,
+              0
+            ],
+            "turns": 3,
+            "start": 0.78,
+            "end": 0.9
+          }
+        ]
+      },
+      {
+        "title": "Turn the table upright",
+        "instruction": "Turn the assembled table over and stand it on all four legs. Check that each leg is secure before use.",
+        "sourcePage": 3,
+        "duration": 8,
+        "orientation": "upright",
+        "focus": [
+          0,
+          0.75,
+          0
+        ],
+        "cameraDirection": [
+          1,
+          0.6,
+          1
+        ],
+        "cameraDistance": 2.8,
+        "reviewNotes": [
+          "This is a whole-assembly reorientation step; no individual part transforms change in assembly coordinates.",
+          "Assembly complete."
+        ],
+        "actions": []
+      }
+    ]
+  },
+  "evidence": {
+    "inventory": [
+      {
+        "name": "square tabletop",
+        "code": "A",
+        "quantity": 1,
+        "description": "square tabletop"
+      },
+      {
+        "name": "threaded leg",
+        "code": "B",
+        "quantity": 4,
+        "description": "threaded legs"
+      }
+    ],
+    "steps": [
+      {
+        "number": "1",
+        "title": "Fit the four legs",
+        "instruction": "Place part A upside down on a soft surface. Screw one part B clockwise into each of the four corner mounts. Hand-tighten each leg.",
+        "orientation": "upside_down",
+        "parts": [
+          "A",
+          "B"
+        ],
+        "notes": [
+          "The tabletop stays upside down.",
+          "No separate screws or tools are required."
+        ],
+        "sourcePage": 2
+      },
+      {
+        "number": "2",
+        "title": "Turn the table upright",
+        "instruction": "Turn the assembled table over and stand it on all four legs. Check that each leg is secure before use.",
+        "orientation": "upright",
+        "parts": [
+          "A",
+          "B"
+        ],
+        "notes": [
+          "Assembly complete."
+        ],
+        "sourcePage": 3
+      }
+    ]
+  },
+  "provenance": {
+    "filename": "unfold-mini-table.pdf",
+    "pageCount": 3,
+    "sha256": "35989326537945d85f3f367312f89800dd5a12de3f8ba77e4ed4ef438ae39c19",
+    "model": "gpt-5.4",
+    "generatedAt": "2026-09-13T05:05:08.198Z",
+    "status": "draft",
+    "geometry": "approximate"
+  },
+  "usage": {
+    "inputTokens": 2332,
+    "outputTokens": 2434
+  },
+  "reviewedSteps": []
+}
