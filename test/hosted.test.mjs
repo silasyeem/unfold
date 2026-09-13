@@ -8,17 +8,18 @@ const success = () => Response.json({session: {id: 'live_test', secret: 'hidden'
 function post(body = {sdp: 'offer', apiKey: 'test-key'}, headers = {}, options = {}) {
   return new Request(origin + '/api/voice/session', {method: 'POST', headers: {'Content-Type': 'application/json', Origin: origin, ...headers}, body: JSON.stringify(body), ...options});
 }
-test('hosted readiness never calls OpenAI and requires entered key even with a configured secret', async () => {
+test('hosted readiness reports the server key without exposing it or calling OpenAI', async () => {
   let calls = 0;
   const handle = createHostedHandler({fetchImpl: async () => {calls++; return success();}});
-  const env = {OPENAI_API_KEY: 'must-never-bill-this'};
-  const ready = await handle(new Request(origin + '/api/voice/readiness'), env);
-  assert.deepEqual(await ready.json(), {ready: false, acceptsClientKey: true, model: 'gpt-live-1'});
-  assert.equal(ready.headers.get('cache-control'), 'no-store');
-  assert.equal((await handle(post({sdp: 'offer'}), env)).status, 400);
+  for (const apiKey of [undefined, '', '  ', 'server-test-secret']) {
+    const ready = await handle(new Request(origin + '/api/voice/readiness'), {OPENAI_API_KEY: apiKey});
+    assert.deepEqual(await ready.json(), {ready: Boolean(apiKey?.trim()), acceptsClientKey: true, model: 'gpt-live-1'});
+    assert.equal(ready.headers.get('cache-control'), 'no-store');
+  }
+  assert.equal((await handle(post({sdp: 'offer'}))).status, 503);
   assert.equal(calls, 0);
 });
-test('hosted wire shape uses shared prompts and one request-scoped key, never configuration or response secrets', async () => {
+test('hosted voice uses the server key by default and isolates optional overrides from later sessions', async () => {
   const captures = [];
   const handle = createHostedHandler({fetchImpl: async (...args) => {captures.push(args); return success();}});
   const env = {OPENAI_API_KEY: 'server-secret', OPENAI_BACKEND_MODEL: 'configured-model'};
@@ -26,11 +27,11 @@ test('hosted wire shape uses shared prompts and one request-scoped key, never co
   assert.equal(response.status, 201);
   assert.deepEqual(await response.json(), {session: {id: 'live_test'}, transport: {sdp: 'answer'}});
   await handle(post({sdp: 'offer', apiKey: 'key-two'}), env);
-  assert.equal((await handle(post({sdp: 'offer'}), env)).status, 400);
-  assert.equal(captures.length, 2);
+  assert.equal((await handle(post({sdp: 'offer'}), env)).status, 201);
+  assert.equal(captures.length, 3);
   for (const [i, [url, options]] of captures.entries()) {
     assert.equal(url, 'https://api.openai.com/v1/live/sessions');
-    assert.equal(options.headers.Authorization, 'Bearer ' + ['key-one', 'key-two'][i]);
+    assert.equal(options.headers.Authorization, 'Bearer ' + ['key-one', 'key-two', 'server-secret'][i]);
     assert.equal(options.redirect, 'error');
     assert.deepEqual(JSON.parse(options.body), sessionRequest('offer', 'configured-model'));
     assert.doesNotMatch(options.body, /key-one|key-two|server-secret/);
@@ -84,6 +85,14 @@ test('per-key concurrency and throttling isolate visitors, expire, and bound lim
   assert.equal((await handle(post())).status, 429);
   now = 60001;
   assert.equal((await handle(post({sdp: 'offer', apiKey: 'visitor-three'}))).status, 201);
+});
+test('server-funded voice starts share the existing rate limit', async () => {
+  let calls = 0;
+  const handle = createHostedHandler({maxPerMinute: 1, fetchImpl: async () => {calls++; return success();}});
+  const env = {OPENAI_API_KEY: 'shared-test-key'};
+  assert.equal((await handle(post({sdp: 'offer'}), env)).status, 201);
+  assert.equal((await handle(post({sdp: 'another-offer'}), env)).status, 429);
+  assert.equal(calls, 1);
 });
 test('timeouts/client cancellation abort upstream, release slots, and never retry', async () => {
   let calls = 0;

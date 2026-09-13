@@ -53,7 +53,7 @@ await checkResources('assets'); await checkResources('vendor');
 for (const path of ['/server/index.js', '/server/hosted.mjs', '/.env', '/.openai/hosting.json', '/client/index.html', '/api/unknown']) assert.equal((await fetch(origin + path)).status, 404, path);
 const body = JSON.stringify({sdp: 'not-a-real-offer'});
 const create = headers => fetch(origin + '/api/voice/session', {method: 'POST', headers: {'Content-Type': 'application/json', ...headers}, body});
-assert.equal((await create({Origin: origin})).status, 400);
+assert.equal((await create({Origin: origin})).status, 503);
 assert.equal((await create({Origin: 'https://different.example'})).status, 403);
 assert.equal((await create({})).status, 403);
 console.log(`Verified ${checked} unchanged public files, built Worker export/manifest, runtime page and all manual/vendor assets, private-path denials, readiness, no-key and origin rejection. No OpenAI calls made.`);

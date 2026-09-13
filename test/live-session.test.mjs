@@ -153,7 +153,7 @@ test('entered key starts without server key; key is sent only in one creation re
   assert.equal(f.session.apiKey, undefined); assert.equal(run.apiKey, undefined);
   f.session.dispose(); await f.session.start();
   assert.equal(f.session.state, 'error'); assert.equal(f.micRequests(), 1);
-  assert.equal(requests.length, 3); assert.match(f.status.at(-1).message, /Enter your OpenAI API key/);
+  assert.equal(requests.length, 3); assert.match(f.status.at(-1).message, /Open Voice settings to enter an API key/);
 });
 
 test('entered keys cannot bypass static/old-server readiness; blank key retains environment fallback', async () => {

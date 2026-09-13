@@ -11,5 +11,6 @@ test('hosted entry preserves scanner, voice, saved demo assets and live engine r
  for(const path of ['/examples/knarrevik.unfold.json','/reference/knarrevik-manual.pdf','/scan.html','/screws.html'])assert.equal(await (await get(path)).text(),path);
  assert.equal((await get('/api/library')).status,200);
  assert.equal((await (await site.fetch(new Request('https://unfold.example/api/health'),{...env,OPENAI_API_KEY:'test-only'})).json()).browserRendering,true);
+ assert.deepEqual(await (await site.fetch(new Request('https://unfold.example/api/voice/readiness'),{...env,OPENAI_API_KEY:'test-only'})).json(),{ready:true,acceptsClientKey:true,model:'gpt-live-1'});
  assert.equal((await get('/api/unknown')).status,404);
 });

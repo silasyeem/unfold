@@ -76,7 +76,7 @@ export function createHostedHandler({fetchImpl = (...args) => fetch(...args), no
         (origin !== null && origin !== url.origin) ||
         request.headers.get('sec-fetch-site') === 'cross-site' ||
         (request.method === 'POST' && origin !== url.origin)) return json(403, {error: 'Unexpected request origin.'});
-    if (path === '/api/voice/readiness' && request.method === 'GET') return json(200, {ready: false, acceptsClientKey: true, model: 'gpt-live-1'});
+    if (path === '/api/voice/readiness' && request.method === 'GET') return json(200, {ready: Boolean(env.OPENAI_API_KEY?.trim()), acceptsClientKey: true, model: 'gpt-live-1'});
     if (path !== '/api/voice/session') return json(404, {error: 'Not found.'});
     if (request.method !== 'POST') return json(405, {error: 'Method not allowed.'});
     if (request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') return json(415, {error: 'Expected JSON.'});
@@ -91,10 +91,12 @@ export function createHostedHandler({fetchImpl = (...args) => fetch(...args), no
     try {
       const input = await readInput(request, bodyLimit, abort.signal);
       if (!input || Array.isArray(input) || typeof input !== 'object' || Object.keys(input).some(name => !['sdp', 'apiKey'].includes(name)) || typeof input.sdp !== 'string' || !input.sdp.trim()) return json(400, {error: 'An SDP offer is required.'});
-      // Hosted endpoints deliberately ignore env.OPENAI_API_KEY, even if set.
-      if (!Object.hasOwn(input, 'apiKey')) return json(400, {error: 'Enter your OpenAI API key, then start again.'});
-      if (typeof input.apiKey !== 'string' || !input.apiKey.trim() || input.apiKey.length > 4096 || /[\x00-\x1f\x7f]/.test(input.apiKey) || /\s/.test(input.apiKey.trim())) return json(400, {error: 'Enter a valid API key with no spaces or control characters, up to 4096 characters.'});
-      key = input.apiKey.trim(); input.apiKey = undefined;
+      key = env.OPENAI_API_KEY?.trim() || '';
+      if (Object.hasOwn(input, 'apiKey')) {
+        if (typeof input.apiKey !== 'string' || !input.apiKey.trim() || input.apiKey.length > 4096 || /[\x00-\x1f\x7f]/.test(input.apiKey) || /\s/.test(input.apiKey.trim())) return json(400, {error: 'Enter a valid API key with no spaces or control characters, up to 4096 characters.'});
+        key = input.apiKey.trim(); input.apiKey = undefined;
+      }
+      if (!key) return json(503, {error: 'Voice is not configured. Add an OpenAI API key in Voice settings or configure the server key.'});
       release = await reserve(key);
       if (!release) return json(429, {error: 'Please wait before starting another voice session.'});
       if (abort.signal.aborted) return json(408, {error: 'Request timed out or cancelled.'});

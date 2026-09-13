@@ -119,7 +119,7 @@ export class LiveSession {
       try {config = await readiness.json();} catch {}
       if (!readiness.ok || typeof config?.ready !== 'boolean') throw new Error('The voice backend is unavailable. The site owner must publish the complete app with its voice backend. For local use, run npm start.');
       if (enteredKey && config.acceptsClientKey !== true) throw new Error('This voice backend cannot accept an entered key. Update the app and its backend together.');
-      if (!config.ready && !enteredKey) throw new Error('Enter your OpenAI API key above, then start again.');
+      if (!config.ready && !enteredKey) throw new Error('Voice is not configured. Open Voice settings to enter an API key, then start again.');
       this.status('starting', 'Allow microphone access to start voice…');
       const microphone = await this.mediaDevices.getUserMedia({audio: true});
       if (!this.owns(run) || run.ending) {microphone.getTracks().forEach(track => track.stop()); return;}
