@@ -6,9 +6,10 @@ let viewer,guide;
 const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
 
 globalThis.unfoldCapture={
+ capture(){return viewer.capture();},
  async load(value){
   assertGuide(value);guide=value;
-  viewer?.dispose();viewer=createGeneratedViewer(container);viewer.load(guide);
+  viewer?.dispose();viewer=createGeneratedViewer(container,()=>{},{pixelRatio:1});viewer.load(guide);
   await nextFrame();await nextFrame();
  },
  async frame(stage){

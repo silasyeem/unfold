@@ -8,6 +8,17 @@
     "run_worker_first": true,
     "not_found_handling": "none"
   },
-  "dev": {"ip": "127.0.0.1", "port": 4191},
-  "observability": {"enabled": false}
+  "dev": {
+    "ip": "127.0.0.1",
+    "port": 4191
+  },
+  "observability": {
+    "enabled": false
+  },
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "unfold-manuals-local"
+    }
+  ]
 }

@@ -183,3 +183,9 @@ The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `se
 - LinkeDOM parses manufacturer pages and supports DOM tests, ISC.
 - [IKEA STRANDMON manual AA-2019535-7](https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf). Manual and diagrams © Inter IKEA Systems B.V.; Unfold is not affiliated with IKEA.
 - [IKEA KNARREVIK manual AA-2547698-1](https://www.ikea.com/kr/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf). The demo loads this original manual alongside its approximate generated guide.
+
+## Live engine on Sites
+
+The hosted workspace now performs real PDF/photo conversion. Sites runs extraction, generation, source reconciliation and visual review; the visitor’s WebGL browser renders the same overview, assembly and connection views used by the local Chromium checker. Keep the tab open during conversion. Missing renders, mismatches, cancellation and disconnects fail visibly instead of producing an unchecked success. Uploaded manuals and render images remain in the conversion session; they are not stored by the app.
+
+The hosted manual library uses R2 with conditional writes for its JSON index and cached PDFs. KNARREVIK’s verified manual is available immediately. Hosted manufacturer downloads are restricted to IKEA domains; upload PDFs from other manufacturers directly. The existing local library and Chromium pipeline remain supported. Voice and scanner routes are preserved. Run `npm run build` for the complete Sites Worker; the legacy scanner-only staging script does not publish the live engine.

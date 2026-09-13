@@ -34,7 +34,7 @@ for (const entry of await readdir(dist, {withFileTypes: true})) {
   if (entry.isDirectory()) await checkPublicTree(join(dist, entry.name));
   await cp(join(dist, entry.name), join(dist, 'client', entry.name), {recursive: true, dereference: false});
 }
-await build({entryPoints: [join(root, 'server/site.mjs')], outfile: join(dist, 'server/index.js'), bundle: true, format: 'esm', platform: 'browser', target: 'es2022', sourcemap: false});
+await build({entryPoints: [join(root, 'server/site.mjs')], outfile: join(dist, 'server/index.js'), bundle: true, format: 'esm', platform: 'browser', target: 'es2022', sourcemap: false, plugins:[{name:'worker-adapters',setup(build){build.onResolve({filter:/\/render\.mjs$/},()=>({path:join(root,'engine/render-hosted.mjs')}));build.onResolve({filter:/\/library-store\.mjs$/},()=>({path:join(root,'server/library-worker-store.mjs')}));}}]});
 await writeFile(join(dist, '.openai/hosting.json'), JSON.stringify(config, null, 2) + '\n');
 await writeFile(join(dist, 'client/_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: same-origin\n  Permissions-Policy: microphone=(self)\n');
 console.log('Built Sites Worker and public assets. Authored dist files preserved.');

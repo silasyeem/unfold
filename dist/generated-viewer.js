@@ -1,9 +1,9 @@
 import * as T from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {compileGuide,evaluateGuide,orientations,smooth} from './guide-state.js';
-export function createGeneratedViewer(container,onView=()=>{}){
+export function createGeneratedViewer(container,onView=()=>{},{pixelRatio=Math.min(devicePixelRatio,2)}={}){
  const scene=new T.Scene();scene.background=new T.Color('#f6f7f9');
- const renderer=new T.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.outputColorSpace=T.SRGBColorSpace;container.prepend(renderer.domElement);
+ const renderer=new T.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(pixelRatio);renderer.shadowMap.enabled=true;renderer.outputColorSpace=T.SRGBColorSpace;container.prepend(renderer.domElement);
  const camera=new T.PerspectiveCamera(38,1,.01,100);camera.position.set(3,2,3);
  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=.15;controls.maxDistance=20;controls.target.set(0,.6,0);
  scene.add(new T.HemisphereLight(0xffffff,0xb4bdce,2.5));const sun=new T.DirectionalLight(0xffffff,3.1);sun.position.set(4,7,5);scene.add(sun);
@@ -94,6 +94,7 @@ export function createGeneratedViewer(container,onView=()=>{}){
   wholeBuild(){mode='whole';exploded=false;dirty=true;onView('Whole build');},
   setExploded(v){exploded=v;mode='whole';dirty=true;onView(v?'Exploded parts':'Whole build');},
   selectPart(id){selected=id;dirty=true;},
+  capture(){if(dirty)drawState();controls.update();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/jpeg',.9);},
   getView(){return{mode,index,progress,exploded};},
   dispose(){disposed=true;cancelAnimationFrame(frame);observer.disconnect();controls.dispose();disposeParts();floor.geometry.dispose();floor.material.dispose();grid.geometry.dispose();[].concat(grid.material).forEach(m=>m.dispose());renderer.dispose();renderer.domElement.remove();}
  };
