@@ -12,7 +12,7 @@ A quick STRANDMON assembly MVP: interactive 3D, sixteen animated steps, playback
 
 ## Scope and limitations
 
-The 3D model is procedural and simplified. The prepared guide follows IKEA STRANDMON manual AA-2019535-7, pages 5–20. It retains an upright inspection pose; follow the source diagrams for how to support and turn the actual chair. Hardware placement is illustrative, not CAD-verified.
+The 3D model is procedural and simplified. The prepared guide follows IKEA STRANDMON manual AA-2019535-7, pages 5–20. The build turns onto its back or either side to follow the handling sequence. Step-specific camera shots zoom into joints and return to wider views. Step 3 separates washer placement, nut threading, and socket-tool tightening in a ten-second sequence. Hardware placement remains illustrative, not CAD-verified.
 
 PDF files stay in browser memory. The upload flow recognises the 20-page STRANDMON AA-2019535-7 document from its text and links it to this prepared animation. Other PDFs can be previewed without claiming an automatic conversion. No model API, secret, account database, or server upload is used.
 
@@ -33,6 +33,6 @@ Serve `dist` with a local HTTP server, for example `python3 -m http.server 4173 
 - Navigation, playback, scrubbing, PDF intake states, and manual relinking checked with a mocked DOM.
 - Three.js geometry constructed with the real math/geometry library; finite geometry/transforms checked for all seventeen guide states at three progress points.
 - Local asset references and JavaScript syntax checked.
-- Automated browser visual/GPU rendering verification could not run because browser access failed its administrator policy check. WebMCP validation is unit-level only, not browser integration validation.
+- Visual/GPU rendering and interaction checks performed using the user-requested Aside CLI: step-3 nut and socket close-ups, side-build orientation, original-page linking, and camera controls. WebMCP validation remains unit-level, not browser integration validation.
 
 The static Site is published with owner-only access by default.

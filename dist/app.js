@@ -3,7 +3,7 @@ import {steps} from './steps.js';
 const $=s=>document.querySelector(s);
 let viewer;try{viewer=createViewer($('#scene'));}catch(e){$('#scene-error').hidden=false;console.error(e);}
 let step=0,progress=0,playing=false,speed=1,exploded=false,last=performance.now(),manualPage=1,linked=true,pdfDoc=null,pdfIsExample=true,pdfFilename='',renderSerial=0,uploadSerial=0,toastTimer;
-const duration=5.2;
+const durationFor=s=>s===3?10:6.5;
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,4500);}
 function updatePlay(){$('#play-icon').textContent=playing?'Ⅱ':'▶';$('#play').setAttribute('aria-label',playing?'Pause assembly':'Play assembly');}
 function setExploded(value){exploded=value;$('#explode').setAttribute('aria-pressed',value);viewer?.setExploded(value);}
@@ -16,8 +16,8 @@ function setStep(value,{play=false,position=0}={}){
  $('#instruction-body').textContent=s.body;$('#page-pill').textContent='Manual · p. '+s.page;
  $('#parts').replaceChildren(...s.parts.map(p=>{const el=document.createElement('span');el.textContent=p;return el;}));
  $('#previous').disabled=step===0;$('#next').textContent=step===0?'Start assembly →':step===16?'Back to overview ↺':'Next step →';
- $('#timeline').disabled=step===0;$('#time-label').textContent=step?'Step '+step+' of 16':'Overview';$('#duration-label').textContent=step?'5.2 sec':'Step by step';
- $('#view-caption').textContent=step?'Upright model · Follow manual for handling':'Drag to rotate · Scroll to zoom';
+ $('#timeline').disabled=step===0;$('#time-label').textContent=step?'Step '+step+' of 16':'Overview';$('#duration-label').textContent=step?durationFor(step)+' sec':'Step by step';
+ if(step===0){$('#view-caption').textContent='Drag to rotate · Scroll to zoom';$('#shot-label').textContent='Whole chair';}
  document.querySelectorAll('.step-item').forEach(el=>{const n=Number(el.dataset.step);el.classList.toggle('active',n===step);el.classList.toggle('done',n>0&&n<step);el.setAttribute('aria-current',n===step?'step':'false');});
  const active=$('.step-item.active');if(active){const list=$('#step-list');if(matchMedia('(max-width:560px)').matches)list.scrollLeft=active.offsetLeft-list.clientWidth/2;else list.scrollTop=Math.max(0,active.offsetTop-list.offsetTop-list.clientHeight/2);}
  if(pdfIsExample){linked=true;return showManual(s.page);}
@@ -29,8 +29,9 @@ $('#play').onclick=()=>{if(step===0){setStep(1,{play:true});return;}if(!playing&
 $('#timeline').oninput=e=>{playing=false;progress=Number(e.target.value)/1000;viewer?.setState(step,progress);updatePlay();};
 $('#speed').onclick=()=>{const speeds=[.5,1,1.5,2];speed=speeds[(speeds.indexOf(speed)+1)%speeds.length];$('#speed').textContent=speed+'×';$('#speed').setAttribute('aria-label','Playback speed: '+speed+' times');};
 $('#explode').onclick=()=>{playing=false;updatePlay();setExploded(!exploded);};$('#reset-view').onclick=()=>viewer?.reset();
-$('#underside').onclick=()=>viewer?.underside();
-function tick(now){const delta=Math.min((now-last)/1000,.1);last=now;if(playing){progress=Math.min(1,progress+delta*speed/duration);viewer?.setState(step,progress);if(progress>=1){playing=false;updatePlay();if(step===16)toast('All 16 steps complete. Enjoy your STRANDMON.');}}$('#timeline').value=Math.round(progress*1000);requestAnimationFrame(tick);}requestAnimationFrame(tick);
+$('#underside').onclick=()=>viewer?.underside();$('#whole-build').onclick=()=>viewer?.wholeBuild();$('#guided-view').onclick=()=>{setExploded(false);viewer?.guide();};
+$('#scene').addEventListener('viewchange',e=>{$('#shot-label').textContent=e.detail.label;$('#view-caption').textContent=e.detail.note;$('#guided-view').setAttribute('aria-pressed',e.detail.mode==='guided');});
+function tick(now){const delta=Math.min((now-last)/1000,.1);last=now;if(playing){progress=Math.min(1,progress+delta*speed/durationFor(step));viewer?.setState(step,progress);if(progress>=1){playing=false;updatePlay();if(step===16)toast('All 16 steps complete. Enjoy your STRANDMON.');}}$('#timeline').value=Math.round(progress*1000);$('#detail-sequence').hidden=step!==3;if(step===3){const phase=progress<.38?0:progress<.69?1:2;document.querySelectorAll('#detail-sequence span').forEach((el,i)=>el.classList.toggle('current',i===phase));}requestAnimationFrame(tick);}requestAnimationFrame(tick);
 document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||['INPUT','SELECT','TEXTAREA','BUTTON','A'].includes(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();$('#play').click();}if(e.code==='ArrowRight'){e.preventDefault();$('#next').click();}if(e.code==='ArrowLeft'){e.preventDefault();$('#previous').click();}});
 async function showManual(page){
  const count=pdfDoc?pdfDoc.numPages:20;manualPage=Math.max(1,Math.min(count,page));const serial=++renderSerial;
