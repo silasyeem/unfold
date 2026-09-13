@@ -1,5 +1,15 @@
 # GPT-Live voice copilot
 
+## Hosted backend follow-up (2026-09-13)
+
+The user now requests “adapt the voice backend first, then push”. This supersedes the local-only architecture and no-commit/no-push clauses below for this follow-up. Do not deploy or merge. Preserve the existing project ID and GitHub feature branch. The Sites-owning root implements this hosting adaptation, per Sites lifecycle ownership, overriding the earlier worker assignment for this follow-up.
+
+Add a Cloudflare Workers-compatible Sites backend for the existing readiness/session endpoints and retain the loopback Node server. Share the verified prompts/session configuration across runtimes. Hosted requests must supply their own key; never use a hosted OPENAI_API_KEY fallback. Keys stay scoped to one request, never persisted/logged or passed into model context. Require same-origin requests, HTTPS in production (loopback HTTP for development), JSON and bounded streamed bodies, bounded upstream timeout and cancellation, no redirects/retries, sanitized errors/responses. Per-key isolate-local throttling must have bounded memory, be documented as best effort rather than a distributed spending cap, and must not store raw keys. Serve existing public assets without exposing server sources or generated metadata. No live model calls.
+
+Add a reproducible build producing dist/server/index.js, dist/client assets and dist/.openai/hosting.json; remove the static-only manifest setting while preserving project_id. Do not delete or overwrite authored dist source during builds: keep generated folders ignored and move previous outputs to ignored backups. Include Workers local-preview configuration. Update voice wording for both hosting and localhost and add deployment instructions explaining that the owner must publish the built Worker and assets together; merging or static upload alone is insufficient. No source manual/geometry edits.
+
+Acceptance: npm test (existing and hosted boundary/asset/security tests); npm run build; run the built Worker in the real local Workers runtime, verify readiness, page/assets, no-key and wrong-origin denial without OpenAI calls. Inspect generated output for source/secret leakage. Review diff, commit on feature/gpt-live-copilot, push without force, and verify remote SHA. Actual Sites publication and paid voice remain unverified and must be reported honestly.
+
 Implement the user's request: GPT-Live-1 voice copilot understands approximate descriptions of parts/actions and changes the assembly step, manual page, or view to help. This SPEC governs this feature and supersedes BUILD_SPEC.md's no-server clause only for the optional voice runtime. Preserve the static app. No publishing, pushes, commits, file deletion, or changes to source manual text, assets, geometry or step instructions.
 
 ## Architecture and ownership

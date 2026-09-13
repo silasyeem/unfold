@@ -73,14 +73,46 @@ Requires Node 22.9 or newer. No package installation or build is needed:
 npm start
 ```
 
-Open the printed localhost URL (default `http://127.0.0.1:4173`), open **Talk to guide**, enter your OpenAI project key in the masked **OpenAI API key** field, then press **Start voice**. This is the easiest setup; no config file is required. The field clears immediately. The key is sent only in that attempt's creation request to the local server, which uses it to authenticate with OpenAI. It is never saved by the app to disk, cookies or browser storage, or included in model context, transcripts or logs. Re-enter it for every new start, including after failure or cancellation. A valid entered key takes precedence over a configured server key; an invalid entered key is rejected instead of silently using the server key. A static-only host still needs the local runtime.
+Open the printed localhost URL (default `http://127.0.0.1:4173`), open **Talk to guide**, enter your OpenAI project key in the masked **OpenAI API key** field, then press **Start voice**. This is the easiest setup; no config file is required. The field clears immediately. The key is sent only in that attempt's creation request to the local server, which uses it to authenticate with OpenAI. It is never saved by the app to disk, cookies or browser storage, or included in model context, transcripts or logs. Re-enter it for every new start, including after failure or cancellation. A valid entered key takes precedence over a configured server key; an invalid entered key is rejected instead of silently using the server key. A static-only host cannot run voice; publish the hosted Worker build described below, or use the local runtime.
 
 Optionally copy `.env.example` to `.env` and set `OPENAI_API_KEY` there for a persistent local server configuration, then leave the app field blank. This optional configuration is the only path that saves a key to a file, at your explicit choice. Voice is always `gpt-live-1`; `OPENAI_BACKEND_MODEL` optionally selects the Responses backend (default `gpt-5.6-terra`). `PORT` changes the local port. Never put a key in `dist/`, source code or a URL. `.env` is ignored and only the server reads it. The example file contains no key.
 
-This server binds only to `127.0.0.1`. It is for a trusted local user: do not expose it through a tunnel, public proxy or shared hosting. Host/origin checks, a 64 KiB body cap, one in-flight creation, four attempts per minute, a 20-second upstream timeout and no retries limit accidental session creation; these are not account authentication or a total spending cap. A static deployment explains that voice requires this local runtime.
+This server binds only to `127.0.0.1`. It is for a trusted local user: do not expose it through a tunnel, public proxy or shared hosting. Host/origin checks, a 64 KiB body cap, one in-flight creation, four attempts per minute, a 20-second upstream timeout and no retries limit accidental session creation; these are not account authentication or a total spending cap. This restriction applies to the local Node server. The separate hosted Worker below supports deployment.
 
 OpenAI bills voice duration and delegated backend work. WebRTC creation includes an initialization charge equivalent to 15 seconds, credited against running voice duration; creating then cancelling can still incur usage. See [GPT-Live WebRTC](https://developers.openai.com/api/docs/guides/voice-webrtc?api=live) and [voice cost documentation](https://developers.openai.com/api/docs/guides/voice-latency-cost?api=live). End voice when finished. Closing the page releases local media immediately, so final server usage confirmation may not arrive.
 
 Microphone audio, spoken conversation, the prepared STRANDMON catalog, and app state (step, page number, compatibility, view and playback) go to OpenAI. Uploaded PDF bytes, extracted text, images and filenames are never sent by the copilot. Transcripts are bounded, rendered as text, kept only in browser memory and cleared at the next start. The local server does not log speech or upstream response bodies. There is no camera input. An unrelated PDF remains in preview mode and blocks guide/view/playback actions until the user restores the example using the app. Manual page browsing still works. Human changes made during delegated work invalidate pending navigation so the guide cannot silently undo them.
 
 Run offline checks with `npm test`; they use mocked OpenAI and microphone/WebRTC boundaries and do not require a key. Tests cover tool validation, stale/deduplicated navigation, delegation completion, lifecycle cleanup and the local HTTP boundary. Manual verification should include step 3, direct jumps to both side panels, manual relinking, collapsed voice controls and a narrow mobile viewport. A real microphone/model session requires a configured key and a user-started session and is not covered by these mocks.
+
+## Hosting the voice copilot
+
+The repository now includes a separate Sites / Cloudflare Workers backend in `server/hosted.mjs`. It serves the same `/api/voice/readiness` and `/api/voice/session` endpoints as the local server. The browser uses the site's own origin, so no endpoint URL or CORS configuration is needed. After the complete build is deployed over HTTPS, open **Talk to guide**, enter an OpenAI key with access to GPT-Live, and choose **Start voice**. Audio connects directly between the browser and OpenAI after the backend creates the session.
+
+Every hosted session requires a visitor-entered key. The hosted backend deliberately ignores `OPENAI_API_KEY`, even if someone configures it: there is no shared billing fallback. No hosted secret is needed. `OPENAI_BACKEND_MODEL` may optionally select the delegated Responses model; the default remains `gpt-5.6-terra`. Keys pass through the site's backend only to authenticate the one OpenAI request and are never saved by Unfold. Keep request-body/header logging disabled in any additional proxy or hosting instrumentation.
+
+From a checkout of the feature branch, install the locked development tools and build:
+
+```sh
+npm ci
+npm test
+npm run build
+```
+
+The build bundles the Worker as `dist/server/index.js`, copies public assets to `dist/client`, and writes `dist/.openai/hosting.json`. It preserves the authored files in `dist`; previous generated output moves to ignored `.sites-runtime/build-backups`. `.openai/hosting.json` retains the existing Site ID and no longer declares a static-only deployment. Runtime code uses Web APIs, with no Node HTTP server or filesystem requirements.
+
+The Site owner must publish the **Worker build and its assets together** through Sites using the existing project ID. Push the exact source to the Site's configured source repository, package the built output using the Sites hosting workflow, then save and deploy that version while preserving the current access policy. A GitHub merge does not itself publish Sites. Do not upload only `dist/index.html` or configure this version as a static site: that would omit the voice endpoints. Sites access is still required to publish; this adaptation does not change ownership or access.
+
+For Cloudflare Workers outside Sites, the checked-in `wrangler.jsonc` specifies the bundled Worker, `ASSETS` binding to `dist/client`, and Worker-first routing. Production deployment still requires the chosen account's authorization. To verify the hosted runtime locally without publishing:
+
+```sh
+npm run preview:hosted
+```
+
+Open `http://127.0.0.1:4191`. `npm start` remains the original local Node option, including optional `.env` key fallback, and requires no package installation. The hosted preview follows the visitor-key-only policy.
+
+With that preview running, `node scripts/verify-hosted.mjs` checks the built Worker, public-file integrity, served manual/vendor assets, readiness, missing-key rejection, and origin/private-path protections without contacting OpenAI.
+
+The hosted boundary requires matching request origins, HTTPS outside loopback development, JSON and a 64 KiB streamed body limit. It cancels timed-out/client-aborted creation requests, follows no provider redirects, performs no automatic retries, and returns fixed safe errors. Its limiter allows one creation in flight and four starts per minute per key per Worker isolate, keeping at most 512 expiring SHA-256 key digests in memory. This is best-effort throttling, not a distributed limit or spending cap; different isolates may each admit requests. OpenAI project billing limits remain relevant. Uploaded PDFs and filenames remain in the browser.
+
+Tests cover the hosted boundary, including refusal to use a configured server key, key separation, upstream request shape, origin checks, streamed body limits, cancellation, throttling, sanitized provider failures, and asset routing. Build/runtime checks do not establish actual model access or microphone quality. A paid GPT-Live session and the final production deployment must still be verified with an authorized account and key.

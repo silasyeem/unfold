@@ -3,3 +3,7 @@
 .env*
 !.env.example
 node_modules/
+dist/client/
+dist/server/
+dist/.openai/
+.wrangler/

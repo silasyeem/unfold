@@ -117,9 +117,9 @@ export class LiveSession {
       if (!this.owns(run) || run.ending) return;
       let config;
       try {config = await readiness.json();} catch {}
-      if (!readiness.ok || typeof config?.ready !== 'boolean') throw new Error('Voice needs the local Unfold server. Run npm start and open its localhost address.');
-      if (enteredKey && config.acceptsClientKey !== true) throw new Error('This server cannot accept an entered key. Run the updated local Unfold server with npm start.');
-      if (!config.ready && !enteredKey) throw new Error('Enter your OpenAI API key above, or set OPENAI_API_KEY on the local server, then start again.');
+      if (!readiness.ok || typeof config?.ready !== 'boolean') throw new Error('The voice backend is unavailable. The site owner must publish the complete app with its voice backend. For local use, run npm start.');
+      if (enteredKey && config.acceptsClientKey !== true) throw new Error('This voice backend cannot accept an entered key. Update the app and its backend together.');
+      if (!config.ready && !enteredKey) throw new Error('Enter your OpenAI API key above, then start again.');
       this.status('starting', 'Allow microphone access to start voice…');
       const microphone = await this.mediaDevices.getUserMedia({audio: true});
       if (!this.owns(run) || run.ending) {microphone.getTracks().forEach(track => track.stop()); return;}
@@ -152,7 +152,7 @@ export class LiveSession {
       requestBody = '';
       const response = await pendingCreation;
       if (!this.owns(run) || run.ending) return;
-      if (!response.ok) throw new Error(response.status === 401 ? 'OpenAI rejected the API key. Check the key and try again.' : response.status === 403 ? 'Voice access was denied. Check this key’s project and model access.' : response.status === 429 ? 'Voice is rate limited or has insufficient quota. Check API billing and wait before trying again.' : 'Voice connection failed. Check the key and local server configuration, then try again.');
+      if (!response.ok) throw new Error(response.status === 401 ? 'OpenAI rejected the API key. Check the key and try again.' : response.status === 403 ? 'Voice access was denied. Check this key’s project and model access.' : response.status === 429 ? 'Voice is rate limited or has insufficient quota. Check API billing and wait before trying again.' : 'Voice connection failed. Check the key and voice backend configuration, then try again.');
       const result = await response.json();
       if (!this.owns(run) || run.ending) return;
       if (typeof result.session?.id !== 'string' || typeof result.transport?.sdp !== 'string') throw new Error('The voice server returned an invalid connection. Try again.');

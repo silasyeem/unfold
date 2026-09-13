@@ -48,7 +48,9 @@ test('API boundaries reject wrong origins/hosts, malformed inputs, body limits a
   assert.equal((await s.post({sdp: 'x'.repeat(101)})).status, 413);
   assert.equal((await s.post({}, {'Content-Type': 'text/plain'})).status, 415);
   assert.equal((await fetch(s.url + '/api/voice/session', {method: 'POST', headers: {Origin: s.url, 'Content-Type': 'application/json'}, body: '{bad'})).status, 400);
-  assert.equal((await fetch(s.url + '/server.mjs')).status, 404); assert.equal(calls, 0);
+  assert.equal((await fetch(s.url + '/server.mjs')).status, 404);
+  assert.equal((await fetch(s.url + '/server/index.js')).status, 404);
+  assert.equal((await fetch(s.url + '/client/index.html')).status, 404); assert.equal(calls, 0);
 });
 test('static serving rejects traversal, dotfiles and symlink escapes without exposing source secrets', async t => {
   // Preserve temporary fixtures; this repository's global rules prohibit deletion.

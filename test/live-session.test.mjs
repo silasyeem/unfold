@@ -161,7 +161,7 @@ test('entered keys cannot bypass static/old-server readiness; blank key retains 
     const f = fixture({fetchImpl: async () => readiness});
     await f.session.start({apiKey: 'client-test-key'});
     assert.equal(f.session.state, 'error'); assert.equal(f.micRequests(), 0);
-    assert.match(f.status.at(-1).message, /local Unfold server/);
+    assert.match(f.status.at(-1).message, /voice backend (is unavailable|cannot accept an entered key)/);
     assert.match(f.status.at(-1).message, /Re-enter your API key/);
   }
   const f = fixture(); await f.session.start({apiKey: '   '});
