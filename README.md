@@ -37,6 +37,14 @@ The local library lives in ignored `data/library/`: an atomically written JSON i
 
 The UI supports play/pause, scrubbing, speed, step navigation, free orbit/zoom, guided joint views, whole-build framing, exploded parts, PDF enlargement, and source-page relinking. **Review this step** edits its title, instruction, source page, and working orientation. **Download guide** preserves the guide, provenance, extraction evidence, and your checked-step markers. Reopening a guide requires a matching PDF fingerprint before source diagrams are linked.
 
+## Experimental screw STL generator
+
+Open **Screw lab** from the home page or workspace header, or visit `/screws.html`. The generator runs entirely in the browser and needs no API key. Start with metric M3–M12 coarse-pitch presets, then enter measured diameter, pitch and length; select an external hex, hex socket or thumb-grip head. Head dimensions, hex key size, thread direction and diameter reduction are editable. Diameter reduction applies to the thread only, preserving pitch and length. Presets are examples, not inferred replacements for the selected kit; the KNARREVIK entry carries the manual part codes but deliberately supplies no claimed matching dimensions.
+
+The preview and binary STL share one indexed boundary mesh with actual helical threads, a joined head, thread runout and a blunt lead-in. The socket head includes a recessed hex drive. Geometry uses millimetres with the head on the XY print bed; import at 100% scale. The truncated 60° profile is metric-inspired, not an ISO tolerance-class CAD model: crest flat P/8, root flat P/4, radial depth 5√3P/16. There are 96 angular segments and 24 axial samples per pitch. Supported custom bounds are 3–16 mm diameter, 0.5–3 mm pitch and 4–60 mm length. Export is disabled for invalid or pending dimensions, and remains available when WebGL cannot initialize.
+
+This is a prototype/fit-test tool, not a reconstruction of proprietary, wood or self-tapping hardware. There is no tested strength, torque or fit rating. Printed threads are more plausible around M6 and larger; a furniture joint or other load-bearing connection should use the correct metal spare. See [Formlabs’ printed-thread guidance](https://formlabs.com/blog/adding-screw-threads-3d-printed-parts/) and [Bossard’s metric thread reference](https://www.bossard.com/-/media/bossard-group/website/documents/technical-resources/en/f-079-en.pdf). No physical print has been validated.
+
 ## Accuracy and scope
 
 Generated geometry and connections are approximate. Structural validation cannot establish that a model read a diagram correctly. Keep the original manual authoritative and review every generated step before using it for assembly. Checking a step records a user's review; it does not certify dimensions, fastening strength, or CAD accuracy. Editing primitive geometry and action paths currently requires editing the guide JSON.
