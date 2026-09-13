@@ -32,7 +32,7 @@ test('hosted voice uses the server key by default and isolates optional override
   for (const [i, [url, options]] of captures.entries()) {
     assert.equal(url, 'https://api.openai.com/v1/live/sessions');
     assert.equal(options.headers.Authorization, 'Bearer ' + ['key-one', 'key-two', 'server-secret'][i]);
-    assert.equal(options.redirect, 'error');
+    assert.equal(options.redirect, 'manual');
     assert.deepEqual(JSON.parse(options.body), sessionRequest('offer', 'configured-model'));
     assert.doesNotMatch(options.body, /key-one|key-two|server-secret/);
   }

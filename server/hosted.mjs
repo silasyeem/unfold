@@ -101,7 +101,7 @@ export function createHostedHandler({fetchImpl = (...args) => fetch(...args), no
       if (!release) return json(429, {error: 'Please wait before starting another voice session.'});
       if (abort.signal.aborted) return json(408, {error: 'Request timed out or cancelled.'});
       const pending = fetchImpl('https://api.openai.com/v1/live/sessions', {
-        method: 'POST', redirect: 'error', signal: abort.signal,
+        method: 'POST', redirect: 'manual', signal: abort.signal,
         headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + key},
         body: JSON.stringify(sessionRequest(input.sdp, env.OPENAI_BACKEND_MODEL || 'gpt-5.6-terra')),
       });
