@@ -1,6 +1,6 @@
 # Unfold
 
-Turn an assembly PDF into a reviewable 3D draft: named parts, animated assembly steps, working orientations, guided cameras, and the original diagram beside each step. The prepared 16-step STRANDMON demo remains at `/`; the conversion workspace is `/engine.html`.
+Find a manual online or upload a PDF or photos to create a reviewable 3D draft: named parts, animated assembly steps, working orientations, guided cameras, and the original diagram beside each step. The prepared 16-step STRANDMON demo remains at `/`; the conversion workspace is `/engine.html`.
 
 ## Run locally
 
@@ -15,17 +15,17 @@ npm run dev
 
 Open [the conversion workspace](http://127.0.0.1:4173/engine.html). Each developer supplies their own server credential. `.env.local` is ignored; never put credentials in browser code, a guide file, or a commit. `OPENAI_MODEL` defaults to `gpt-5.4`; `UNFOLD_PORT` defaults to `4173`.
 
-Upload an unlocked assembly PDF, then select **Generate 3D guide**. Conversion supports up to **8 MB, 40 pages, and 32 assembly steps**. It can take several minutes. Progress and cancellation remain available while the manual is processed.
+Start with **Search for your manual online** or **Upload your manual**. An upload accepts one unlocked PDF or multiple JPEG/PNG pages. Check the source preview, then select **Create animated guide**. Conversion supports up to **8 MB, 40 pages, and 32 assembly steps**. It can take several minutes. Progress and cancellation remain available while the manual is processed.
 
-To explore without an API call, open `examples/mini-table.unfold.json` using **Open guide**, then upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
+To explore without an API call, open `examples/mini-table.unfold.json` using **Open a saved guide** in the **•••** menu, then choose **Change manual → Upload your manual** and upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
 
 ## Photos and saved manuals
 
-**Add photos** accepts JPEG or PNG pages, including a phone camera input. Reorder, rotate, or remove pages before preparing them. The browser reduces images to 2,000 pixels on the longest edge; the server independently checks image headers and dimensions, then creates a PDF for the same extraction engine and source viewer. Download the prepared pages PDF to keep it with an exported guide. Up to 20 photos are supported, with a 12 MB per-file input limit and an 8 MB resulting manual limit. HEIC needs to be saved as JPEG first. Perspective correction and deblurring are not implemented.
+**Upload your manual** accepts JPEG or PNG pages and opens a photo editor with an additional phone camera input. Reorder, rotate, or remove pages before preparing them. The browser reduces images to 2,000 pixels on the longest edge; the server independently checks image headers and dimensions, then creates a PDF for the same extraction engine and source viewer. Use **••• → Download manual PDF** to keep the prepared pages with an exported guide. Up to 20 photos are supported, with a 12 MB per-file input limit and an 8 MB resulting manual limit. HEIC needs to be saved as JPEG first. Perspective correction and deblurring are not implemented.
 
-**Find a manual** searches the saved library without a model request. When there is no match, **Search the web** explicitly searches for manufacturer instructions and saves grounded source metadata. Normalized repeated searches, including previous misses, reuse cached results. PDFs are downloaded and cached on first **Load manual**; later loads reuse the saved bytes. Manufacturer pages without a verified PDF remain source links. Product variants still need checking before conversion.
+**Search for your manual online** accepts a product name or link and searches the saved library without a model request. When there is no match, **Search the web** explicitly searches for manufacturer instructions and saves grounded source metadata. Normalized repeated searches, including previous misses, reuse cached results. Results show the product name, photo when available, **Download manual**, and **Use this manual**. The first download or use caches the PDF; later loads reuse the saved bytes. Downloading a manual does not start conversion. Manufacturer pages are inspected for their real product name, photo, and labeled assembly PDF; those details are cached too. For IKEA PDFs with a known article number, the official article lookup supplies the matching product page and photo without changing the selected manual revision. Pages without a verified PDF remain source links. Product variants still need checking before conversion.
 
-The local library lives in ignored `data/library/`: an atomically written JSON index plus cached PDFs. It survives server restarts. Downloads accept saved public HTTPS sources only, pin validated DNS, check redirects, and enforce PDF size/page limits. The local adapter serializes updates within one Node process; use a shared durable database/object store for multiple server processes. No live product search was run while implementing this feature; provider search and persistence behavior were tested with controlled responses.
+The local library lives in ignored `data/library/`: an atomically written JSON index plus cached PDFs. It survives server restarts. Downloads accept saved public HTTPS sources only, pin validated DNS, check redirects, and enforce PDF size/page limits. The local adapter serializes updates within one Node process; use a shared durable database/object store for multiple server processes. Provider search behavior is tested with controlled responses. Real IKEA LACK product pages and PDF downloads were also verified using the user’s saved search results, without another model search.
 
 ## What the engine does
 
@@ -61,6 +61,7 @@ The app is plain HTML/CSS/JavaScript. `dist/` contains editable frontend source 
 | `dist/photo-intake.js`, `server/photos.mjs` | Ordered photo pages, image bounds and PDF preparation. |
 | `dist/manual-library.js`, `server/library.mjs` | Library-first lookup, explicit web search and cached PDF loading. |
 | `server/library-store.mjs` | Atomic local persistence and restricted public-source downloading. |
+| `server/library-enrich.mjs` | Manufacturer product names, photos, and verified assembly links. |
 | `server/api.mjs` | Conversion endpoint, upload limits, cancellation and concurrency. |
 | `server/local.mjs` | Local API and allowlisted static file server. |
 | `server/worker.mjs` | Worker fetch entry for future server-backed hosting. |
@@ -88,7 +89,7 @@ The supplied page count is verified against the PDF. The CLI logs progress, outp
 
 ## Validation
 
-- Twenty-nine automated tests cover malformed guides, attached parts, deterministic seeking, tool removal/reinsertion, handling orientation, camera floor limits, real PDF page limits, evidence preservation, credential exclusion, concurrent uploads, cancellation, playback, PDF replacement, photo ordering/rotation, image bounds, query/PDF caching, persistence, and restricted source downloads.
+- Automated tests cover malformed guides, attached parts, deterministic seeking, tool removal/reinsertion, handling orientation, camera floor limits, real PDF page limits, evidence preservation, credential exclusion, concurrent uploads, cancellation, playback, PDF replacement, photo ordering/rotation, image bounds, query/PDF caching, persistence, and restricted source downloads.
 - Live API conversions exercised a three-page table manual and the twenty-page STRANDMON manual. The table produces five parts and two steps from both its original PDF and an image-only PDF prepared from three JPEG pages. The revised STRANDMON pipeline retained sixteen ordered steps on pages 5–20; its semantics still require review.
 - Browser walkthrough uses Aside CLI with the actual WebGL viewer and PDF renderer. It caught duplicated whole-build rotation and a camera below the floor; those cases now have regression coverage. See `VALIDATION.md` for the completed walkthrough.
 
@@ -104,5 +105,5 @@ The existing `.openai/hosting.json` refers to a static Sites deployment. Static 
 - [pdf-lib PDFDocument](https://pdf-lib.js.org/docs/api/classes/pdfdocument), MIT.
 - [Three.js OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), vendored Three.js 0.180.0, MIT.
 - [PDF.js examples](https://mozilla.github.io/pdf.js/examples/), vendored PDF.js 5.4.149, Apache-2.0.
-- LinkeDOM is a development-only DOM test dependency, ISC.
+- LinkeDOM parses manufacturer pages and supports DOM tests, ISC.
 - [IKEA STRANDMON manual AA-2019535-7](https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf). Manual and diagrams © Inter IKEA Systems B.V.; Unfold is not affiliated with IKEA.

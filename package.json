@@ -13,9 +13,7 @@
     "convert": "node --env-file-if-exists=.env.local scripts/convert.mjs"
   },
   "dependencies": {
-    "pdf-lib": "^1.17.1"
-  },
-  "devDependencies": {
+    "pdf-lib": "^1.17.1",
     "linkedom": "^0.18.12"
   }
 }

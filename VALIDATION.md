@@ -4,9 +4,9 @@ Checked on 2026-09-13 against the local Node server using Aside CLI, its actual 
 
 ## Automated checks
 
-`npm test`: **29 passing tests**. Coverage includes the PDF evidence/generation pipeline, structural validation, parent-child movement, deterministic seeking, removed tools, duplicated build rotation, camera floor limits, stream cancellation, concurrency, image format/dimension/decompression limits, EXIF/quarter-turn transforms, photo page order, saved query/PDF reuse after restart, grounded source filtering, public-source DNS/redirect restrictions, and the intake/library/player UI callbacks.
+`npm test`: **44 passing tests**. Coverage includes the PDF evidence/generation pipeline, structural validation, parent-child movement, deterministic seeking, removed tools, duplicated build rotation, camera floor limits, stream cancellation, concurrency, image format/dimension/decompression limits, EXIF/quarter-turn transforms, photo page order, saved query/PDF reuse after restart, grounded source filtering, public-source DNS/redirect restrictions, and the intake/library/player UI callbacks.
 
-The library's paid provider search is tested with controlled Responses API results, including citations and rejected sources. No live product web search was run. The implementation's ability to find a particular real product has not been established by those tests.
+Paid provider search is tested with controlled Responses API results, including citations and rejected sources. The follow-up below reuses the user’s live IKEA LACK search results to verify real manufacturer-page enrichment without another model search.
 
 ## Browser walkthrough
 
@@ -30,7 +30,7 @@ The original browser automation connection could not complete its policy check. 
 - The first generated table applied a whole-build flip again as a root-part action. The generation prompt and correction checks now separate handling orientation from local part movement.
 - A generated camera direction ended below the support plane after a flip. Guided cameras now stay above it.
 - Step view cleared exploded geometry without clearing the UI toggle. Both now agree.
-- Laptop playback could fall below the viewport; the workspace now keeps playback visible and scrolls long instructions.
+- Short browser panels clipped controls. The workspace now preserves usable scene height and allows the page to scroll to playback; long desktop instructions scroll inside their panel.
 - PDF replacement and loading hide previous source images and stale guide labels.
 
 ## Accuracy limits
@@ -48,3 +48,19 @@ This work is verified locally. The existing Sites connection could not find the 
 ![Guide generated from JPEG pages](docs/validation/photo-guide.png)
 
 ![Library search at phone width](docs/validation/library-phone.png)
+
+## Streamlined intake follow-up
+
+The opening now presents Search for your manual online and Upload your manual. Playback and review controls appear only after a guide exists. A selected PDF or prepared photo manual opens a preview with Create animated guide. Change manual returns to the two choices; Back to guide preserves the current step and progress. Saved guide and PDF downloads live in the secondary menu.
+
+Aside verified that the shared upload input routes three JPEG pages into the ordering/rotation editor, prepares a three-page PDF, and opens its source preview. Download manual PDF produced a real browser download. Opening a saved guide, relinking its original PDF, step playback and source-page linking still work. Automated checks cover mixed-file rejection, explicit conversion, failure recovery, and preserving the current guide during source selection.
+
+Guide layouts at 1440×900, 900×600, 680×600, and 390×844 had no horizontal document overflow. Header actions stayed inside the header and playback remained below the scene. Scene heights were 430, 314, 362, and 369 px respectively; short viewports scroll. The initial choices also stack cleanly at 390 px.
+
+## Product result follow-up
+
+The user’s existing IKEA LACK search results were enriched from actual manufacturer pages, without another paid model search. Four product pages supplied exact names, photos, and assembly PDFs separately from care documents. An IKEA article-number lookup also resolved product pages for PDF-only records, including the reported side table 305.147.91, while preserving its selected PDF revision. Seven of eight saved LACK results now have official photos; the remaining PDF has no article number or verified product-page evidence.
+
+Aside confirmed the product photos loaded, including the exact LACK side table 305.147.91, and Download manual produced real browser downloads for the side table and wall shelf unit, and Use this manual opened the 12-page LACK wall shelf PDF preview with its product name and Create animated guide. The download path does not start conversion. The result dialog fit a 390 px viewport with no horizontal overflow. Automated checks cover exact article matching, failed lookups, caching across restarts, retained PDF revisions, and safe HTML/image/PDF source handling.
+
+![LACK side table with product photo and download](docs/validation/lack-table.png)

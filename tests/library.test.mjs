@@ -18,7 +18,7 @@ function providerResponse(manuals=[candidate],sources=manuals.flatMap(item=>[ite
 const get=query=>new Request(`http://127.0.0.1:4173/api/library?q=${encodeURIComponent(query)}`);
 const search=query=>new Request('http://127.0.0.1:4173/api/library/web-search',{method:'POST',headers:{'Content-Type':'application/json','X-Unfold-Library':'1'},body:JSON.stringify({query})});
 const load=id=>new Request(`http://127.0.0.1:4173/api/library/${id}/pdf`,{method:'POST',headers:{'X-Unfold-Library':'1'}});
-async function withStore(t){const directory=await mkdtemp(join(tmpdir(),'unfold-library-test-'));t.after(()=>rm(directory,{recursive:true,force:true}));return {directory,store:createLibraryStore(directory,{lookupImpl:publicLookup})};}
+async function withStore(t){const directory=await mkdtemp(join(tmpdir(),'unfold-library-test-'));t.after(()=>rm(directory,{recursive:true,force:true}));const store=createLibraryStore(directory,{lookupImpl:publicLookup});store.fetchHtml=async()=>{throw new Error('No HTML fixture');};return {directory,store};}
 async function pdf(pages=2){const document=await PDFDocument.create();for(let i=0;i<pages;i++)document.addPage([100,100]);return document.save();}
 
 test('saved library lookup never calls a provider; explicit searches persist and normalize repeated queries',async t=>{
@@ -124,14 +124,23 @@ test('manual dialog searches local library first and calls web search only after
 });
 
 
-test('manual result cites its source and passes downloaded PDF bytes to the existing intake',async()=>{
+test('manual result shows product metadata and downloads without starting conversion, then passes its PDF to intake',async()=>{
  const old={document:globalThis.document,fetch:globalThis.fetch};const {document,Event}=parseHTML('<html><body><div id="mount"></div></body></html>');globalThis.document=document;
- const bytes=await pdf(),record={...candidate,id:'a'.repeat(24),pdfCached:false},calls=[],received=[],busy=[];
+ const bytes=await pdf(),record={...candidate,id:'a'.repeat(24),pdfCached:false,imageUrl:'https://www.ikea.com/product.jpg'},calls=[],received=[],busy=[],downloads=[];
+ const create=document.createElement.bind(document);document.createElement=tag=>{const node=create(tag);if(tag==='a')node.click=()=>downloads.push({name:node.download,url:node.href});return node;};
  globalThis.fetch=async(url,options={})=>{calls.push({url,options});return url.endsWith('/pdf')?new Response(bytes,{headers:{'Content-Type':'application/pdf'}}):Response.json({records:[record],webSearched:true,webSearchAvailable:true});};
  let controller;
  try{
-  controller=mountManualLibrary(document.querySelector('#mount'),{onPdfReady:async file=>{received.push(file);},onBusy:value=>busy.push(value)});const dialog=document.querySelector('dialog');dialog.showModal=()=>dialog.setAttribute('open','');dialog.close=()=>{dialog.removeAttribute('open');dialog.dispatchEvent(new Event('close'));};
-  controller.open();await new Promise(resolve=>setTimeout(resolve,0));assert(document.querySelector('.library-source').textContent.includes(candidate.title));assert.equal(document.querySelector('.library-source').getAttribute('href'),source);
-  await document.querySelector('.library-card button').onclick();assert.equal(calls[1].options.method,'POST');assert.equal(received.length,1);assert.equal(received[0].name,'STRANDMON.pdf');assert.equal(received[0].type,'application/pdf');assert.deepEqual(new Uint8Array(await received[0].arrayBuffer()),bytes);assert.equal(dialog.hasAttribute('open'),false);assert.equal(busy.at(-1),false);
+  controller=mountManualLibrary(document.querySelector('#mount'),{onPdfReady:async(file,metadata)=>{received.push({file,metadata});},onBusy:value=>busy.push(value)});const dialog=document.querySelector('dialog');dialog.showModal=()=>dialog.setAttribute('open','');dialog.close=()=>{dialog.removeAttribute('open');dialog.dispatchEvent(new Event('close'));};
+  controller.open();await new Promise(resolve=>setTimeout(resolve,0));assert(document.querySelector('.library-source').getAttribute('aria-label').includes(candidate.title));assert.equal(document.querySelector('.library-source').getAttribute('href'),source);assert.equal(document.querySelector('.library-card h3').textContent,candidate.product);assert.equal(document.querySelector('.library-product-image').src,record.imageUrl);
+  await document.querySelector('.library-card button').onclick();assert.equal(calls[1].options.method,'POST');assert.equal(received.length,0);assert.equal(dialog.hasAttribute('open'),true);assert.equal(downloads[0].name,'STRANDMON.pdf');assert.deepEqual(new Uint8Array(await (await old.fetch(downloads[0].url)).arrayBuffer()),bytes);
+  await document.querySelector('.library-card .primary').onclick();assert.equal(received.length,1);assert.equal(received[0].file.name,'STRANDMON.pdf');assert.equal(received[0].file.type,'application/pdf');assert.equal(received[0].metadata.productName,candidate.product);assert.deepEqual(new Uint8Array(await received[0].file.arrayBuffer()),bytes);assert.equal(dialog.hasAttribute('open'),false);assert.equal(busy.at(-1),false);
  }finally{controller?.destroy();globalThis.document=old.document;globalThis.fetch=old.fetch;}
+});
+
+
+test('saved search matches product word prefixes without confusing LACK with black',async t=>{
+ const {store}=await withStore(t);
+ await store.update(data=>{data.records.push({...candidate,id:'a'.repeat(24),title:'LACK side table',product:'LACK side table white',modelNumber:'',discoveredAt:'2026-09-13'}, {...candidate,id:'b'.repeat(24),title:'KNARREVIK bedside table',product:'KNARREVIK bedside table black',modelNumber:'',discoveredAt:'2026-09-13'});});
+ for(const query of ['LACK table','lac tab']){const result=await (await handleLibrary(get(query),{libraryStore:store})).json();assert.equal(result.records.length,1);assert.equal(result.records[0].id,'a'.repeat(24));}
 });

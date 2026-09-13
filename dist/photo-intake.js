@@ -23,11 +23,11 @@ async function preparePhoto(file){
 }
 
 /** Photo pages use the same PDF conversion and source viewer as uploaded manuals. */
-export function mountPhotoIntake(container,{onPdfReady,onError=()=>{},onBusy=()=>{}}={}){
+export function mountPhotoIntake(container,{onPdfReady,onError=()=>{},onBusy=()=>{},showLauncher=true}={}){
  if(!container||typeof onPdfReady!=='function')throw new Error('Photo intake needs a container and onPdfReady callback.');
  const id=`photo-intake-${++instance}`;
  let pages=[],busy=false,externalDisabled=false,disposed=false,request=null,pdfUrl=null,pdfFile=null;
- const launcher=button('Add photos');launcher.classList.add('photo-launcher');launcher.setAttribute('aria-haspopup','dialog');
+ const launcher=button('Add photos');launcher.hidden=!showLauncher;launcher.classList.add('photo-launcher');launcher.setAttribute('aria-haspopup','dialog');
  const dialog=node('dialog','photo-dialog');dialog.id=id;launcher.setAttribute('aria-controls',id);
  const heading=node('div','photo-dialog-heading'),title=node('h2',null,'Photograph your manual'),close=button('×','icon-button');title.id=`${id}-title`;dialog.setAttribute('aria-labelledby',title.id);close.setAttribute('aria-label','Close photo pages');heading.append(title,close);
  const description=node('p','photo-help','Add one clear photo per manual page. Include the full diagram, then put the pages in reading order.');
@@ -99,6 +99,12 @@ export function mountPhotoIntake(container,{onPdfReady,onError=()=>{},onBusy=()=
  dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
  sync();
  return {
+  async open(files=[],{replace=false}={}){
+   if(busy||externalDisabled||disposed)return;
+   if(replace){for(const page of pages)URL.revokeObjectURL(page.url);pages=[];invalidatePdf();render();}
+   if(!dialog.open)dialog.showModal();
+   await addFiles([...files]);
+  },
   setDisabled(value){externalDisabled=!!value;sync();},
   destroy(){disposed=true;request?.abort();for(const page of pages)URL.revokeObjectURL(page.url);invalidatePdf();if(dialog.open)dialog.close();launcher.remove();dialog.remove();if(busy){busy=false;onBusy(false);}},
  };

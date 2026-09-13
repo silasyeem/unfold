@@ -45,10 +45,10 @@ export async function resolvePublicSource(value,{lookupImpl=lookup,signal}={}){
 
 // Connect to the checked address, retaining the original hostname for TLS. A second
 // DNS lookup during connection would permit a DNS-rebinding race.
-async function requestPublic(value,{lookupImpl,requestImpl,signal}){
+async function requestPublic(value,{lookupImpl,requestImpl,signal,accept='application/pdf'}){
  const {url,addresses}=await resolvePublicSource(value,{lookupImpl,signal});
  return new Promise((resolveResponse,reject)=>{
-  const req=requestImpl(url,{method:'GET',signal,agent:false,headers:{Accept:'application/pdf','Accept-Encoding':'identity','User-Agent':'Unfold-Manual-Library/1.0'},lookup(_hostname,options,callback){
+  const req=requestImpl(url,{method:'GET',signal,agent:false,headers:{Accept:accept,'Accept-Encoding':'identity','User-Agent':'Unfold-Manual-Library/1.0'},lookup(_hostname,options,callback){
    if(options?.all)callback(null,addresses);else callback(null,addresses[0].address,addresses[0].family);
   }},response=>resolveResponse({response,url}));
   req.on('error',()=>reject(new Error(signal?.aborted?'Source request timed out or was cancelled.':'The source could not be downloaded.')));
@@ -80,6 +80,31 @@ export async function downloadPublicPdf(value,{lookupImpl=lookup,requestImpl=htt
  throw new Error('The source could not be downloaded.');
 }
 
+
+export const LIBRARY_HTML_LIMIT=4*1024*1024;
+export async function downloadPublicHtml(value,{lookupImpl=lookup,requestImpl=httpsRequest,signal}={}){
+ const timeout=AbortSignal.timeout(15000),combined=signal?AbortSignal.any([signal,timeout]):timeout;
+ let current=canonicalSource(value);
+ for(let hop=0;hop<=4;hop++){
+  const {response,url}=await requestPublic(current,{lookupImpl,requestImpl,signal:combined,accept:'text/html,application/xhtml+xml'});
+  if([301,302,303,307,308].includes(response.statusCode)){
+   const location=response.headers.location;response.destroy();
+   if(!location||hop===4)throw new Error('The product page redirects too many times.');
+   current=canonicalSource(new URL(location,url).href);continue;
+  }
+  if(response.statusCode!==200){response.destroy();throw new Error('The manufacturer product page is unavailable.');}
+  const type=String(response.headers['content-type']||'').split(';')[0].trim().toLowerCase();
+  if(!['text/html','application/xhtml+xml'].includes(type)){response.destroy();throw new Error('The source is not a product web page.');}
+  if(response.headers['content-encoding']&&response.headers['content-encoding']!=='identity'){response.destroy();throw new Error('The product page uses an unsupported encoding.');}
+  if(Number(response.headers['content-length'])>LIBRARY_HTML_LIMIT){response.destroy();throw new Error('The product page is too large to inspect.');}
+  const chunks=[];let size=0;
+  try{for await(const chunk of response){size+=chunk.length;if(size>LIBRARY_HTML_LIMIT)throw new Error('The product page is too large to inspect.');chunks.push(chunk);}}
+  catch(error){response.destroy();throw new Error(error.message.includes('too large')?error.message:'The product page download was interrupted.');}
+  return {html:Buffer.concat(chunks,size).toString('utf8'),sourceUrl:current};
+ }
+ throw new Error('The product page could not be downloaded.');
+}
+
 function serialize(directory,operation){
  const previous=queues.get(directory)||Promise.resolve();
  const result=previous.catch(()=>{}).then(operation),tail=result.then(()=>{},()=>{});queues.set(directory,tail);
@@ -104,5 +129,6 @@ export function createLibraryStore(directory,{lookupImpl=lookup,requestImpl=http
   async putPdf(id,bytes){if(bytes.byteLength>LIBRARY_PDF_LIMIT)throw new Error('Manual exceeds the size limit.');await mkdir(pdfRoot,{recursive:true,mode:0o700});await atomicWrite(join(pdfRoot,validId(id)+'.pdf'),bytes);},
   async validateSource(url){return (await resolvePublicSource(url,{lookupImpl})).url.href;},
   fetchPdf(url,options={}){return downloadPublicPdf(url,{lookupImpl,requestImpl,...options});},
+  fetchHtml(url,options={}){return downloadPublicHtml(url,{lookupImpl,requestImpl,...options});},
  };
 }
