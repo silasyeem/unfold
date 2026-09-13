@@ -7,3 +7,6 @@ dist/client/
 dist/server/
 dist/.openai/
 .wrangler/
+
+.build/
+data/

@@ -1,15 +1,24 @@
 {
   "name": "unfold",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22.9"
   },
   "scripts": {
-    "start": "node --env-file-if-exists=.env server.mjs",
-    "test": "node --test",
+    "dev": "node --env-file-if-exists=.env --env-file-if-exists=.env.local server/local.mjs",
+    "start": "node --env-file-if-exists=.env --env-file-if-exists=.env.local server/local.mjs",
+    "test": "node --test test/*.test.mjs tests/*.test.mjs",
+    "convert": "node --env-file-if-exists=.env.local scripts/convert.mjs",
+    "render-browser": "playwright install chromium",
     "build": "node scripts/build.mjs",
     "preview:hosted": "npm run build && wrangler dev --local"
+  },
+  "dependencies": {
+    "linkedom": "^0.18.12",
+    "pdf-lib": "^1.17.1",
+    "playwright": "1.62.1"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
