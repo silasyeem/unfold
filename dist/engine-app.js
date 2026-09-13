@@ -4,13 +4,13 @@ import {mountPhotoIntake} from './photo-intake.js';
 import {mountManualLibrary} from './manual-library.js';
 const $=s=>document.querySelector(s);
 const labels={upside_down:'Upside down',upright:'Upright',on_back:'On its back',on_left:'On its left side',on_right:'On its right side'};
-let photoIntake,manualLibrary,conversionBusy=false,choosingManual=false;const intakeBusy={photos:false,library:false,manual:false};
+let photoIntake,manualLibrary,conversionBusy=false,choosingManual=false;const intakeBusy={photos:false,library:false,manual:false,demo:false};let demoController=null;
 let viewer,output=null,pdf=null,file=null,pdfHash=null,index=-1,progress=0,playing=false,speed=1,exploded=false,page=1,linked=true,renderId=0,renderTask=null,uploadId=0,conversion=null,last=performance.now(),reviewed=new Set();
 try{viewer=createGeneratedViewer($('#generated-scene'),label=>$('#view-label').textContent=label);}catch{$('#empty-scene h2').textContent='3D is unavailable';$('#empty-scene p').textContent='Use a WebGL-capable browser to view generated parts. PDF conversion is still available.';}
 function status(message,{busy=false,error=false}={}){$('#conversion-status').textContent=message;$('.conversion-bar').classList.toggle('busy',busy);$('.conversion-bar').classList.toggle('error',error);}
 function syncPlay(){$('#play').textContent=playing?'Ⅱ':'▶';$('#play').setAttribute('aria-label',playing?'Pause step':'Play step');}
 function syncFlow(){document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';}
-function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);}
+function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.disabled=busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);}
 function setBusy(value){conversionBusy=value;syncBusy();syncFlow();}
 async function showPage(value){
  if(!pdf)return;page=Math.max(1,Math.min(pdf.numPages,value));const serial=++renderId;renderTask?.cancel();$('#pdf-canvas').hidden=true;$('#enlarge').disabled=true;$('#manual-empty').hidden=false;$('#manual-empty').textContent='Loading source page…';
@@ -18,7 +18,10 @@ async function showPage(value){
  try{const source=await pdf.getPage(page);if(serial!==renderId)return;const viewport=source.getViewport({scale:1.5});const canvas=document.createElement('canvas');canvas.width=viewport.width;canvas.height=viewport.height;renderTask=source.render({canvasContext:canvas.getContext('2d'),viewport});await renderTask.promise;if(serial!==renderId)return;const target=$('#pdf-canvas');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);target.hidden=false;$('#manual-empty').hidden=true;$('#enlarge').disabled=false;}catch(error){if(error.name!=='RenderingCancelledException'&&serial===renderId){$('#manual-empty').textContent='This source page could not be rendered. Try another page.';status('This source page could not be rendered.',{error:true});}}
 }
 function notes(){
- const list=$('#review-notes');list.replaceChildren();const values=[...(output?.guide.reviewNotes||[]),...(index>=0?output.guide.steps[index].reviewNotes:[])];
+ const list=$('#review-notes');list.replaceChildren();
+ const issues=Array.isArray(output?.visualReview?.issues)?output.visualReview.issues:[];
+ const visualNotes=issues.filter(issue=>issue&&(issue.stepIndex===-1||index>=0&&issue.stepIndex===index)).map(issue=>[issue.description,issue.correction].filter(value=>typeof value==='string'&&value.trim()).join(' ')).filter(Boolean).map(note=>'Visual review: '+note);
+ const values=[...new Set([...visualNotes,...(output?.guide.reviewNotes||[]),...(index>=0?output.guide.steps[index].reviewNotes:[])])];
  for(const note of values.length?values:['Check the approximate geometry against the original manual.']){const li=document.createElement('li');li.textContent=note;list.append(li);}
  $('#review-state').textContent=index<0?'':reviewed.has(index)?'Checked by you':'Needs review';
 }
@@ -39,7 +42,7 @@ function loadGuide(result){
  $('#parts-summary').textContent=`Parts inventory · ${result.guide.parts.length}`;$('#parts-list').replaceChildren();for(const part of result.guide.parts){const button=document.createElement('button');button.className='part-row';const swatch=document.createElement('span');swatch.className='part-swatch';swatch.style.background=part.color;const name=document.createElement('span');name.textContent=part.name;const info=document.createElement('small');info.textContent=`p. ${part.sourcePage}`;button.append(swatch,name,info);button.onclick=()=>{viewer?.selectPart(part.id);if(pdf){linked=false;showPage(part.sourcePage);}};$('#parts-list').append(button);}
  for(const selector of ['#export','#play','#speed','#step-view','#whole-view','#exploded'])$(selector).disabled=false;choosingManual=false;setStep(-1);syncFlow();syncBusy();
 }
-async function pickPdf(selected,{productName}={}){
+async function pickPdf(selected,{productName,preparedGuide}={}){
  if(!selected)return;const serial=++uploadId;conversion?.abort();playing=false;syncPlay();
  if(selected.size>8*1024*1024){status('Choose a PDF smaller than 8 MB.',{error:true});return;}
  let candidate;intakeBusy.manual=true;syncBusy();
@@ -48,14 +51,32 @@ async function pickPdf(selected,{productName}={}){
   const module=await import('./vendor/pdf.mjs');module.GlobalWorkerOptions.workerSrc='/vendor/pdf.worker.mjs';candidate=await module.getDocument({data:bytes.slice(),isEvalSupported:false}).promise;
   if(candidate.numPages>40)throw new Error('Conversion supports manuals with up to 40 pages.');
   const digest=await crypto.subtle.digest('SHA-256',bytes);const hash=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+  if(preparedGuide){assertGuide(preparedGuide.guide,candidate.numPages);if(preparedGuide.provenance?.sha256!==hash)throw new Error('The demo guide and manual do not match. Your current guide is unchanged.');}
   if(serial!==uploadId){candidate.destroy();return;}renderId++;renderTask?.cancel();await pdf?.destroy();if(serial!==uploadId){candidate.destroy();return;}pdf=candidate;file=selected;pdfHash=hash;
-  if(output&&output.provenance?.sha256===hash){linked=true;showPage(index>=0?output.guide.steps[index].sourcePage:1);status('Original PDF linked to this generated guide.');}
+  if(preparedGuide){loadGuide(preparedGuide);status('KNARREVIK demo ready. Explore the parts or start the assembly.');}
+  else if(output&&output.provenance?.sha256===hash){linked=true;showPage(index>=0?output.guide.steps[index].sourcePage:1);status('Original PDF linked to this generated guide.');}
   else{output=null;playing=false;index=-1;progress=0;$('#instruction-step').textContent='READY WHEN YOU ARE';$('#instruction-title').textContent='Your assembly, one step at a time.';$('#instruction-text').textContent='Generate a guide from this PDF to see its assembly instructions.';$('#source-page').textContent='';$('#orientation-label').textContent='Drag to rotate · scroll to zoom';$('#duration-label').textContent='';$('#time-label').textContent='Overview';$('#step-count').textContent='—';$('#review-state').textContent='';$('#empty-scene').hidden=false;$('#empty-scene h2').textContent='Ready to unfold.';$('#empty-scene p').textContent='Generate a draft from this manual, then review its parts and steps.';$('#step-list').replaceChildren();$('#active-parts').replaceChildren();$('#parts-list').replaceChildren();$('#review-notes').replaceChildren();$('#parts-summary').textContent='Parts inventory';$('#product-name').textContent='Your manual is ready';$('#document-label').textContent='YOUR MANUAL';$('#guide-meta').textContent='Source-linked · Interactive 3D';for(const selector of ['#export','#play','#speed','#step-view','#whole-view','#exploded','#prev','#next','#progress','#edit-step'])$(selector).disabled=true;linked=false;showPage(1);status('Check the pages are complete and in order, then create your animated guide.');}
   if(productName&&!output)$('#product-name').textContent=productName;
   $('#conversion-title').textContent=productName?`${pdf.numPages} ${pdf.numPages===1?'page':'pages'} · Original manual`:`${selected.name} · ${pdf.numPages} ${pdf.numPages===1?'page':'pages'}`;choosingManual=false;syncFlow();return true;
  }catch(error){candidate?.destroy();if(serial===uploadId)status(error.name==='PasswordException'?'Choose an unlocked PDF.':error.message||'This PDF could not be read.',{error:true});return false;}
  finally{if(serial===uploadId){intakeBusy.manual=false;syncBusy();}}
 }
+async function loadKnarrevikDemo(){
+ if(conversionBusy||Object.values(intakeBusy).some(Boolean))return;
+ playing=false;syncPlay();intakeBusy.demo=true;syncBusy();status('Opening the KNARREVIK demo…',{busy:true});
+ const controller=new AbortController();demoController=controller;const timeout=setTimeout(()=>controller.abort(),30000);
+ try{
+  const responses=await Promise.all(['/examples/knarrevik.unfold.json','/reference/knarrevik-manual.pdf'].map(url=>fetch(url,{signal:controller.signal,cache:'no-cache'})));
+  if(responses.some(response=>!response.ok))throw new Error('The KNARREVIK demo could not be opened. Please try again.');
+  const [guideText,bytes]=await Promise.all([responses[0].text(),responses[1].arrayBuffer()]);
+  if(guideText.length>2*1024*1024||bytes.byteLength>8*1024*1024)throw new Error('The demo files could not be loaded. Please try again.');
+  const result=JSON.parse(guideText);assertGuide(result.guide);
+  controller.signal.throwIfAborted();
+  await pickPdf(new File([bytes],'knarrevik-manual.pdf',{type:'application/pdf'}),{productName:'KNARREVIK',preparedGuide:result});
+ }catch(error){status(controller.signal.aborted?'The demo took too long to open. Please try again.':error.message||'The KNARREVIK demo could not be opened.',{error:true});}
+ finally{controller.abort();clearTimeout(timeout);if(demoController===controller)demoController=null;intakeBusy.demo=false;syncBusy();}
+}
+for(const button of document.querySelectorAll('[data-knarrevik-demo]'))button.onclick=loadKnarrevikDemo;
 async function pickManual(files){
  const selected=[...files];if(!selected.length)return;
  const isPdf=file=>file.type==='application/pdf'||/\.pdf$/i.test(file.name);
@@ -95,7 +116,7 @@ $('#review-form').onsubmit=e=>{e.preventDefault();const next=structuredClone(out
 document.addEventListener('click',event=>{if(!event.target.closest('.guide-menu'))$('.guide-menu').open=false;});
 document.addEventListener('keydown',e=>{if(!output||document.body.dataset.state!=='guide'||document.querySelector('dialog[open]')||e.target.closest('input,textarea,select,button,a,summary'))return;if(e.code==='Space'){e.preventDefault();$('#play').click();}if(e.code==='ArrowRight'){e.preventDefault();$('#next').click();}if(e.code==='ArrowLeft'){e.preventDefault();$('#prev').click();}});
 let animation;function tick(now){const delta=Math.min((now-last)/1000,.1);last=now;if(playing&&output&&index>=0){progress=Math.min(1,progress+delta*speed/output.guide.steps[index].duration);viewer?.setState(index,progress);if(progress>=1){playing=false;syncPlay();}}$('#progress').value=Math.round(progress*1000);animation=requestAnimationFrame(tick);}animation=requestAnimationFrame(tick);
-addEventListener('pagehide',()=>{conversion?.abort();cancelAnimationFrame(animation);viewer?.dispose();photoIntake?.destroy();manualLibrary?.destroy();pdf?.destroy();},{once:true});
+addEventListener('pagehide',()=>{conversion?.abort();demoController?.abort();cancelAnimationFrame(animation);viewer?.dispose();photoIntake?.destroy();manualLibrary?.destroy();pdf?.destroy();},{once:true});
 fetch('/api/health').then(r=>r.json()).then(r=>{if(!r.conversionAvailable)status('Conversion is not configured on this server. You can still open a saved guide.',{error:true});}).catch(()=>status('Open this page through the Unfold server to generate guides. Saved guides can still be opened.',{error:true}));
 
 // Enable intake only after its handlers are registered.

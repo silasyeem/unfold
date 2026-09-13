@@ -8,7 +8,14 @@ import {extractManual} from '../engine/extract.mjs';
 import {convertPdf} from '../engine/convert.mjs';
 import {handleApi} from '../server/api.mjs';
 import {validateHandling} from '../engine/semantics.mjs';
+import {planGuideStages} from '../engine/render.mjs';
 import * as T from '../dist/vendor/three.module.js';
+
+const screenshot='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=';
+const visualStages={
+ renderStages:async guide=>planGuideStages(guide).map(({id,stepIndex,phase,sourcePage})=>({id,stepIndex,phase,sourcePage,imageDataUrl:screenshot})),
+ reviewStages:async(_pdf,_guide,captures)=>({issues:[],checkedCaptureIds:captures.map(c=>c.id),usage:{input_tokens:0,output_tokens:0}})
+};
 
 test('rejects invalid references, overlapping actions, cycles, fractional spins, and non-finite geometry',()=>{
  assert.deepEqual(validateGuide(fixture()),[]);
@@ -47,10 +54,22 @@ test('actual PDF page limits and mismatched metadata are rejected before provide
  const tooLong=await pdf(41);await assert.rejects(()=>extractManual(tooLong,options),/1–40/);
  const one=await pdf();await assert.rejects(()=>extractManual(one,{...options,expectedPageCount:2}),/page count/);assert.equal(calls,0);
 });
+test('extracts source pages with Astra high reasoning rather than the generic request default',async()=>{
+ let calls=0;
+ const result=await extractManual(await pdf(),{apiKey:'test-only',model:'gpt-6-astra',onStage(){},fetchImpl:async(_url,request)=>{
+  calls++;const body=JSON.parse(request.body);assert.equal(body.model,'gpt-6-astra');assert.equal(body.reasoning.effort,'high');assert.equal(body.text.format.name,'manual_evidence');
+  return Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({productName:'Fixture',inventory:[],pages:[{pageIndex:1,kind:'assembly',steps:[{number:'1',title:'Join the panel',instruction:'Fit the panel to the base.',orientation:'upright',parts:['panel'],notes:[]}]}]})}]}],usage:{input_tokens:1,output_tokens:1}});
+ }});
+ assert.equal(calls,1);assert.equal(result.steps.length,1);assert.equal(result.steps[0].sourcePage,1);
+});
 test('complete conversion preserves evidence and uses the actual source fingerprint',async()=>{
  const bytes=await pdf();const guide=fixture();const evidence={productName:'Fixture',inventory:[],pages:[{pageIndex:1,kind:'assembly',steps:guide.steps.map((s,i)=>({number:String(i+1),title:s.title,instruction:s.instruction,orientation:s.orientation,parts:['panel'],notes:[]}))}]};let calls=0;
- const result=await convertPdf(bytes,{apiKey:'test-only',pageCount:1,onStage(){},fetchImpl:async(url,request)=>{assert.equal(url,'https://api.openai.com/v1/responses');assert.equal(request.headers.Authorization,'Bearer test-only');calls++;const content=calls===1?evidence:guide;return Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify(content)}]}],usage:{input_tokens:5,output_tokens:5}});}});
- assertGuide(result.guide);assert.equal(result.provenance.sha256.length,64);assert.equal(result.provenance.status,'draft');assert.equal(calls,2);assert(!JSON.stringify(result).includes('test-only'));
+ guide.steps[1].actions.push({...guide.steps[0].actions[2],start:.7,end:1});
+ const components=guide.parts.map(p=>({id:p.id,name:p.name,code:'',kind:p.kind,quantity:1,role:p.kind==='tool'?'tool':'other',geometryClass:p.kind==='tool'?'tool':'compound',description:p.name,sourcePages:[1]}));
+ const audit={components,referenceViews:[],steps:evidence.pages[0].steps.map((s,i)=>({...s,sourceEntryId:`entry_${i+1}`,sourcePage:1,componentIds:['panel','bracket','tool']})),reviewNotes:[]};
+ const componentCoverage=components.map(c=>({componentId:c.id,partIds:[c.id]}));
+ const result=await convertPdf(bytes,{...visualStages,apiKey:'test-only',pageCount:1,onStage(){},fetchImpl:async(url,request)=>{assert.equal(url,'https://api.openai.com/v1/responses');assert.equal(request.headers.Authorization,'Bearer test-only');calls++;const body=JSON.parse(request.body);const name=body.text.format.name;assert.equal(body.model,'gpt-6-astra');assert.equal(body.reasoning.effort,name==='assembly_guide'?'medium':'high');const content=name==='manual_evidence'?evidence:name==='component_evidence'||name==='component_evidence_review'?audit:{guide,componentCoverage};return Response.json({status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify(content)}]}],usage:{input_tokens:5,output_tokens:5}});}});
+ assertGuide(result.guide);assert.equal(result.provenance.sha256.length,64);assert.equal(result.provenance.status,'draft');assert.equal(calls,4);assert.deepEqual(result.componentCoverage,componentCoverage);assert.deepEqual(result.evidence.components,components);assert.equal(result.usage.inputTokens,20);assert(!JSON.stringify(result).includes('test-only'));
 });
 test('API exposes no credential and rejects cross-origin or malformed conversion requests',async()=>{
  const env={OPENAI_API_KEY:'test-secret-never-returned'};const health=await handleApi(new Request('http://localhost/api/health'),env);assert.equal((await health.json()).conversionAvailable,true);

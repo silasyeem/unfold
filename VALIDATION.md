@@ -4,7 +4,7 @@ Checked on 2026-09-13 against the local Node server using Aside CLI, its actual 
 
 ## Automated checks
 
-`npm test`: **44 passing tests**. Coverage includes the PDF evidence/generation pipeline, structural validation, parent-child movement, deterministic seeking, removed tools, duplicated build rotation, camera floor limits, stream cancellation, concurrency, image format/dimension/decompression limits, EXIF/quarter-turn transforms, photo page order, saved query/PDF reuse after restart, grounded source filtering, public-source DNS/redirect restrictions, and the intake/library/player UI callbacks.
+`npm test`: **94 passing tests**. Coverage includes the PDF evidence/generation pipeline, independent component reconciliation, skeptical inventory correction, broad-surface geometry, physical-instance coverage, final visibility, and Astra high/medium request settings. Render checks cover the complete stage plan, cancellation, source-page pairing, all-capture acknowledgments, bounded visual repair with fresh screenshots, rejection of persistent mismatches, and exported review reports without image payloads. Existing coverage includes parent-child movement, deterministic seeking, removed tools, duplicated build rotation, camera floor limits, stream cancellation, concurrency, image format/dimension/decompression limits, EXIF/quarter-turn transforms, photo page order, saved query/PDF reuse after restart, grounded source filtering, public-source DNS/redirect restrictions, and the intake/library/player UI callbacks.
 
 Paid provider search is tested with controlled Responses API results, including citations and rejected sources. The follow-up below reuses the user’s live IKEA LACK search results to verify real manufacturer-page enrichment without another model search.
 
@@ -65,6 +65,13 @@ Aside confirmed the product photos loaded, including the exact LACK side table 3
 
 ![LACK side table with product photo and download](docs/validation/lack-table.png)
 
+## Astra parsing, saved demo, and stage checks
+
+The existing API credential exposes `gpt-6-astra`. A real KNARREVIK conversion used high reasoning for PDF parsing and independent component evidence, and medium reasoning for parts and motion. The revised saved draft has four individual L-section legs, two continuous tray panels, sixteen screws and one Allen key, with six steps on pages 7–12. Its overall model uses one scale matching the corroborated 37:28:45 proportions.
+
+The actual player rendered an overview, six completed stages and six active-connection views. The first model comparison caught wrong elevated/floor-side connections and drove a geometry correction. A final visual comparison was stopped at the user's request; the shipped example explicitly records `visualReview.status: not_completed`. This is not a successful full accuracy check. The final tightening animation covers six representative screws; the source requires tightening all sixteen. Original diagrams and draft notes remain visible.
+
+The **KNARREVIK demo** buttons load the saved guide and matching source PDF without conversion calls. Automated UI checks cover both entries, successful source fingerprint linking, loading state, and preserving an existing guide/manual if demo assets are missing or mismatched. The new buttons were not visually inspected, as requested. Camera regressions verify that guided framing follows the active parent-transformed connection, preserves deterministic seeking, and retains free/whole/exploded controls. Source-evidence repair and untruncated visual-review notes have dedicated regressions.
 
 ## Screw generator — 2026-09-13
 

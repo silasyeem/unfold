@@ -10,16 +10,21 @@ Requires Node.js 22 or later.
 
 ```sh
 npm ci
+npm run render-browser
 cp .env.example .env.local
 # Set your own OPENAI_API_KEY in .env.local, then:
 npm run dev
 ```
 
-Open [the conversion workspace](http://127.0.0.1:4173/engine.html). Each developer supplies their own server credential. `.env.local` is ignored; never put credentials in browser code, a guide file, or a commit. `OPENAI_MODEL` defaults to `gpt-5.4`; `UNFOLD_PORT` defaults to `4173`.
+Open [the conversion workspace](http://127.0.0.1:4173/engine.html). Each developer supplies their own server credential. `.env.local` is ignored; never put credentials in browser code, a guide file, or a commit. `OPENAI_MODEL` defaults to `gpt-6-astra`: parsing, evidence checks, and visual review use high reasoning; 3D geometry generation uses medium. `OPENAI_SEARCH_MODEL` independently controls web search and defaults to `gpt-5.4`. `UNFOLD_PORT` defaults to `4173`.
+
+The render checker requires Chromium, installed by `npm run render-browser`, and a runtime that can launch it. It uses an isolated browser with access only to local renderer assets, never your personal browser profile. A missing browser produces an explicit error; the engine does not silently skip visual checks.
 
 Start with **Search for your manual online** or **Upload your manual**. An upload accepts one unlocked PDF or multiple JPEG/PNG pages. Check the source preview, then select **Create animated guide**. Conversion supports up to **8 MB, 40 pages, and 32 assembly steps**. It can take several minutes. Progress and cancellation remain available while the manual is processed.
 
-To explore without an API call, open `examples/mini-table.unfold.json` using **Open a saved guide** in the **•••** menu, then choose **Change manual → Upload your manual** and upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
+Choose **KNARREVIK demo** in the header or side panel to open the saved Astra-generated guide and its matching original PDF immediately, without an API call. It contains four legs, two solid trays, sixteen screws and an Allen key across six steps. This is a demonstration draft: its final visual review was stopped, and final tightening animates six representative joints while the manual requires all sixteen screws to be tightened.
+
+For a smaller authored example, open `examples/mini-table.unfold.json` using **Open a saved guide** in the **•••** menu, then choose **Change manual → Upload your manual** and upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
 
 ## Photos and saved manuals
 
@@ -32,10 +37,13 @@ The local library lives in ignored `data/library/`: an atomically written JSON i
 ## What the engine does
 
 1. Parses the actual PDF and checks its page count before making model requests.
-2. Reads every page in small PDF batches, recording inventory, assembly steps, source pages, and uncertainties. The first batch supplies inventory context to subsequent batches.
-3. Generates compound primitive shapes and motion data from the PDF plus that evidence. It preserves the evidence's ordered steps, instructions, pages, and handling orientations.
-4. Validates structure, references, parenting, action timing, camera vectors, and common duplicated handling rotations. One correction attempt is allowed before returning a recoverable error.
-5. Plays the validated draft in Three.js. Attached hardware follows its parent part. Seeking computes state from the guide, so direct jumps and replay agree.
+2. Reads every page in small PDF batches, recording provisional inventory, assembly steps, source pages, and uncertainties.
+3. Independently reads the complete manual, including cover and finished-product drawings, using high reasoning. This pass receives only page and step-number anchors from the extraction so earlier misread descriptions cannot bias its inventory. A separate skeptical check traces physical instances, cross-sections, attachments, screw counts, and working poses. The document label can corroborate product proportions and material, but the diagrams take precedence.
+4. Generates compound primitive shapes and motion data with medium reasoning, mapping every physical instance to its source component. The saved guide remains schema version 1; component evidence and coverage accompany it in the export envelope.
+5. Checks structure, parenting, action timing, handling rotations, component quantities, broad surface geometry, and final visibility. An open perimeter cannot stand in for a solid tabletop or shelf. Permanent parts must remain present and temporary tools must be removed.
+6. Renders the actual Three.js player: completed-product overview, every completed assembly stage, and a representative active connection/tool view for each step with actions. A visual reviewer compares each screenshot with its matching original PDF page, checking visible shape, proportion, counts, attachments, working pose and tool placement. All required captures must be rendered and acknowledged.
+7. A clear structural or visual mismatch triggers one bounded correction using the report and failed screenshots, followed by fresh rendering and comparison. Missing or extra components and incorrect working poses also trigger a fresh source-evidence check before regenerating geometry. A second failed draft returns an error instead of the mismatched guide. Source ambiguity remains in the review notes. Successful exports include a visual-review report without embedding the screenshots.
+8. Plays the checked draft in Three.js. Attached hardware follows its parent part. Seeking computes state from the guide, so direct jumps and replay agree.
 
 The UI supports play/pause, scrubbing, speed, step navigation, free orbit/zoom, guided joint views, whole-build framing, exploded parts, PDF enlargement, and source-page relinking. **Review this step** edits its title, instruction, source page, and working orientation. **Download guide** preserves the guide, provenance, extraction evidence, and your checked-step markers. Reopening a guide requires a matching PDF fingerprint before source diagrams are linked.
 
@@ -49,11 +57,11 @@ This is a prototype/fit-test tool, not a reconstruction of proprietary, wood or 
 
 ## Accuracy and scope
 
-Generated geometry and connections are approximate. Structural validation cannot establish that a model read a diagram correctly. Keep the original manual authoritative and review every generated step before using it for assembly. Checking a step records a user's review; it does not certify dimensions, fastening strength, or CAD accuracy. Editing primitive geometry and action paths currently requires editing the guide JSON.
+Generated geometry and connections are approximate. Structural and model-based visual checks can miss errors; a clean report does not establish physical accuracy. The visual check samples completed states and one active connection per step, not every frame of every motion. Keep the original manual authoritative and review every generated step before using it for assembly. Checking a step records a user's review; it does not certify dimensions, fastening strength, or CAD accuracy. Editing primitive geometry and action paths currently requires editing the guide JSON.
 
 Live conversion recovered all 16 STRANDMON source-page entries, but also produced mistaken hardware interpretations and pose assumptions. The prepared STRANDMON example is a separate, manually authored guide. General conversion is an editable draft workflow, not reliable reconstruction of arbitrary products.
 
-The server processes PDFs in memory and sends them to OpenAI for conversion with Responses API `store: false`. Direct uploads and generated guides are not saved on the server. The manual library separately persists search metadata and PDFs explicitly loaded from search results. This setting is not a promise of zero provider retention. Export files are saved only when the user downloads them.
+The server processes PDFs in memory and sends them to OpenAI for conversion with Responses API `store: false`. It also sends rendered stage screenshots with their matching source pages for visual comparison. Direct uploads, screenshots, and generated guides are not saved on the server. The manual library separately persists search metadata and PDFs explicitly loaded from search results. This setting is not a promise of zero provider retention. Export files are saved only when the user downloads them.
 
 ## Code map
 
@@ -62,6 +70,10 @@ The app is plain HTML/CSS/JavaScript. `dist/` contains editable frontend source 
 | Module | Responsibility |
 | --- | --- |
 | `engine/extract.mjs` | PDF parsing, page batches, inventory and step evidence. |
+| `engine/completeness.mjs` | Full-document component reconciliation, physical-instance coverage, solid-surface and final-presence checks. |
+| `engine/render.mjs`, `dist/render-capture.js` | Isolated Chromium screenshots using the actual player, with a bounded stage plan. |
+| `engine/visual-review.mjs` | Screenshots paired with original source pages, complete review coverage, actionable mismatch reports. |
+| `engine/evidence-repair.mjs` | Rechecks source interpretation when rendered parts or poses conflict with the manual. |
 | `engine/convert.mjs` | Model requests, guide generation, correction, provenance. |
 | `engine/semantics.mjs` | Detect common double application of build orientation. |
 | `dist/guide-schema.js` | Strict versioned JSON contract and semantic reference checks. |
@@ -88,7 +100,7 @@ Guide part transforms are relative to `parentId` (empty for a root). Primitive t
 - `POST /api/library/web-search`: JSON `{query}` with `X-Unfold-Library: 1`; searches only when the normalized query is uncached and the library has no match.
 - `POST /api/library/:id/pdf`: `X-Unfold-Library: 1`; downloads/caches a saved record’s PDF.
 - `POST /api/convert`: raw `application/pdf` body with `X-Unfold-Convert: 1`, `X-Pdf-Pages`, and a URL-encoded `X-Pdf-Name`. Returns server-sent `stage`, `result`, or `error` events.
-- Requests with a supplied cross-origin `Origin` are rejected. Two conversions can run concurrently in each process; each has a ten-minute timeout. This is a local/private deployment boundary, not public authentication or account rate limiting.
+- Requests with a supplied cross-origin `Origin` are rejected. Two conversions can run concurrently in each process; each has a thirty-minute timeout. This is a local/private deployment boundary, not public authentication or account rate limiting.
 
 ```sh
 npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
@@ -111,9 +123,10 @@ The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `se
 
 ## Sources and dependencies
 
-- [OpenAI PDF inputs](https://developers.openai.com/api/docs/guides/file-inputs), [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [GPT-5.4](https://developers.openai.com/api/docs/models/gpt-5.4).
+- [OpenAI PDF inputs](https://developers.openai.com/api/docs/guides/file-inputs), [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra).
 - [pdf-lib PDFDocument](https://pdf-lib.js.org/docs/api/classes/pdfdocument), MIT.
 - [Three.js OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), vendored Three.js 0.180.0, MIT.
 - [PDF.js examples](https://mozilla.github.io/pdf.js/examples/), vendored PDF.js 5.4.149, Apache-2.0.
 - LinkeDOM parses manufacturer pages and supports DOM tests, ISC.
 - [IKEA STRANDMON manual AA-2019535-7](https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf). Manual and diagrams © Inter IKEA Systems B.V.; Unfold is not affiliated with IKEA.
+- [IKEA KNARREVIK manual AA-2547698-1](https://www.ikea.com/kr/en/assembly_instructions/knarrevik-bedside-table-black__AA-2547698-1-100.pdf). The demo loads this original manual alongside its approximate generated guide.
