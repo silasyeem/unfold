@@ -1,8 +1,12 @@
 .DS_Store
 .sites-runtime/
 .env*
-node_modules/
-
 !.env.example
+node_modules/
+dist/client/
+dist/server/
+dist/.openai/
+.wrangler/
+
 .build/
 data/

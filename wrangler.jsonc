@@ -1,0 +1,13 @@
+{
+  "name": "unfold-voice-copilot",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-09-13",
+  "assets": {
+    "directory": "dist/client",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "none"
+  },
+  "dev": {"ip": "127.0.0.1", "port": 4191},
+  "observability": {"enabled": false}
+}
