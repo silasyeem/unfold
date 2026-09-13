@@ -131,3 +131,17 @@ test('reduced motion immediately shows the destination working pose',async()=>wi
  const guide=await knarrevik();h.viewer.load(guide);h.viewer.setState(2,0);h.draw();
  nearPose(h.scene.getObjectByName('leg1').parent.quaternion,poseOf(guide.steps[2]));
 },{animateTransitions:true,reducedMotion:true}));
+
+test('arbitrary Engine guides smoothly handle every working-pose pair regardless of step duration',async()=>withViewer(h=>{
+ const guide=fixture(),step=guide.steps[1];guide.productName='Storage cabinet';
+ guide.steps=Object.keys(orientations).map((orientation,i)=>({...structuredClone(step),orientation,duration:i%2?3:30,actions:i%2?step.actions:[]}));
+ h.viewer.load(guide);const rig=h.scene.getObjectByName('panel').parent;
+ for(let from=0;from<guide.steps.length;from++)for(let to=0;to<guide.steps.length;to++){
+  h.viewer.setState(from,1);h.advance(1000);const startPose=rig.quaternion.clone(),startCamera=h.camera.position.clone();
+  h.viewer.setState(to,0);h.draw();
+  if(from!==to){nearPose(rig.quaternion,startPose);near(h.camera.position,startCamera);}
+  h.advance(500);nearPose(rig.quaternion,startPose.clone().slerp(poseOf(guide.steps[to]),.5),'Every orientation pair takes the shortest turn at the same speed.');
+  h.advance(500);nearPose(rig.quaternion,poseOf(guide.steps[to]));
+  for(const progress of [.08,.16,1,0]){h.viewer.setState(to,progress);h.draw();nearPose(rig.quaternion,poseOf(guide.steps[to]),'Scrubbing a generated guide does not replay its orientation change.');}
+ }
+},{animateTransitions:true}));
