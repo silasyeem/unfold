@@ -1,4 +1,5 @@
 .DS_Store
 .sites-runtime/
 .env*
+!.env.example
 node_modules/

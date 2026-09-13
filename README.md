@@ -62,3 +62,25 @@ The `.openai/hosting.json` file identifies the existing Sites deployment. Local 
 - Visual/GPU rendering and interaction checks performed using the user-requested Aside CLI: step-3 nut and socket close-ups, side-build orientation, original-page linking, and camera controls. WebMCP validation remains unit-level, not browser integration validation.
 
 The static Site is published with owner-only access by default.
+
+## Optional GPT-Live voice copilot
+
+The static app above remains available. The optional voice feature adds a local Node server and paid OpenAI API access; the earlier statement about no model API describes static use. Nothing calls OpenAI on startup or until you choose **Start voice**. Open **Talk to guide**, then start and allow microphone access. Say, for example, “the round bit before the nut” or “show me the other side.” The copilot uses the prepared catalog and current app state to select a step, manual page or view, asking for clarification when needed. Voice stays connected across these changes and when the panel is collapsed. Mute disables the microphone locally; End stops input and waits briefly for the server's final close event.
+
+Requires Node 22.9 or newer. No package installation or build is needed:
+
+```sh
+npm start
+```
+
+Open the printed localhost URL (default `http://127.0.0.1:4173`), open **Talk to guide**, enter your OpenAI project key in the masked **OpenAI API key** field, then press **Start voice**. This is the easiest setup; no config file is required. The field clears immediately. The key is sent only in that attempt's creation request to the local server, which uses it to authenticate with OpenAI. It is never saved by the app to disk, cookies or browser storage, or included in model context, transcripts or logs. Re-enter it for every new start, including after failure or cancellation. A valid entered key takes precedence over a configured server key; an invalid entered key is rejected instead of silently using the server key. A static-only host still needs the local runtime.
+
+Optionally copy `.env.example` to `.env` and set `OPENAI_API_KEY` there for a persistent local server configuration, then leave the app field blank. This optional configuration is the only path that saves a key to a file, at your explicit choice. Voice is always `gpt-live-1`; `OPENAI_BACKEND_MODEL` optionally selects the Responses backend (default `gpt-5.6-terra`). `PORT` changes the local port. Never put a key in `dist/`, source code or a URL. `.env` is ignored and only the server reads it. The example file contains no key.
+
+This server binds only to `127.0.0.1`. It is for a trusted local user: do not expose it through a tunnel, public proxy or shared hosting. Host/origin checks, a 64 KiB body cap, one in-flight creation, four attempts per minute, a 20-second upstream timeout and no retries limit accidental session creation; these are not account authentication or a total spending cap. A static deployment explains that voice requires this local runtime.
+
+OpenAI bills voice duration and delegated backend work. WebRTC creation includes an initialization charge equivalent to 15 seconds, credited against running voice duration; creating then cancelling can still incur usage. See [GPT-Live WebRTC](https://developers.openai.com/api/docs/guides/voice-webrtc?api=live) and [voice cost documentation](https://developers.openai.com/api/docs/guides/voice-latency-cost?api=live). End voice when finished. Closing the page releases local media immediately, so final server usage confirmation may not arrive.
+
+Microphone audio, spoken conversation, the prepared STRANDMON catalog, and app state (step, page number, compatibility, view and playback) go to OpenAI. Uploaded PDF bytes, extracted text, images and filenames are never sent by the copilot. Transcripts are bounded, rendered as text, kept only in browser memory and cleared at the next start. The local server does not log speech or upstream response bodies. There is no camera input. An unrelated PDF remains in preview mode and blocks guide/view/playback actions until the user restores the example using the app. Manual page browsing still works. Human changes made during delegated work invalidate pending navigation so the guide cannot silently undo them.
+
+Run offline checks with `npm test`; they use mocked OpenAI and microphone/WebRTC boundaries and do not require a key. Tests cover tool validation, stale/deduplicated navigation, delegation completion, lifecycle cleanup and the local HTTP boundary. Manual verification should include step 3, direct jumps to both side panels, manual relinking, collapsed voice controls and a narrow mobile viewport. A real microphone/model session requires a configured key and a user-started session and is not covered by these mocks.
