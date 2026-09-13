@@ -2,6 +2,8 @@
 
 Build a web app that turns assembly instructions into an interactive 3D guide. Users must be able to understand the working orientation, identify the active connection, and inspect each action beside its original manual diagram.
 
+The prepared reference guide and conversion engine are both implemented locally. See [README.md](README.md) for the current runtime, limits, module contract, and known accuracy limitations. The requirements below retain the prepared STRANDMON reference behavior.
+
 **User flow and initial scope**
 
 Upload a manual → identify the supported guide → explore the parts → follow animated steps beside the original diagram → pause, rotate, zoom, and replay the confusing action.
@@ -90,11 +92,17 @@ Use this exact [IKEA STRANDMON manual](https://www.ikea.com/th/en/assembly_instr
 
 **Extension to additional manuals**
 
-Design the guide format to accept future conversion output: PDF page images/text → extracted parts and actions with source-page references → editable draft guide → mapping to known 3D parts and actions → the same player. Automatic conversion is outside the initial release.
+Design the guide format to accept future conversion output: PDF page images/text → extracted parts and actions with source-page references → editable draft guide → mapping to known 3D parts and actions → the same player. The conversion workspace now implements this flow as reviewable schematic drafts, with source evidence and a shared JSON contract.
 
-Reading a diagram does not by itself provide reliable geometry, hidden connectors, or motion constraints. A future converter must map to supported assets and actions, identify missing geometry, and flag uncertain relationships for review. Keep any model credentials on a server when conversion is implemented.
+Reading a diagram does not by itself provide reliable geometry, hidden connectors, or motion constraints. The converter must map to supported assets and actions, identify missing geometry, and flag uncertain relationships for review. Keep any model credentials on a server throughout conversion.
 
 Validate generated guide structure, part references, and action timing before playback. Keep prepared guides and generated drafts visibly distinguishable.
+
+**Photo intake and manual library**
+
+Accept ordered JPEG or PNG photos as another manual source. Provide a phone camera input, per-page preview, reorder, rotate, and remove actions. Normalize them into a source PDF for the same parser and player; allow users to download it for later relinking. Clearly show errors for unsupported formats or unreadable/oversized images.
+
+Search a persistent backend library first. If no manual matches, offer an explicit “Search the web” action, prefer manufacturer instruction sources, and save each discovered manual with product identity and its source URL. Cache repeat queries, including empty results, and cache PDF bytes when opened. Search results must identify product variants and distinguish direct PDF loading from links to manufacturer pages. Search implementation must not execute a web search just because the library dialog opens.
 
 **Acceptance criteria**
 

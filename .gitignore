@@ -2,3 +2,7 @@
 .sites-runtime/
 .env*
 node_modules/
+
+!.env.example
+.build/
+data/
