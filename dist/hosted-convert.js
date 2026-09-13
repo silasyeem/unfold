@@ -33,7 +33,7 @@ export function convertInBrowser(file,{pageCount,signal,onStage=()=>{}}={}){
   function finish(error,result){if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',cancel);renderer?.remove();socket.close();error?reject(error):resolve(result);}
   function cancel(){finish(new DOMException('Conversion cancelled.','AbortError'));}
   signal?.addEventListener('abort',cancel,{once:true});if(signal?.aborted){cancel();return;}
-  socket.onopen=()=>{socket.send(JSON.stringify({type:'init',pageCount,filename:file.name}));socket.send(file);};
+  socket.onopen=()=>{onStage('Creating your guide. Keep this tab open while we read and check the manual…');socket.send(JSON.stringify({type:'init',pageCount,filename:file.name}));socket.send(file);};
   socket.onerror=()=>finish(new Error('The live engine could not connect. Please reload and try again.'));
   socket.onclose=()=>{if(!done)finish(new Error('The engine connection closed. Keep this page open during conversion and retry.'));};
   socket.onmessage=async event=>{

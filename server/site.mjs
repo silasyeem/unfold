@@ -10,7 +10,7 @@ const stores=new WeakMap();
 export default {async fetch(request,env,ctx){
  const path=new URL(request.url).pathname;
  if(['/api/scan-health','/api/parts-scan'].includes(path))return handlePartsScan(request,env);
- if(path==='/api/health')return Response.json({conversionAvailable:!!env.OPENAI_API_KEY,browserRendering:true,renderStorageAvailable:!!env.BUCKET,model:env.OPENAI_MODEL||DEFAULT_MODEL,maxBytes:8*1024*1024,maxPages:40},{headers:{'Cache-Control':'no-store'}});
+ if(path==='/api/health')return Response.json({conversionAvailable:!!env.OPENAI_API_KEY,browserRendering:true,release:"manual-home-v1",renderStorageAvailable:!!env.BUCKET,model:env.OPENAI_MODEL||DEFAULT_MODEL,maxBytes:8*1024*1024,maxPages:40},{headers:{'Cache-Control':'no-store'}});
  if(path.startsWith('/api/render/'))return receiveRenders(request,env);
  if(path.startsWith('/api/conversion-render/'))return pollRender(request,env);
  if(path==='/api/convert'){
