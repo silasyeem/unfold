@@ -1,0 +1,13 @@
+import {cp,mkdir,readFile,writeFile,rm} from 'node:fs/promises';
+import {resolve} from 'node:path';
+const root=resolve(import.meta.dirname,'..'),stage=resolve(root,'.build/hosting');
+await rm(stage,{recursive:true,force:true});
+await mkdir(resolve(stage,'dist/server'),{recursive:true});
+await mkdir(resolve(stage,'.openai'),{recursive:true});
+await mkdir(resolve(stage,'dist/.openai'),{recursive:true});
+await cp(resolve(root,'dist'),resolve(stage,'dist/client'),{recursive:true});
+await cp(resolve(root,'.build/scan-worker.js'),resolve(stage,'dist/server/index.js'));
+const metadata=await readFile(resolve(root,'.openai/hosting.json'));
+await writeFile(resolve(stage,'.openai/hosting.json'),metadata);
+await writeFile(resolve(stage,'dist/.openai/hosting.json'),metadata);
+console.log('Staged the scanner Worker and frontend assets.');

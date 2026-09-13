@@ -1,10 +1,12 @@
 import {convertPdf,MAX_PDF_BYTES,DEFAULT_MODEL} from '../engine/convert.mjs';
 import {handlePhotos} from './photos.mjs';
 import {handleLibrary} from './library.mjs';
+import {handlePartsScan} from './parts-scan.mjs';
 let active=0;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
 export async function handleApi(request,env){
  const url=new URL(request.url);
+ if(['/api/parts-scan','/api/scan-health'].includes(url.pathname))return handlePartsScan(request,env);
  if(url.pathname==='/api/photos')return handlePhotos(request,env);
  if(url.pathname==='/api/library'||url.pathname.startsWith('/api/library/'))return handleLibrary(request,env);
  if(url.pathname==='/api/health')return json({conversionAvailable:!!env.OPENAI_API_KEY,model:env.OPENAI_MODEL||DEFAULT_MODEL,maxBytes:MAX_PDF_BYTES,maxPages:40});

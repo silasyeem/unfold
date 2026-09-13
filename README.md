@@ -1,5 +1,7 @@
 # Unfold
 
+The KNARREVIK parts scanner is available at `/scan.html`: select a JPEG, PNG, or HEIC photo, review suggested matches and counts, and inspect parts in 3D. Phone photos are compressed automatically before upload. See [scanner behavior and validation](docs/KNARREVIK-SCAN.md).
+
 Find a manual online or upload a PDF or photos to create a reviewable 3D draft: named parts, animated assembly steps, working orientations, guided cameras, and the original diagram beside each step. The prepared 16-step STRANDMON demo remains at `/`; the conversion workspace is `/engine.html`.
 
 ## Run locally
@@ -105,7 +107,7 @@ The supplied page count is verified against the PDF. The CLI logs progress, outp
 
 See [BUILD_SPEC.md](BUILD_SPEC.md) for product behavior and the prepared STRANDMON reference sequence. Work on feature branches and review changes through pull requests. Playback changes should be checked with direct step jumps, backward navigation, orientation changes and connector close-ups.
 
-The existing `.openai/hosting.json` refers to a static Sites deployment. Static hosting alone cannot run conversion. The current hosting connection cannot find that Site, so this engine has not been deployed there. `server/worker.mjs` is a source entry, not a packaged deployment: it still needs bundling, Node compatibility for the current library modules, a durable library adapter, an `ASSETS` binding, a server secret, and access control before publishing. The local Node server is the supported engine runtime in this version.
+The hosted Site serves the prepared guide, Screw lab, and KNARREVIK scanner. `server/scan-worker.mjs` handles the scanner API; see [scanner deployment](docs/KNARREVIK-SCAN.md#runtime) for packaging instructions. Manual conversion and library search use the local Node server. The full `server/worker.mjs` still needs bundling, Node compatibility for the library modules, and a durable library adapter before those features can be hosted.
 
 ## Sources and dependencies
 

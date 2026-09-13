@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Unfold — Scan your KNARREVIK parts</title>
+  <meta name="description" content="Photograph your KNARREVIK parts, compare them with the manual, and review your inventory before assembly.">
+  <link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/scan.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+</head>
+<body class="scan-page">
+  <header class="topbar"><a class="brand" href="/" aria-label="Unfold home"><span class="brand-symbol" aria-hidden="true">◇</span> unfold</a><a class="button" href="/engine.html">Assembly workspace ↗</a></header>
+  <main class="scan-main">
+    <div class="scan-intro"><div><p class="eyebrow">BEFORE YOU BUILD</p><h1>Meet your parts.</h1><p>Lay them out. Take a photo. Know what goes where.</p></div><div class="kit-label"><strong>KNARREVIK</strong><span>Bedside table · Black · 37 × 28 × 45 cm</span><span>Article 805.763.19 · <a href="/reference/knarrevik-manual.pdf" target="_blank" rel="noopener">Original IKEA manual ↗</a></span></div></div>
+    <div class="scan-layout">
+      <section class="capture-panel" aria-labelledby="capture-heading">
+        <div class="scan-panel-heading"><h2 id="capture-heading">Your table, from above</h2><span class="subtle" id="photo-label">One photo per scan</span></div>
+        <div class="photo-stage" id="photo-stage">
+          <div class="capture-empty" id="capture-empty"><svg viewBox="0 0 96 76" aria-hidden="true"><path d="M4 23V5h18M74 5h18v18M92 53v18H74M22 71H4V53"/><rect x="21" y="18" width="31" height="21" rx="2"/><path d="M62 18v31M70 18v31M21 50h31M21 58h31"/><circle cx="67" cy="59" r="3"/></svg><h3>A little space between every piece.</h3><p>Use a plain, light surface. Keep all parts in view and spread screws out so they can be counted.</p></div>
+          <div class="photo-canvas" id="photo-canvas" hidden><img id="scan-photo" alt="Your parts laid out for identification"><div id="photo-markers" aria-label="Suggested part locations"></div></div>
+        </div>
+        <div class="capture-actions"><label class="button file-button">Choose a photo<input id="scan-file" type="file" accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif" aria-label="Choose a parts photo"></label><label class="button file-button">Take a photo<input id="scan-camera" type="file" accept="image/jpeg,image/png" capture="environment" aria-label="Take a parts photo"></label><button class="button primary" id="scan-submit" disabled>Identify parts →</button><button class="button" id="scan-cancel" hidden>Cancel scan</button></div>
+        <p class="scan-status" id="scan-status" role="status" aria-live="polite">JPEG, PNG or HEIC · One overhead photo. A new photo replaces the previous scan.</p>
+        <p class="scan-privacy">Selecting a photo keeps it in your browser. “Identify parts” sends it to OpenAI for recognition. Unfold does not save the photo on its server.</p>
+        <div id="scan-observations" hidden><h3>What the scan saw</h3><p class="subtle">Locations and matches are suggestions. Select a marker to check its match.</p><div id="detection-editor"></div></div>
+      </section>
+      <aside class="inventory-panel" aria-labelledby="inventory-heading">
+        <div class="scan-panel-heading"><h2 id="inventory-heading">Your parts checklist</h2><span class="badge">4 types</span></div>
+        <p class="inventory-intro">Expected from this manual. Scan a photo to add what’s visible, then check each count.</p>
+        <div id="scan-inventory"><p class="subtle">Loading the parts checklist…</p></div>
+        <p class="scan-summary" id="scan-summary">Nothing scanned yet.</p>
+        <button id="download-checklist" class="button" disabled>Save reviewed checklist ↓</button>
+        <details class="scan-reference"><summary>See where the parts belong</summary><div id="scan-3d" class="scan-3d"></div><p class="subtle">Schematic 3D reference. Tap a part name above to highlight one example. Drag to rotate.</p><p id="part-explanation">The two trays and four individual angle legs form the table. Folded tray edges are part of the trays.</p><a id="part-manual" href="/reference/knarrevik-manual.pdf#page=7" target="_blank" rel="noopener">See the source diagram ↗</a></details>
+      </aside>
+    </div>
+    <footer class="scan-footer">A part that is not seen may be hidden or outside the photo. Review every count; a scan cannot confirm that the kit is complete. <span>Manual © Inter IKEA Systems B.V. · Unfold is not affiliated with IKEA.</span></footer>
+  </main>
+  <script type="module" src="/scan.js"></script>
+</body>
+</html>
