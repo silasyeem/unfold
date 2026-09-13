@@ -17,7 +17,6 @@
     <div class="header-actions">
       <button class="button" id="copilot-toggle" aria-expanded="false" aria-controls="copilot-panel" hidden>Talk to guide <span id="copilot-indicator" aria-live="polite"></span></button>
       <button class="button" id="copilot-quick-end" aria-label="End voice" hidden>End voice</button>
-      <button class="button demo-button" type="button" data-knarrevik-demo disabled>KNARREVIK demo</button>
       <a class="button" id="screw-lab" href="/screws.html" hidden>Screw lab</a>
       <a class="example-link" href="/demo.html">STRANDMON demo <span aria-hidden="true">↗</span></a>
       <button class="button change-manual" id="change-manual">Change manual</button>
@@ -77,7 +76,7 @@
         <p id="conversion-status" role="status">Check the pages, then create animated instructions for your build.</p>
         <div id="conversion-progress" class="conversion-progress" hidden></div>
       </div>
-      <div class="conversion-actions"><button class="button primary" id="convert" disabled>Create animated guide <span aria-hidden="true">→</span></button><button class="button" id="cancel" hidden>Cancel</button></div>
+      <div class="conversion-actions"><button class="button primary" id="convert" disabled>Create animated guide <span aria-hidden="true">→</span></button><button class="button demo-button" type="button" data-knarrevik-demo hidden disabled>KNARREVIK demo</button><button class="button" id="cancel" hidden>Cancel</button></div>
       <p class="conversion-note">Your manual is sent to OpenAI to interpret the diagrams. You can review the parts and steps afterward.</p>
     </section>
 
@@ -90,7 +89,7 @@
       <nav class="steps-panel" aria-label="Assembly steps">
         <div class="panel-heading"><h2>Assembly guide</h2><span class="small" id="step-count">—</span></div>
         <div class="step-list" id="step-list"><p class="empty-note">Your steps will appear here.</p></div>
-        <div class="sidebar-note"><button class="text-link sidebar-demo" type="button" data-knarrevik-demo disabled>KNARREVIK demo</button><p>Generated shapes are approximate. Check connections against the original diagrams.</p></div>
+        <div class="sidebar-note"><p>Generated shapes are approximate. Check connections against the original diagrams.</p></div>
       </nav>
       <section class="viewer-panel">
         <div class="scene" id="generated-scene">

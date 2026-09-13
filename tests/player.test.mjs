@@ -34,17 +34,17 @@ async function harness({pageCount=1,hostedRendering=false,entry='engine.html'}={
  document.createElement=name=>{const element=create(name);if(name==='canvas'){element.getContext=()=>({drawImage(){}});element.toDataURL=()=>'';}return element;};
  for(const element of document.querySelectorAll('canvas'))element.getContext=()=>({drawImage(){}});
  for(const dialog of document.querySelectorAll('dialog')){dialog.showModal=()=>dialog.setAttribute('open','');dialog.close=()=>dialog.removeAttribute('open');Object.defineProperty(dialog,'open',{get:()=>dialog.hasAttribute('open')});}
- let viewMode='whole',loaded=0,photoOptions,voiceOptions;const voiceSession={current:null,end(){this.current=null;},updateContext(){},refreshAvailability(){}};const photoCalls=[],fetchCalls=[],loadedGuides=[];
+ let viewMode='whole',loaded=0,photoOptions,voiceOptions,libraryOptions;const voiceSession={current:null,end(){this.current=null;},updateContext(){},refreshAvailability(){}};const photoCalls=[],fetchCalls=[],loadedGuides=[];
  let viewerIndex=-1;
  const fakeViewer={load(guide){loaded++;loadedGuides.push(guide);viewMode='whole';viewerIndex=-1;},setState(index){if(index!==viewerIndex)viewMode='whole';viewerIndex=index;},getView:()=>({mode:viewMode}),guide(){viewMode=viewerIndex<0?'whole':'guided';},wholeBuild(){viewMode='whole';},setExploded(){viewMode='whole';},selectPart(){},dispose(){}};
  const fakePdf={numPages:pageCount,destroy:async()=>{},getPage:async()=>({getViewport:()=>({width:100,height:100}),render:()=>({promise:Promise.resolve(),cancel(){}})})};
- const context={document,queueMicrotask,mountConversionProgress,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:()=>({setDisabled(){},destroy(){}}),createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true,browserRendering:hostedRendering});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
+ const context={document,KNARREVIK,queueMicrotask,mountConversionProgress,createEngineCopilotAdapter,createToolDispatcher,mountCopilot:options=>{voiceOptions=options;return voiceSession;},mountPhotoIntake:(container,options)=>{photoOptions=options;return{open:async(files,settings)=>{photoCalls.push({files,settings});},setDisabled(){},destroy(){}};},mountManualLibrary:(container,options)=>{libraryOptions=options;return{setDisabled(){},destroy(){}};},createGeneratedViewer:()=>fakeViewer,assertGuide,console,performance,crypto,Blob,File,URL,TextDecoder,TextEncoder,AbortController,structuredClone,setTimeout,clearTimeout,requestAnimationFrame:()=>1,cancelAnimationFrame(){},addEventListener(){},fetch:async(url,options)=>{fetchCalls.push({url,options});return Response.json({conversionAvailable:true,browserRendering:hostedRendering});},__pdfModule:{GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve(fakePdf)})}};
 
  const scannerSource=(await readFile(new URL('../dist/guide-scanner.js',import.meta.url),'utf8')).replace(/^import .*$/gm,'').replace('export function','function');
  context.mountGuideScanner=new Function('document','KNARREVIK',scannerSource+';return mountGuideScanner;')(document,KNARREVIK);
  let source=await readFile(new URL('../dist/engine-app.js',import.meta.url),'utf8');source=source.replace(/^import .*$/gm,'').replace("await import('./vendor/pdf.mjs')",'__pdfModule').replace("await import('./hosted-convert.js')",'__hostedModule');
  vm.runInNewContext(source+'\nglobalThis.harness={loadGuide,setStep,pickPdf,pickManual,showPage,state:()=>({output,index,page,playing,progress,exploded,pdfHash})};',context);
- return{document,context,app:context.harness,voice:voiceOptions,voiceSession,photoCalls,photoOptions,fetchCalls,loadedGuides,getMode:()=>viewMode,getLoads:()=>loaded};
+ return{document,context,app:context.harness,voice:voiceOptions,voiceSession,photoCalls,photoOptions,libraryOptions,fetchCalls,loadedGuides,getMode:()=>viewMode,getLoads:()=>loaded};
 }
 test('play and pause preserve guided camera mode',async()=>{
  const h=await harness();h.app.loadGuide({guide:fixture()});h.app.setStep(0);h.document.querySelector('#step-view').onclick();h.document.querySelector('#play').onclick();assert.equal(h.getMode(),'guided');h.document.querySelector('#play').onclick();assert.equal(h.getMode(),'guided');assert.equal(h.app.state().playing,false);h.document.querySelector('#exploded').onclick();assert.equal(h.app.state().exploded,true);h.document.querySelector('#step-view').onclick();assert.equal(h.app.state().exploded,false);assert.equal(h.getMode(),'guided');
@@ -144,26 +144,33 @@ test('reopened arbitrary guides retain voice navigation through all 32 steps wit
 });
 
 
-test('KNARREVIK demo opens its saved guide and matching PDF without conversion',async()=>{
- const h=await harness(),bytes=new TextEncoder().encode('%PDF-1.7\nknarrevik');
- const sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
- const guide=fixture();guide.productName='KNARREVIK';const result={guide,provenance:{sha256,filename:'knarrevik-manual.pdf'},visualReview:{status:'needs_review',issues:[]}};
+for(const entry of ['index.html','engine.html'])test(`${entry}: KNARREVIK demo appears only on its matching PDF preview and opens without conversion`,async()=>{
+ const h=await harness({pageCount:12,entry}),$=s=>h.document.querySelector(s);
+ const bytes=await readFile(new URL('../dist/reference/knarrevik-manual.pdf',import.meta.url));
+ const result=JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8'));
+ const buttons=[...h.document.querySelectorAll('[data-knarrevik-demo]')];assert.equal(buttons.length,1);const button=buttons[0];
+ assert.equal(button.hidden,true);assert.equal(button.disabled,true);assert.equal(button.closest('.conversion-actions'),$('.conversion-actions'));
+ assert.equal($('.header-actions [data-knarrevik-demo], .sidebar-note [data-knarrevik-demo]'),null);assert.equal(h.libraryOptions.onDemo,undefined,'Search errors must not expose another demo shortcut.');
+ const initial=h.fetchCalls.length;await button.onclick();assert.equal(h.fetchCalls.length,initial,'Hidden demo entry cannot be invoked from the landing page.');
+ await h.libraryOptions.onPdfReady(new File(['%PDF-1.7\nother revision'],'KNARREVIK.pdf',{type:'application/pdf'}),{productName:'KNARREVIK'});
+ assert.equal(button.hidden,true,'Product name alone cannot offer a guide for another PDF revision.');
+ await h.libraryOptions.onPdfReady(new File([bytes],'knarrevik.pdf',{type:'application/pdf'}),{productName:'KNARREVIK'});
+ assert.equal(h.document.body.dataset.state,'ready');assert.equal(button.hidden,false);assert.equal(button.disabled,false);
+ $('#change-manual').onclick();assert.equal(button.hidden,true);$('#resume-manual').onclick();assert.equal(button.hidden,false);
  const requested=[];h.context.fetch=async(url,options)=>{requested.push(url);assert.equal(options.method,undefined);if(url==='/examples/knarrevik.unfold.json')return Response.json(result);if(url==='/reference/knarrevik-manual.pdf')return new Response(bytes);throw new Error('Unexpected network request: '+url);};
- const buttons=[...h.document.querySelectorAll('[data-knarrevik-demo]')];assert.equal(buttons.length,2);assert(buttons.every(button=>!button.disabled&&button.textContent==='KNARREVIK demo'));
- assert.equal(buttons[0].closest('.source-screen, .build-shell'),null,'The header entry remains reachable across all workspace states.');
- const loading=buttons[0].onclick();assert(buttons.every(button=>button.disabled&&button.getAttribute('aria-busy')==='true'));await loading;
- assert.equal(h.document.body.dataset.state,'guide');assert.equal(h.app.state().output.guide.productName,'KNARREVIK');assert.equal(h.app.state().pdfHash,sha256);assert.equal(h.app.state().index,-1);assert.equal(h.document.querySelector('#manual-link-state').textContent,'Linked');
- assert.deepEqual(requested,['/examples/knarrevik.unfold.json','/reference/knarrevik-manual.pdf']);assert(buttons.every(button=>!button.disabled&&button.textContent==='KNARREVIK demo'));
- h.app.setStep(0);assert.equal(h.document.querySelector('#source-page').textContent,'Manual · p. 1');assert.equal(h.document.querySelector('#manual-link-state').textContent,'Linked');
+ const loading=button.onclick();assert.equal(button.disabled,true);assert.equal(button.getAttribute('aria-busy'),'true');await loading;
+ assert.equal(h.document.body.dataset.state,'guide');assert.equal(h.app.state().output.guide.productName,'KNARREVIK');assert.equal(h.app.state().pdfHash,KNARREVIK.manualSha256);assert.equal(h.app.state().index,-1);assert.equal($('#manual-link-state').textContent,'Linked');
+ assert.deepEqual(requested,['/examples/knarrevik.unfold.json','/reference/knarrevik-manual.pdf']);assert.equal(button.hidden,true);assert.equal(button.disabled,true);
+ h.app.setStep(0);assert.equal($('#source-page').textContent,'Manual · p. 7');assert.equal($('#manual-link-state').textContent,'Linked');assert.equal(button.hidden,true);
 });
 
-test('a missing or mismatched demo preserves the current guide and manual',async()=>{
+test('a missing or mismatched demo preserves the selected PDF preview for retry',async()=>{
+ const bytes=await readFile(new URL('../dist/reference/knarrevik-manual.pdf',import.meta.url));
  for(const failure of ['missing','mismatch']){
-  const h=await harness();await h.app.pickPdf(new File(['%PDF-1.7\nprevious'],'previous.pdf',{type:'application/pdf'}));
-  const previous={guide:fixture(),provenance:{sha256:h.app.state().pdfHash}};h.app.loadGuide(previous);h.app.setStep(0);h.document.querySelector('#progress').oninput({target:{value:'650'}});const previousHash=h.app.state().pdfHash;
-  h.context.fetch=async url=>{if(failure==='missing')return new Response('Missing',{status:404});return url.endsWith('.json')?Response.json({guide:fixture(),provenance:{sha256:'wrong-hash'}}):new Response('%PDF-1.7\ndemo');};
-  await h.document.querySelector('[data-knarrevik-demo]').onclick();
-  assert.equal(h.app.state().output,previous);assert.equal(h.app.state().progress,.65);assert.equal(h.app.state().pdfHash,previousHash);assert.equal(h.document.body.dataset.state,'guide');assert.match(h.document.querySelector('#conversion-status').textContent,failure==='missing'?/could not be opened/:/do not match/);assert([...h.document.querySelectorAll('[data-knarrevik-demo]')].every(button=>!button.disabled));
+  const h=await harness({pageCount:12});await h.app.pickPdf(new File([bytes],'knarrevik.pdf',{type:'application/pdf'}));
+  h.context.fetch=async url=>{if(failure==='missing')return new Response('Missing',{status:404});return url.endsWith('.json')?Response.json({guide:{...fixture(),pageCount:12},provenance:{sha256:'wrong-hash'}}):new Response(bytes);};
+  const button=h.document.querySelector('[data-knarrevik-demo]');await button.onclick();
+  assert.equal(h.app.state().output,null);assert.equal(h.app.state().pdfHash,KNARREVIK.manualSha256);assert.equal(h.document.body.dataset.state,'ready');assert.match(h.document.querySelector('#conversion-status').textContent,failure==='missing'?/could not be opened/:/do not match/);assert.equal(button.hidden,false);assert.equal(button.disabled,false);
  }
 });
 
@@ -180,6 +187,7 @@ test('KNARREVIK scanning follows guide creation and keeps the current assembly a
  let release;
  h.context.fetch=async()=>{await new Promise(resolve=>{release=resolve;});return new Response(`event: result\ndata: ${JSON.stringify(result)}\n\n`,{headers:{'Content-Type':'text/event-stream'}});};
  const converting=$('#convert').onclick();
+ assert.equal($('[data-knarrevik-demo]').hidden,true,'Hide the demo while generating a guide.');
  assert.equal($('#guide-scan').hidden,true);
  release();await converting;
  assert.equal($('#guide-scan').hidden,false);
@@ -212,6 +220,7 @@ test('the saved KNARREVIK demo offers scanning after both guide and manual load'
  const bytes=await readFile(new URL('../dist/reference/knarrevik-manual.pdf',import.meta.url));
  const result=JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8'));
  h.context.fetch=async url=>url.endsWith('.json')?Response.json(result):new Response(bytes);
+ await h.app.pickPdf(new File([bytes],'knarrevik.pdf',{type:'application/pdf'}));
  const loading=$('[data-knarrevik-demo]').onclick();assert.equal($('#guide-scan').hidden,true);
  await loading;
  assert.equal($('#guide-scan').hidden,false);assert.equal($('#open-parts-scan').disabled,false);

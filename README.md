@@ -4,18 +4,18 @@ Turn an assembly manual into an interactive 3D guide. Find a manual or upload it
 
 **[Open the live app](https://unfold-assembly.silas-yke.chatgpt.site/)**
 
-The homepage is the manual Engine. It supports PDF and photo conversion, a saved manual library, animated assembly guides, and voice control. The KNARREVIK demo opens immediately without generating a new guide; the prepared STRANDMON demo is available separately.
+The homepage is the manual Engine. It supports PDF and photo conversion, a saved manual library, animated assembly guides, and voice control. The KNARREVIK demo opens from its matching PDF preview without generating a new guide; the prepared STRANDMON demo is available separately.
 
 ## Try it
 
-1. Open **KNARREVIK demo**, or choose **Search for your manual online** or **Upload your manual**. For a new manual, check the page preview and select **Create animated guide**.
+1. Choose **Search for your manual online** or **Upload your manual**. To try the demo, search for KNARREVIK, choose **Use this manual**, then select **KNARREVIK demo** beside **Create animated guide** on its PDF preview. Other manuals offer guide creation.
 2. For the supported KNARREVIK manual, choose **Scan my parts** to identify loose parts from a photo and review their counts.
 3. Select an assembly step. **Step view** automatically zooms into the active operation and returns to the whole build when its final action finishes.
 4. Play, pause, scrub, change speed, or drag to inspect the model. Use **Talk to guide → Start voice** for spoken explanations and controls.
 
 | Entry point | What it opens |
 | --- | --- |
-| `/` | Manual Engine: search, upload, saved guides, and the KNARREVIK demo. |
+| `/` | Manual Engine: search, upload, saved guides, and PDF previews. |
 | `/engine.html` | Alternate entry to the same Engine. |
 | `/demo.html` | Prepared STRANDMON guide with 16 assembly steps. |
 | `/screws.html` | Experimental screw modeler and STL export. |
@@ -150,7 +150,7 @@ npm run build
 npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
 ```
 
-Code verification on **2026-09-13** passed **182 tests**. Coverage includes conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, cancellation, and hosted routing. Tests use controlled provider responses and need no API key. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
+Code verification on **2026-09-13** passed **183 tests**. Coverage includes conversion and visual-review contracts, camera framing through object turns, clockwise tightening, deterministic playback, photo preparation, library persistence, voice navigation and stale-action protection, request limits, cancellation, and hosted routing. Tests use controlled provider responses and need no API key. See [VALIDATION.md](VALIDATION.md) for earlier dated walkthroughs and their limitations, rather than current deployment status.
 
 ### API entry points
 

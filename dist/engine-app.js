@@ -3,6 +3,7 @@ import {assertGuide} from './guide-schema.js';
 import {mountPhotoIntake} from './photo-intake.js';
 import {mountManualLibrary} from './manual-library.js';
 import {mountGuideScanner} from './guide-scanner.js';
+import {KNARREVIK} from './knarrevik.js';
 import {createEngineCopilotAdapter} from './engine-copilot.js';
 import {createToolDispatcher} from './copilot-tools.js';
 import {mountCopilot} from './copilot-ui.js';
@@ -27,8 +28,10 @@ try{viewer=createGeneratedViewer($('#generated-scene'),label=>{$('#view-label').
 function status(message,{busy=false,error=false}={}){$('#conversion-status').textContent=message;$('.conversion-bar').classList.toggle('busy',busy);$('.conversion-bar').classList.toggle('error',error);if(conversionBusy&&busy)conversionProgress.update(message);}
 function syncPlay(){queueMicrotask(()=>copilot?.updateContext());$('#play').textContent=playing?'Ⅱ':'▶';$('#play').setAttribute('aria-label',playing?'Pause step':'Play step');}
 function syncScanner(){guideScanner.sync(output,{busy:conversionBusy||Object.values(intakeBusy).some(Boolean),choosingManual});}
-function syncFlow(){syncScanner();document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';syncVoice();}
-function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.disabled=busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);syncScanner();syncVoice();}
+function canOpenKnarrevikDemo(){return Boolean(file&&pdf)&&pdfHash===KNARREVIK.manualSha256&&!output&&!choosingManual&&!conversionBusy;}
+function syncDemo(){const available=canOpenKnarrevikDemo(),busy=Object.values(intakeBusy).some(Boolean);for(const button of document.querySelectorAll('[data-knarrevik-demo]')){button.hidden=!available;button.disabled=!available||busy;button.setAttribute('aria-busy',String(intakeBusy.demo));button.textContent=intakeBusy.demo?'Loading demo…':'KNARREVIK demo';}}
+function syncFlow(){syncDemo();syncScanner();document.body.dataset.state=conversionBusy?'converting':choosingManual?'empty':output?'guide':pdf?'ready':'empty';$('#resume-manual').hidden=!choosingManual||!(output||pdf);$('#resume-manual').textContent=output?'Back to guide':'Back to manual';syncVoice();}
+function syncBusy(){$('#download-manual').disabled=!file||!pdf;const busy=conversionBusy||intakeBusy.photos||intakeBusy.library||intakeBusy.manual||intakeBusy.demo;$('#cancel').hidden=!conversionBusy;$('#convert').disabled=busy||!file||!pdf;for(const input of [$('#manual-file'),$('#guide-file'),$('#change-manual'),$('#resume-manual')])input.disabled=busy;syncDemo();photoIntake?.setDisabled(busy);manualLibrary?.setDisabled(busy);syncScanner();syncVoice();}
 function setBusy(value){conversionBusy=value;if(value)conversionProgress.start();else conversionProgress.stop();syncBusy();syncFlow();}
 async function showPage(value){
  if(!pdf)return;queueMicrotask(()=>copilot?.updateContext());page=Math.max(1,Math.min(pdf.numPages,value));const serial=++renderId;renderTask?.cancel();$('#pdf-canvas').hidden=true;$('#enlarge').disabled=true;$('#manual-empty').hidden=false;$('#manual-empty').textContent='Loading source page…';
@@ -75,7 +78,7 @@ async function pickPdf(selected,{productName,preparedGuide}={}){
  finally{if(serial===uploadId){intakeBusy.manual=false;syncBusy();}}
 }
 async function loadKnarrevikDemo(){
- if(conversionBusy||Object.values(intakeBusy).some(Boolean))return;
+ if(!canOpenKnarrevikDemo()||Object.values(intakeBusy).some(Boolean))return;
  playing=false;syncPlay();intakeBusy.demo=true;syncBusy();status('Opening the KNARREVIK demo…',{busy:true});
  const controller=new AbortController();demoController=controller;const timeout=setTimeout(()=>controller.abort(),30000);
  try{
@@ -151,5 +154,5 @@ fetch('/api/health').then(r=>r.json()).then(r=>{hostedRendering=r.browserRenderi
 const intakeError=error=>status(error?.message||String(error),{error:true});
 const acceptPreparedPdf=async(file,metadata)=>{if(!await pickPdf(file,metadata))throw new Error($('#conversion-status').textContent);};
 photoIntake=mountPhotoIntake($('#photo-intake'),{onPdfReady:acceptPreparedPdf,onError:intakeError,showLauncher:false,onBusy:value=>{intakeBusy.photos=value;syncBusy();}});
-manualLibrary=mountManualLibrary($('#manual-library'),{onDemo:loadKnarrevikDemo,onPdfReady:acceptPreparedPdf,onError:intakeError,onBusy:value=>{intakeBusy.library=value;syncBusy();}});
+manualLibrary=mountManualLibrary($('#manual-library'),{onPdfReady:acceptPreparedPdf,onError:intakeError,onBusy:value=>{intakeBusy.library=value;syncBusy();}});
 syncBusy();syncFlow();
