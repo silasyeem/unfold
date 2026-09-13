@@ -14,7 +14,7 @@ let viewer,output=null,pdf=null,file=null,pdfHash=null,index=-1,progress=0,playi
 let copilot,manualRevision=0,currentView='whole';
 function humanAction(){manualRevision++;queueMicrotask(()=>copilot?.updateContext());}
 function voiceAvailable(){return Boolean(output)&&!choosingManual&&!conversionBusy&&!Object.values(intakeBusy).some(Boolean)&&!document.querySelector('dialog[open]');}
-function syncVoice(){const available=voiceAvailable();$('#copilot-toggle').hidden=!output||choosingManual;copilot?.refreshAvailability();if(!available&&copilot?.current)copilot.end();}
+function syncVoice(){const available=voiceAvailable();$('#copilot-toggle').hidden=false;copilot?.refreshAvailability();if(!available&&copilot?.current)copilot.end();}
 const guideScanner=mountGuideScanner({onOpen:()=>{playing=false;syncPlay();}});
 try{viewer=createGeneratedViewer($('#generated-scene'),label=>{$('#view-label').textContent=label;if(label.startsWith('Free'))currentView='free';});}catch{$('#empty-scene h2').textContent='3D is unavailable';$('#empty-scene p').textContent='Use a WebGL-capable browser to view generated parts. PDF conversion is still available.';}
 function status(message,{busy=false,error=false}={}){$('#conversion-status').textContent=message;$('.conversion-bar').classList.toggle('busy',busy);$('.conversion-bar').classList.toggle('error',error);}
