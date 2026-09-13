@@ -174,7 +174,7 @@ test('the saved KNARREVIK demo offers scanning after both guide and manual load'
 
 test('engine voice is wired to demo navigation, playback, manual pages and human revision changes',async()=>{
  const h=await harness({pageCount:12});const result=JSON.parse(await readFile(new URL('../dist/examples/knarrevik.unfold.json',import.meta.url),'utf8'));
- assert.equal(h.voice.canStart(),false);assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);
+ assert.equal(h.voice.canStart(),false);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
  await h.app.pickPdf(new File(['%PDF-1.7\nknarrevik'],'private-name.pdf',{type:'application/pdf'}));
  result.provenance.sha256=h.app.state().pdfHash;h.app.loadGuide(result);
  assert.equal(h.voice.canStart(),true);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
@@ -189,5 +189,5 @@ test('engine voice is wired to demo navigation, playback, manual pages and human
  const beforeLoad=h.voice.getRevision();h.app.loadGuide(result);assert(h.voice.getRevision()>beforeLoad);
  assert.doesNotMatch(JSON.stringify(h.voice.getState()),/private-name|sha256|sourceUrl/);
  await h.app.pickPdf(new File(['%PDF-1.7\nother'],'different.pdf',{type:'application/pdf'}));
- assert.equal(h.voice.canStart(),false);assert.equal(h.voice.getState().product,null);assert.equal(h.document.querySelector('#copilot-toggle').hidden,true);
+ assert.equal(h.voice.canStart(),false);assert.equal(h.voice.getState().product,null);assert.equal(h.document.querySelector('#copilot-toggle').hidden,false);
 });

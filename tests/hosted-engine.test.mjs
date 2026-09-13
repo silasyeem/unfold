@@ -19,3 +19,12 @@ test('hosted library preserves concurrent updates and keeps the prepared KNARREV
  await assert.rejects(store.validateSource('https://attacker.example/manual.pdf'),/supports IKEA/);
  assert.throws(()=>canonicalSource('https://127.0.0.1/a.pdf'),/public HTTPS/);
 });
+
+test('HTTP render relay receives requested browser captures and deletes temporary data',async()=>{
+ const {createR2Renderer,receiveRenders}=await import('../server/render-relay.mjs');
+ const {fixture}=await import('./fixture.mjs');
+ const objects=new Map(),bucket={async get(key){const value=objects.get(key);return value?{json:async()=>JSON.parse(value)}:null;},async put(key,value){objects.set(key,value);},async delete(key){objects.delete(key);}};
+ let submitted;
+ const render=createR2Renderer(bucket,(event,data)=>{assert.equal(event,'render');submitted=receiveRenders(new Request('https://unfold.example/api/render/'+data.requestId,{method:'POST',headers:{Origin:'https://unfold.example','X-Unfold-Render':'1'},body:JSON.stringify(data.stages.map(stage=>({...stage,imageDataUrl:'test-image'})))}),{BUCKET:bucket});});
+ const captures=await render(fixture(),{signal:new AbortController().signal,overviewPage:1});assert.equal((await submitted).status,200);assert.equal(captures.length,5);assert.equal(objects.size,0);
+});
