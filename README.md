@@ -1,64 +1,108 @@
 # Unfold
 
-A quick STRANDMON assembly MVP: interactive 3D, sixteen animated steps, playback and scrubbing, exploded/underside views, and the source manual alongside each step.
+Turn an assembly PDF into a reviewable 3D draft: named parts, animated assembly steps, working orientations, guided cameras, and the original diagram beside each step. The prepared 16-step STRANDMON demo remains at `/`; the conversion workspace is `/engine.html`.
 
-## Agreed design
+## Run locally
 
-- Prepared STRANDMON example plus a real PDF intake flow; general conversion is future work.
-- Minimal light working surface, blue controls, recognizable mustard chair.
-- Desktop first, usable on phones.
-- Original manual visible beside the 3D model and linked to each assembly step.
-- Rotate, zoom, pause, replay, and move between steps.
-
-## Scope and limitations
-
-The 3D model is procedural and simplified. The prepared guide follows IKEA STRANDMON manual AA-2019535-7, pages 5–20. The build turns onto its back or either side to follow the handling sequence. Step-specific camera shots zoom into joints and return to wider views. Step 3 separates washer placement, nut threading, and socket-tool tightening in a ten-second sequence. Hardware placement remains illustrative, not CAD-verified.
-
-PDF files stay in browser memory. The upload flow recognises the 20-page STRANDMON AA-2019535-7 document from its text and links it to this prepared animation. Other PDFs can be previewed without claiming an automatic conversion. No model API, secret, account database, or server upload is used.
-
-## Running locally
-
-From the repository root, run:
+Requires Node.js 22 or later.
 
 ```sh
-python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
+npm ci
+cp .env.example .env.local
+# Set your own OPENAI_API_KEY in .env.local, then:
+npm run dev
 ```
 
-Open http://127.0.0.1:4173. No build step or package installation is required; Python 3 is needed for this example server. Three.js and PDF.js are vendored. DM Sans loads from Google Fonts with a system font fallback.
+Open [the conversion workspace](http://127.0.0.1:4173/engine.html). Each developer supplies their own server credential. `.env.local` is ignored; never put credentials in browser code, a guide file, or a commit. `OPENAI_MODEL` defaults to `gpt-5.4`; `UNFOLD_PORT` defaults to `4173`.
 
-## Working on the app
+Upload an unlocked assembly PDF, then select **Generate 3D guide**. Conversion supports up to **8 MB, 40 pages, and 32 assembly steps**. It can take several minutes. Progress and cancellation remain available while the manual is processed.
 
-The current app is hand-written HTML, CSS, and JavaScript. Files under `dist` are the editable source, not generated build output.
+To explore without an API call, open `examples/mini-table.unfold.json` using **Open guide**, then upload `examples/mini-table.pdf` to relink the diagrams. This is an authored test manual with a generated schematic, not an IKEA product or a CAD model.
 
-| File | Responsibility |
+## Photos and saved manuals
+
+**Add photos** accepts JPEG or PNG pages, including a phone camera input. Reorder, rotate, or remove pages before preparing them. The browser reduces images to 2,000 pixels on the longest edge; the server independently checks image headers and dimensions, then creates a PDF for the same extraction engine and source viewer. Download the prepared pages PDF to keep it with an exported guide. Up to 20 photos are supported, with a 12 MB per-file input limit and an 8 MB resulting manual limit. HEIC needs to be saved as JPEG first. Perspective correction and deblurring are not implemented.
+
+**Find a manual** searches the saved library without a model request. When there is no match, **Search the web** explicitly searches for manufacturer instructions and saves grounded source metadata. Normalized repeated searches, including previous misses, reuse cached results. PDFs are downloaded and cached on first **Load manual**; later loads reuse the saved bytes. Manufacturer pages without a verified PDF remain source links. Product variants still need checking before conversion.
+
+The local library lives in ignored `data/library/`: an atomically written JSON index plus cached PDFs. It survives server restarts. Downloads accept saved public HTTPS sources only, pin validated DNS, check redirects, and enforce PDF size/page limits. The local adapter serializes updates within one Node process; use a shared durable database/object store for multiple server processes. No live product search was run while implementing this feature; provider search and persistence behavior were tested with controlled responses.
+
+## What the engine does
+
+1. Parses the actual PDF and checks its page count before making model requests.
+2. Reads every page in small PDF batches, recording inventory, assembly steps, source pages, and uncertainties. The first batch supplies inventory context to subsequent batches.
+3. Generates compound primitive shapes and motion data from the PDF plus that evidence. It preserves the evidence's ordered steps, instructions, pages, and handling orientations.
+4. Validates structure, references, parenting, action timing, camera vectors, and common duplicated handling rotations. One correction attempt is allowed before returning a recoverable error.
+5. Plays the validated draft in Three.js. Attached hardware follows its parent part. Seeking computes state from the guide, so direct jumps and replay agree.
+
+The UI supports play/pause, scrubbing, speed, step navigation, free orbit/zoom, guided joint views, whole-build framing, exploded parts, PDF enlargement, and source-page relinking. **Review this step** edits its title, instruction, source page, and working orientation. **Download guide** preserves the guide, provenance, extraction evidence, and your checked-step markers. Reopening a guide requires a matching PDF fingerprint before source diagrams are linked.
+
+## Accuracy and scope
+
+Generated geometry and connections are approximate. Structural validation cannot establish that a model read a diagram correctly. Keep the original manual authoritative and review every generated step before using it for assembly. Checking a step records a user's review; it does not certify dimensions, fastening strength, or CAD accuracy. Editing primitive geometry and action paths currently requires editing the guide JSON.
+
+Live conversion recovered all 16 STRANDMON source-page entries, but also produced mistaken hardware interpretations and pose assumptions. The prepared STRANDMON example is a separate, manually authored guide. General conversion is an editable draft workflow, not reliable reconstruction of arbitrary products.
+
+The server processes PDFs in memory and sends them to OpenAI for conversion with Responses API `store: false`. Direct uploads and generated guides are not saved on the server. The manual library separately persists search metadata and PDFs explicitly loaded from search results. This setting is not a promise of zero provider retention. Export files are saved only when the user downloads them.
+
+## Code map
+
+The app is plain HTML/CSS/JavaScript. `dist/` contains editable frontend source and vendored browser dependencies; it is not generated build output.
+
+| Module | Responsibility |
 | --- | --- |
-| `dist/index.html` | Page layout and controls. |
-| `dist/style.css` | Styling and responsive layout. |
-| `dist/app.js` | Playback, navigation, PDF intake, and manual display. |
-| `dist/viewer.js` | Procedural chair, assembly motions, build poses, and guided cameras. |
-| `dist/steps.js` | Step instructions, part references, and source-page mapping. |
-| `dist/assets/` | Original manual PDF and rendered manual pages. |
-| `dist/vendor/` | Pinned Three.js and PDF.js dependencies and their licenses. |
+| `engine/extract.mjs` | PDF parsing, page batches, inventory and step evidence. |
+| `engine/convert.mjs` | Model requests, guide generation, correction, provenance. |
+| `engine/semantics.mjs` | Detect common double application of build orientation. |
+| `dist/guide-schema.js` | Strict versioned JSON contract and semantic reference checks. |
+| `dist/guide-state.js` | Deterministic step snapshots, parent visibility, motions, build poses. |
+| `dist/generated-viewer.js` | Generic geometry, hierarchy, highlighting, camera and grounding. |
+| `dist/engine-app.js` | Upload, streamed progress, playback, PDF linking, review and export. |
+| `dist/photo-intake.js`, `server/photos.mjs` | Ordered photo pages, image bounds and PDF preparation. |
+| `dist/manual-library.js`, `server/library.mjs` | Library-first lookup, explicit web search and cached PDF loading. |
+| `server/library-store.mjs` | Atomic local persistence and restricted public-source downloading. |
+| `server/api.mjs` | Conversion endpoint, upload limits, cancellation and concurrency. |
+| `server/local.mjs` | Local API and allowlisted static file server. |
+| `server/worker.mjs` | Worker fetch entry for future server-backed hosting. |
+| `dist/app.js`, `viewer.js`, `steps.js` | Prepared STRANDMON guide. |
+| `tests/` | Contract, pipeline, concurrency, state, geometry and UI regressions. |
 
-See [BUILD_SPEC.md](BUILD_SPEC.md) for the target product behavior and architecture. The specification includes requirements for further development; this README describes the existing MVP.
+Guide part transforms are relative to `parentId` (empty for a root). Primitive transforms are local to their part. Root action transforms stay in the unrotated assembly frame; the player applies the working orientation to the whole build. An orientation-only step can have no part actions. `turns` is an integer number of decorative revolutions; lasting quarter/half turns belong in `toRotation`. Camera focus uses assembly coordinates. The schema rejects executable fields and unknown properties.
 
-Create a feature branch for each change and merge through pull requests. Changes to playback or geometry should be checked at step 3 and both side-panel sequences, including scrubbing and direct step jumps. Keep secrets out of the repository; `.env` files are ignored.
+## API and command line
 
-The `.openai/hosting.json` file identifies the existing Sites deployment. Local development works independently of that deployment; publishing to it requires access to the existing Site.
+- `GET /api/health`: conversion availability, model and limits; never returns the credential.
+- `POST /api/photos`: multipart `photos` files plus a matching `rotations` JSON array, with `X-Unfold-Convert: 1`; returns the prepared PDF.
+- `GET /api/library?q=...`: saved records only.
+- `POST /api/library/web-search`: JSON `{query}` with `X-Unfold-Library: 1`; searches only when the normalized query is uncached and the library has no match.
+- `POST /api/library/:id/pdf`: `X-Unfold-Library: 1`; downloads/caches a saved record’s PDF.
+- `POST /api/convert`: raw `application/pdf` body with `X-Unfold-Convert: 1`, `X-Pdf-Pages`, and a URL-encoded `X-Pdf-Name`. Returns server-sent `stage`, `result`, or `error` events.
+- Requests with a supplied cross-origin `Origin` are rejected. Two conversions can run concurrently in each process; each has a ten-minute timeout. This is a local/private deployment boundary, not public authentication or account rate limiting.
 
-## Sources and dependencies
+```sh
+npm run convert -- examples/mini-table.pdf 3 /tmp/mini-table.unfold.json
+npm test
+```
 
-- IKEA STRANDMON manual: https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf
-- Manual and diagrams © Inter IKEA Systems B.V.; linked and displayed as the source for this demonstration. Unfold is not affiliated with IKEA.
-- Three.js 0.180.0, MIT: https://github.com/mrdoob/three.js
-- PDF.js 5.4.149, Apache-2.0: https://github.com/mozilla/pdf.js
+The supplied page count is verified against the PDF. The CLI logs progress, output counts, and token usage without logging credentials.
 
 ## Validation
 
-- Assembly steps, part references, and source page mapping independently checked against the manual.
-- Navigation, playback, scrubbing, PDF intake states, and manual relinking checked with a mocked DOM.
-- Three.js geometry constructed with the real math/geometry library; finite geometry/transforms checked for all seventeen guide states at three progress points.
-- Local asset references and JavaScript syntax checked.
-- Visual/GPU rendering and interaction checks performed using the user-requested Aside CLI: step-3 nut and socket close-ups, side-build orientation, original-page linking, and camera controls. WebMCP validation remains unit-level, not browser integration validation.
+- Twenty-nine automated tests cover malformed guides, attached parts, deterministic seeking, tool removal/reinsertion, handling orientation, camera floor limits, real PDF page limits, evidence preservation, credential exclusion, concurrent uploads, cancellation, playback, PDF replacement, photo ordering/rotation, image bounds, query/PDF caching, persistence, and restricted source downloads.
+- Live API conversions exercised a three-page table manual and the twenty-page STRANDMON manual. The table produces five parts and two steps from both its original PDF and an image-only PDF prepared from three JPEG pages. The revised STRANDMON pipeline retained sixteen ordered steps on pages 5–20; its semantics still require review.
+- Browser walkthrough uses Aside CLI with the actual WebGL viewer and PDF renderer. It caught duplicated whole-build rotation and a camera below the floor; those cases now have regression coverage. See `VALIDATION.md` for the completed walkthrough.
 
-The static Site is published with owner-only access by default.
+## Collaboration and hosting
+
+See [BUILD_SPEC.md](BUILD_SPEC.md) for product behavior and the prepared STRANDMON reference sequence. Work on feature branches and review changes through pull requests. Playback changes should be checked with direct step jumps, backward navigation, orientation changes and connector close-ups.
+
+The existing `.openai/hosting.json` refers to a static Sites deployment. Static hosting alone cannot run conversion. The current hosting connection cannot find that Site, so this engine has not been deployed there. `server/worker.mjs` is a source entry, not a packaged deployment: it still needs bundling, Node compatibility for the current library modules, a durable library adapter, an `ASSETS` binding, a server secret, and access control before publishing. The local Node server is the supported engine runtime in this version.
+
+## Sources and dependencies
+
+- [OpenAI PDF inputs](https://developers.openai.com/api/docs/guides/file-inputs), [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [GPT-5.4](https://developers.openai.com/api/docs/models/gpt-5.4).
+- [pdf-lib PDFDocument](https://pdf-lib.js.org/docs/api/classes/pdfdocument), MIT.
+- [Three.js OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), vendored Three.js 0.180.0, MIT.
+- [PDF.js examples](https://mozilla.github.io/pdf.js/examples/), vendored PDF.js 5.4.149, Apache-2.0.
+- LinkeDOM is a development-only DOM test dependency, ISC.
+- [IKEA STRANDMON manual AA-2019535-7](https://www.ikea.com/th/en/assembly_instructions/strandmon-wing-chair-kelinge-beige__AA-2019535-7-100.pdf). Manual and diagrams © Inter IKEA Systems B.V.; Unfold is not affiliated with IKEA.
